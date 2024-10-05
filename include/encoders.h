@@ -14,7 +14,7 @@ class Encoders
 public:
     void begin()
     {
-        pinMode(LeftEncoderPin1, INPUT_PULLUP);// can speed up gpio readtime by using gpio config(driver/gpio.h)
+        pinMode(LeftEncoderPin1, INPUT_PULLUP);
         pinMode(LeftEncoderPin2, INPUT_PULLUP);
 
         pinMode(RightEncoderPin1, INPUT_PULLUP);
@@ -47,7 +47,7 @@ public:
         encoders.updateLeftEncoder();
     }
 
-    // Update right encoder position (this function will be called by the ISR)
+
     static void updateRightEncoderISR()
     {
         encoders.updateRightEncoder();
@@ -55,14 +55,13 @@ public:
 
     void updateLeftEncoder()
     {
-        int MSB = digitalRead(LeftEncoderPin1); // Most Significant Bit (A)
-        int LSB = digitalRead(LeftEncoderPin2); // Least Significant Bit (B)
+        int MSB = digitalRead(LeftEncoderPin1);
+        int LSB = digitalRead(LeftEncoderPin2);
 
-        int encoded = (MSB << 1) | LSB; // Create a 2-bit value from A and B
+        int encoded = (MSB << 1) | LSB;
 
-        int sum = (lastEncodedLeft << 2) | encoded; // Combine current and previous states
+        int sum = (lastEncodedLeft << 2) | encoded;
 
-        // Update position based on the transition
         if (sum == 0b1101 || sum == 0b0100 || sum == 0b0010 || sum == 0b1011)
         {
             encoderCounterLeft--;
@@ -72,19 +71,18 @@ public:
             encoderCounterLeft++;
         }
 
-        lastEncodedLeft = encoded; // Save the current state
+        lastEncodedLeft = encoded;
     }
 
     void updateRightEncoder()
     {
-        int MSB = digitalRead(RightEncoderPin1); // Most Significant Bit (A)
-        int LSB = digitalRead(RightEncoderPin2); // Least Significant Bit (B)
+        int MSB = digitalRead(RightEncoderPin1);
+        int LSB = digitalRead(RightEncoderPin2);
 
-        int encoded = (MSB << 1) | LSB; // Create a 2-bit value from A and B
+        int encoded = (MSB << 1) | LSB;
 
-        int sum = (lastEncodedRight << 2) | encoded; // Combine current and previous states
+        int sum = (lastEncodedRight << 2) | encoded;
 
-        // Update position based on the transition
         if (sum == 0b1101 || sum == 0b0100 || sum == 0b0010 || sum == 0b1011)
         {
             encoderCounterRight--;
@@ -94,7 +92,7 @@ public:
             encoderCounterRight++;
         }
 
-        lastEncodedRight = encoded; // Save the current state
+        lastEncodedRight = encoded;
     }
 
     void update()
@@ -104,17 +102,15 @@ public:
         left_delta = 0;
         right_delta = 0;
         
-       // time_change_2 = time_change_1;
+
         time_change_1 = prevTime;
-        time_change_u = currentTime-prevTime;// (time_change_1+time_change_2)/2;
+        time_change_u = currentTime-prevTime;
         if (time_change_u==0){
             time_change_u = 1;
         }
     
 
         prevTime = currentTime;
-
-        // Make sure values don't change while being read. Be quick.
         noInterrupts();
         left_delta = encoderCounterLeft;
         right_delta = encoderCounterRight;
@@ -206,23 +202,27 @@ public:
         return distance;
     }
 
-    inline int leftRPS(){
-        int rps;
+    inline float leftRPS(){
+        float rps;
 
         noInterrupts();
-        rps = (left_delta/time_change_u)*1000000; //encoderCounterLeft * 
+        float left_delta_read = left_delta;
         interrupts();
+
+        rps = (left_delta_read/time_change_u)*(1000000.0/PULSES_PER_ROTATION); //encoderCounterLeft
 
         return rps;
     }
 
-    inline int rightRPS(){
-        int rps;
+    inline float rightRPS(){
+        float rps;
 
         noInterrupts();
-        rps = (right_delta/time_change_u)*1000000; 
+        float right_delta_read = right_delta;
         interrupts();
 
+        rps = right_delta_read/time_change_u*(1000000.0/PULSES_PER_ROTATION); 
+        
         return rps;
     }
 
