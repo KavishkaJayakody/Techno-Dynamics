@@ -27,7 +27,147 @@ public:
     digitalWrite(RIGHT_MOTOR_PWM, 0);
     setupPWM();
   }
-    void set_left_motor_pwm(int pwm)
+  float position_controller()
+  {
+    float increment = m_velocity * encoders.loopTime_s();
+    m_fwd_error += increment - encoders.robot_fwd_change();
+    float diff = m_fwd_error - m_previous_fwd_error;
+    m_previous_fwd_error = m_fwd_error;
+    acc_fwd_error += m_fwd_error;
+
+    // change them to config kp kd later
+    float output = fwdKp * m_fwd_error + fwdKd * diff+fwdKi*acc_fwd_error;
+    return output;
+  }
+
+  float angle_controller(float steering_adjustment)
+  {
+    float increment = m_omega * encoders.loopTime_s();
+    m_rot_error += increment - encoders.robot_rot_change();
+    float diff = m_rot_error - m_previous_rot_error;
+    m_previous_rot_error = m_rot_error;
+    m_rot_error -= steering_adjustment;
+    acc_rot_error += m_rot_error;
+
+    // Serial.print("Steering  :");
+    // Serial.print(steering_adjustment);
+
+    // changethis kp kd to config kp kd later
+    float output = rotKp * m_rot_error + rotKd * diff+rotKi*acc_rot_error;
+    return output;
+  }
+
+  void update(float velocity, float omega, float steering)
+  {
+    m_velocity = velocity;
+    m_omega = omega;
+
+    float pos_output = position_controller();
+    float rot_output = angle_controller(steering);
+    float left_output = 0;
+    float right_output = 0;
+
+    left_output = pos_output;// - rot_output;
+    right_output = pos_output;// + rot_output;
+
+    float tangent_speed = m_omega * ROBOT_RADIUS * RADIANS_PER_DEGREE;
+    float left_speed = m_velocity - tangent_speed;
+    float right_speed = m_velocity + tangent_speed;
+    float left_ff = left_feed_forward_percentage(left_speed);
+    float right_ff = right_feed_forward_percentage(right_speed);
+    if (m_feedforward_enabled)
+    {
+      left_output += left_ff;
+      right_output += right_ff;
+    }
+    if (m_controller_output_enabled)
+    {
+      set_left_motor_percentage(left_output);
+      set_right_motor_percentage(right_output);
+
+
+      // Serial.print("  left  : ");
+      // Serial.print(left_output);
+
+      // Serial.print("   right  : ");
+      // Serial.println(right_output);
+    }
+  }
+
+  float left_feed_forward_percentage(float left_feed_velocity)
+  {
+    ///////give the percentage required to acheive a given velocity--- |v|<500
+    //int l_rps = (left_feed_velocity * PULSES_PER_ROTATION) / MM_PER_ROTATION;
+    float v = left_feed_velocity;
+    //Serial.print("left feed  ");
+    //Serial.println(v);
+    float l_feed_percentage = (0.2*v*v+68.83*v+45000)/1023.0;
+    //Serial.print("  left   ");
+    //Serial.println(l_feed_percentage);
+    return l_feed_percentage;
+  }
+
+  float right_feed_forward_percentage(float right_feed_velocity)
+  {
+    ///////give the percentage required to acheive a given velocity--- |v|<500
+    //int r_rps = (left_feed_velocity * PULSES_PER_ROTATION) / MM_PER_ROTATION;
+    float v = right_feed_velocity;
+    //Serial.print("  right feed  ");
+    //Serial.print(v);
+    float r_feed_percentage = (0.2*v*v+68.83*v+45000)/1023.0;
+    //Serial.print("   right   ");
+    //Serial.println(r_feed_percentage);
+    return r_feed_percentage;
+  }
+  void stop()
+  {
+    set_left_motor_percentage(0);
+    set_right_motor_percentage(0);
+  }
+    void set_left_motor_percentage(float percentage)
+  {
+    percentage = constrain(percentage, -maxMotorPercentage, maxMotorPercentage);
+    if (percentage > MIN_MOTOR_PERCENTAGE)
+    {
+      percentage = map(percentage, MIN_MOTOR_PERCENTAGE, maxMotorPercentage, MIN_MOTOR_BIAS, maxMotorPercentage);
+    }
+    else if (percentage < -MIN_MOTOR_PERCENTAGE)
+    {
+      percentage = map(percentage, -maxMotorPercentage, -MIN_MOTOR_PERCENTAGE, -maxMotorPercentage, -MIN_MOTOR_BIAS);
+    }
+    else if (-MIN_MOTOR_PERCENTAGE <= percentage <= MIN_MOTOR_PERCENTAGE)
+    {
+      percentage = 0;
+    }
+    int left_pwm = calculate_pwm(percentage);
+
+    set_left_motor_pwm(left_pwm);
+  }
+    void set_right_motor_percentage(float percentage)
+  {
+    percentage = constrain(percentage, -maxMotorPercentage, maxMotorPercentage);
+    if (percentage > MIN_MOTOR_PERCENTAGE)
+    {
+      percentage = map(percentage, MIN_MOTOR_PERCENTAGE, maxMotorPercentage, MIN_MOTOR_BIAS, maxMotorPercentage);
+    }
+    else if (percentage < -MIN_MOTOR_PERCENTAGE)
+    {
+      percentage = map(percentage, -maxMotorPercentage, -MIN_MOTOR_PERCENTAGE, -maxMotorPercentage, -MIN_MOTOR_BIAS);
+    }
+    else if (-MIN_MOTOR_PERCENTAGE <= percentage <= MIN_MOTOR_PERCENTAGE)
+    {
+      percentage = 0;
+    }
+
+    m_right_motor_percentage = percentage;
+    int right_pwm = calculate_pwm(percentage);
+
+    // Serial.print("   right pwm percentage: ");
+    // Serial.println(percentage);
+    
+    set_right_motor_pwm(right_pwm);
+  }
+  void set_left_motor_pwm(int pwm)
   {
     pwm = MOTOR_LEFT_POLARITY * pwm;
     if (pwm < 0)
@@ -77,5 +217,69 @@ public:
     ledcSetup(1, 5000, PWM_RESOLUTION_BITS);
     ledcAttachPin(RIGHT_MOTOR_PWM, 1);
   }
+  void enable_controllers()
+  {
+    m_controller_output_enabled = true;
+  }
 
+  void disable_controllers()
+  {
+    m_controller_output_enabled = false;
+  }
+  void calibrate_motors(){
+    int i = 150;
+     for (int j=1;j<25;j++){
+      int speed = 20*j;
+      int start = millis();
+      int avg_PWM = 0;
+      int avg_speed = 0;
+      double count = 0;
+      while (millis()-start<8000){
+        motors.set_left_motor_pwm(i);
+        if (encoders.robot_speed()*2<speed)
+          i=i+1;
+
+        if (encoders.robot_speed()*2>speed)
+          i=i-1;
+
+        
+        encoders.update();
+        // Serial.print(i);
+        // Serial.print("  desired speed   ");
+        // Serial.print(speed);
+        // Serial.print("      right speed  ");
+        // Serial.println(encoders.robot_speed()*2);
+        delay(5);
+        avg_PWM += i;
+        avg_speed += encoders.robot_speed()*2;
+        count++;
+    }
+    //Serial.print("  desired speed(mm/s)   ");
+    //Serial.print(speed);
+    //Serial.print("   PWM     ");
+    Serial.print(avg_PWM/count);
+    Serial.print("  ");
+    Serial.print(speed);
+    Serial.print("  ");
+    //Serial.print("   Avg_Speed   ");
+    Serial.println(avg_speed/count);
+    }
+  }
+private:
+  float m_left_motor_percentage;
+  float m_right_motor_percentage;
+
+  float m_previous_fwd_error;
+  float m_previous_rot_error;
+  float m_fwd_error;
+  float m_rot_error;
+  float acc_fwd_error;
+  float acc_rot_error;
+
+  float m_velocity;
+  float m_omega;
+
+  bool m_feedforward_enabled = true;
+  bool m_controller_output_enabled;
+  unsigned long i = 0;
 };
