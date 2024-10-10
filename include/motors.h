@@ -10,7 +10,9 @@ extern Motors motors;
 class Motors
 {  
 public:
-    void begin()
+float speed = 0;
+float omega = 0;
+void begin()
   {
     pinMode(LEFT_MOTOR_PWM, OUTPUT);
     pinMode(LEFT_MOTOR_IN1, OUTPUT);

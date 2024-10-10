@@ -34,16 +34,17 @@ const int MIN_MOTOR_BIAS = 5;
 const int maxMotorPercentage = 100;
 
 //******************************robot dimensions*****************************/
-const float MM_PER_ROTATION = 200;
+const float MM_PER_ROTATION = 200;//tyre
 const float PULSES_PER_ROTATION = 1300.0;
-const float DEG_PER_MM_DIFFERENCE = 0.273;
+const float ROBOT_RADIUS = 190;
+const float DEG_PER_MM_DIFFERENCE = 180.0/(190.0*3.14);
 
-const float ROBOT_RADIUS = 210;
+
 const float RADIANS_PER_DEGREE = 0.0175;
 
-const float rotKp = 150;
-const float rotKd = 0;
-const float rotKi = 500;
+const float rotKp = 550;
+const float rotKd = 150;
+const float rotKi = 0;
 const float fwdKp = 25;
-const float fwdKd = 25;
+const float fwdKd = 35;
 const float fwdKi = 1;
