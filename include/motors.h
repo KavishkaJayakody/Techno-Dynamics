@@ -1,10 +1,12 @@
+#pragma once
+
 #include <Arduino.h>
 #include "config.h"
 #include "encoders.h"
 
 
 class Motors;
-// testng
+
 extern Motors motors;
 
 class Motors
@@ -28,6 +30,13 @@ void begin()
     digitalWrite(RIGHT_MOTOR_IN1, 0);
     digitalWrite(RIGHT_MOTOR_PWM, 0);
     setupPWM();
+  }
+    void reset_controllers()
+  {
+    m_fwd_error = 0;
+    m_rot_error = 0;
+    m_previous_fwd_error = 0;
+    m_previous_rot_error = 0;
   }
   float position_controller()
   {
