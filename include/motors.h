@@ -268,12 +268,12 @@ void begin()
     //Serial.print("  desired speed(mm/s)   ");
     //Serial.print(speed);
     //Serial.print("   PWM     ");
-    Serial.print(avg_PWM/count);
-    Serial.print("  ");
-    Serial.print(speed);
-    Serial.print("  ");
-    //Serial.print("   Avg_Speed   ");
-    Serial.println(avg_speed/count);
+    // Serial.print(avg_PWM/count);
+    // Serial.print("  ");
+    // Serial.print(speed);
+    // Serial.print("  ");
+    // //Serial.print("   Avg_Speed   ");
+    // Serial.println(avg_speed/count);
     }
   }
 private:

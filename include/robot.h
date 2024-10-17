@@ -55,4 +55,18 @@ public:
         }
     }
 
+    // void maze(int barcode)
+    // {
+        
+    //     if (barcode == 0)
+    //     {
+    //         //move forward until T junction release, turn right, pick,move forward
+
+    //     }
+
+    //     if (barcode == 1)
+    //     {
+    //         //turn left move fwd until 1st T junction turn left pick move fwd 1st T junc
+    //     }
+    // }
 };

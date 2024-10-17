@@ -205,9 +205,9 @@ public:
             }
         }
         // increment the position
-        Serial.print(m_speed);
-        Serial.print("    ");
-        Serial.println(encoders.robot_omega());
+        // Serial.print(m_speed);
+        // Serial.print("    ");
+        // Serial.println(encoders.robot_omega());
         if (this == &forward) {
             // Set m_speed for the 'forward' instance
             m_current_speed = encoders.robot_speed();  // Example value for 'forward'

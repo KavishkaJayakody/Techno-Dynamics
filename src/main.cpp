@@ -4,6 +4,8 @@
 #include "motion.h"
 #include "robot.h"
 #include "profile.h"
+#include "sensors.h"
+#include "Wire.h"
 
 
 // put function declarations here:
@@ -14,6 +16,7 @@ Robot robot;
 Motion motion;
 Profile forward;
 Profile rotation;
+Sensors sensors;
 
 
 void setup() {
@@ -21,62 +24,82 @@ void setup() {
   encoders.begin();
   encoders.reset();
   Serial.begin(115200);
-  sendTicker.attach(0.0185, [](){
+  Wire.begin();
+  sensors.begin();
+  sensors.calibrate();
+
+  sendTicker.attach(0.022, [](){
       encoders.update();
       motion.update();
+      Serial.print(sensors.line_error());
+      Serial.println('    ');
+      sensors.update();
       motors.update(motion.velocity(), motion.omega(), 0);
       //Serial.println(encoders.robotAngle());
 
       });
-  //delay(20000);
+  
+
+  delay(2000);
   pinMode(2, OUTPUT);
   digitalWrite(2, HIGH);
   //delay(5000);
   //encoders.update();
-  //motors.set_right_motor_pwm(0);
-  //motors.set_left_motor_pwm(0);
+  //motors.set_right_motor_pwm(500);
+  //motors.set_left_motor_pwm(500);
+  // delay(1000);
   motors.enable_controllers();
-  delay(1000);
-  //motors.omega = 360;
-  //motors.speed = 0;
+ 
+  motors.omega = 0;
+  motors.speed = 0;
 }
 
 void loop() {
+  //delay(5000);
+//   motors.stop();
+//   delay(5000);
+//  for (int i=0;i<10; i++){
+//   motors.speed =50*i;
+//   delay(1000);
+//  }
+//  delay(1000);
 
 
-  motion.reset_drive_system();
-  robot.move(300);
-  delay(250);
-  robot.move(-300);
-  delay(250);
-  
-  robot.turn(90);
-  delay(250);
-  robot.move(300);
-  delay(250);
-  robot.turn(-90);
-  delay(250);
-  robot.move(300);
-  delay(250);
-  robot.move(-300);
-  delay(250);
 
-  robot.turn(90);
-  delay(250);
-  robot.move(300);
-  delay(250);
-  robot.turn(-90);
-  delay(250);
-  robot.move(300);
-  delay(250);
-  robot.move(-300);
-  delay(250);
-  robot.turn(-90);
-  delay(250);
-  robot.move(600);
-  delay(250);
-  robot.turn(90);
-  delay(250);
+
+  // motion.reset_drive_system();
+  // robot.move(300);
+  // delay(250);
+  // robot.move(-300);
+  // delay(250);
+
+  // robot.turn(90);
+  // delay(250);
+  // robot.move(300);
+  // delay(250);
+  // robot.turn(-90);
+  // delay(250);
+  // robot.move(300);
+  // delay(250);
+  // robot.move(-300);
+  // delay(250);
+
+  // robot.turn(90);
+  // delay(250);
+  // robot.move(300);
+  // delay(250);
+  // robot.turn(-90);
+  // delay(250);
+  // robot.move(300);
+  // delay(250);
+  // robot.move(-300);
+  // delay(250);
+  // robot.turn(-90);
+  // delay(250);
+  // robot.move(600);
+  // delay(250);
+  // robot.turn(90);
+  // delay(250);
 
 
   

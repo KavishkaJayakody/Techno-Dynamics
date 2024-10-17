@@ -11,9 +11,9 @@ const int RightEncoderPin1 = 4;
 const int RightEncoderPin2 = 15; 
 
 //****************************motor********************************************* */
-const int LEFT_MOTOR_PWM = 25;
-const int LEFT_MOTOR_IN1 = 26;
-const int LEFT_MOTOR_IN2 = 27;
+const int LEFT_MOTOR_PWM = 13;
+const int LEFT_MOTOR_IN1 = 12;
+const int LEFT_MOTOR_IN2 = 14;
 
 const int RIGHT_MOTOR_PWM = 5;
 const int RIGHT_MOTOR_IN1 = 19;
@@ -45,13 +45,16 @@ const float RADIANS_PER_DEGREE = 0.0175;
 const float rotKp = 550;
 const float rotKd = 150;
 const float rotKi = 0;
-const float fwdKp = 25;
+const float fwdKp = 15;//20;25;
 const float fwdKd = 35;
 const float fwdKi = 1;
 
 //****************************************Robot*****************************************//
-float MOVE_SPEED = 300.0;
-float MOVE_ACC = 1000;
+const float MOVE_SPEED = 300.0;
+const float MOVE_ACC = 1000;
 
-float OMEGA_TURN = 270.0;
-float ALPHA_TURN = 3600.0;
+const float OMEGA_TURN = 270.0;
+const float ALPHA_TURN = 3600.0;
+
+//*****************************************Sensors************************** */
+const int NUM_SENSORS = 8;
