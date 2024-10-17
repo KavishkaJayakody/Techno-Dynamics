@@ -28,13 +28,14 @@ void setup() {
   sensors.begin();
   sensors.calibrate();
 
-  sendTicker.attach(0.022, [](){
+  sendTicker.attach(0.02, [](){
       encoders.update();
       motion.update();
-      Serial.print(sensors.line_error());
-      Serial.println('    ');
+      Serial.print(sensors.get_steering_feedback());
+      Serial.print("  error ");
+      Serial.println(sensors.line_error());
       sensors.update();
-      motors.update(motion.velocity(), motion.omega(), 0);
+      motors.update(motion.velocity(), motion.omega(), sensors.get_steering_feedback());
       //Serial.println(encoders.robotAngle());
 
       });
@@ -55,51 +56,55 @@ void setup() {
 }
 
 void loop() {
-  //delay(5000);
-//   motors.stop();
+//   sensors.set_steering_mode(STEER_NORMAL);
 //   delay(5000);
-//  for (int i=0;i<10; i++){
-//   motors.speed =50*i;
+//   motors.stop();
 //   delay(1000);
+//  for (int i=0;i<10; i++){
+//   motors.speed =20*i;
+//   delay(100);
 //  }
-//  delay(1000);
+//  while (true){
+//   motors.reset_controllers();
+//   delay(100);
+//  }
 
 
 
 
-  // motion.reset_drive_system();
-  // robot.move(300);
-  // delay(250);
-  // robot.move(-300);
-  // delay(250);
+  motion.reset_drive_system();
+  robot.move(30000);
+  delay(250);
+  robot.move(-300);
+  delay(250);
 
-  // robot.turn(90);
-  // delay(250);
-  // robot.move(300);
-  // delay(250);
-  // robot.turn(-90);
-  // delay(250);
-  // robot.move(300);
-  // delay(250);
-  // robot.move(-300);
-  // delay(250);
+  robot.turn(90);
+  delay(250);
+  robot.move(300);
+  delay(250);
+  robot.turn(-90);
+  delay(250);
+  robot.move(300);
+  delay(250);
+  robot.move(-300);
+  delay(250);
 
-  // robot.turn(90);
-  // delay(250);
-  // robot.move(300);
-  // delay(250);
-  // robot.turn(-90);
-  // delay(250);
-  // robot.move(300);
-  // delay(250);
-  // robot.move(-300);
-  // delay(250);
-  // robot.turn(-90);
-  // delay(250);
-  // robot.move(600);
-  // delay(250);
-  // robot.turn(90);
-  // delay(250);
+  robot.turn(90);
+  delay(250);
+  robot.move(300);
+  delay(250);
+  robot.turn(-90);
+  delay(250);
+  robot.move(300);
+  delay(250);
+  robot.move(-300);
+  delay(250);
+  robot.turn(-90);
+  delay(250);
+  robot.move(600);
+  delay(250);
+  robot.turn(90);
+  delay(250);
 
 
   

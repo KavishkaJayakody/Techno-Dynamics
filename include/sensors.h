@@ -13,11 +13,11 @@ extern Sensors sensors;
 
 
 // Enum for different steering states
-// enum
-// {
-//     STEER_NORMAL,
-//     STEERING_OFF,
-// };
+enum
+{
+    STEER_NORMAL,
+    STEERING_OFF,
+};
 
 class Sensors
 {
@@ -30,6 +30,7 @@ public:
     int16_t maxValues[NUM_SENSORS];          // To store maximum values
     int16_t mappedValues[NUM_SENSORS];       // To store mapped ADC values
     bool calibrated = false;
+    uint8_t g_steering_mode = STEER_NORMAL;
 
     void begin()
     {   
@@ -38,9 +39,24 @@ public:
         Serial.println("ADC began");
     }
 
+        float get_steering_feedback()
+    {
+        return m_steering_adjustment;
+    };
+
+    float get_cross_track_error()
+    {
+        return m_cross_track_error;
+    };
+
     void update()
     {
         readSensors();
+                if(calibrated){
+            map_sensors();
+        }
+        m_cross_track_error = line_error();
+        calculate_steering_adjustment();
         //Serial.println(adcValues[0]);
     }
 
@@ -78,11 +94,9 @@ public:
         adcValues[6] = ads2.readADC(2); // Channel 2
         adcValues[7] = ads2.readADC(3); // Channel 3
 
-        if(calibrated){
-            map_sensors();
-        }
 
-        
+
+
         // Serial.print("  A0  ");
         // Serial.print(adcValues[0]);
         // Serial.print("  A1  ");
@@ -100,6 +114,26 @@ public:
         // Serial.print("  A7  ");
         // Serial.println(adcValues[7]);
         
+    }
+
+        float calculate_steering_adjustment()
+    {
+        // always calculate the adjustment for testing. It may not get used.
+        float pTerm = STEERING_KP * m_cross_track_error;
+        float dTerm = STEERING_KD * (m_cross_track_error - last_steering_error);
+        float adjustment = (pTerm + dTerm) * encoders.loopTime_s();
+        Serial.print("   adjustment  ");
+        Serial.print(adjustment);
+        adjustment = constrain(adjustment, -STEERING_ADJUST_LIMIT, STEERING_ADJUST_LIMIT);
+        last_steering_error = m_cross_track_error;
+        m_steering_adjustment = adjustment;
+        return adjustment;
+    }
+        void set_steering_mode(uint8_t mode)
+    {
+        last_steering_error = m_cross_track_error;
+        m_steering_adjustment = 0;
+        g_steering_mode = mode;
     }
 
     void map_sensors(){
@@ -157,9 +191,14 @@ public:
         // Handle case where no line is detected
         if (totalValue == 0)
         {
-            return (NUM_SENSORS - 1) * 1000 / 2; // Return center (3500) if no line detected
+            return 0.0; // Return center (3500) if no line detected
         }
 
-        return weightedSum / totalValue;
+        return (ERROR_POLARITY)*((weightedSum / totalValue)-3500.0)/100.0;//  error -35<error<35
     }
+private:
+    // variables for steering
+    float last_steering_error = 0;
+    volatile float m_cross_track_error;
+    volatile float m_steering_adjustment;
 };

@@ -56,6 +56,9 @@ void begin()
     float increment = m_omega * encoders.loopTime_s();
     m_rot_error += increment - encoders.robot_rot_change();
     float diff = m_rot_error - m_previous_rot_error;
+    Serial.print(" m_rot_error ");
+    Serial.print(m_rot_error);
+    Serial.print("  ");
     m_previous_rot_error = m_rot_error;
     m_rot_error -= steering_adjustment;
     acc_rot_error += m_rot_error;
@@ -78,8 +81,8 @@ void begin()
     float left_output = 0;
     float right_output = 0;
 
-    left_output = pos_output;// - rot_output;
-    right_output = pos_output;// + rot_output;
+    left_output = pos_output - rot_output;
+    right_output = pos_output + rot_output;
 
     float tangent_speed = m_omega * ROBOT_RADIUS * RADIANS_PER_DEGREE;
     float left_speed = m_velocity - tangent_speed;
