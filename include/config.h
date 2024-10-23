@@ -39,6 +39,8 @@ const float PULSES_PER_ROTATION = 1300.0;
 const float ROBOT_RADIUS = 180;  //there is some error in this. Although it says radius put Wheel to wheel diameter
 const float DEG_PER_MM_DIFFERENCE = 180.0/(180.0*3.14);
 
+const float ARRAY_TO_WHEEL_DISTANCE = 40; //change this accordingly
+
 
 const float RADIANS_PER_DEGREE = 0.0175;
 
@@ -57,9 +59,18 @@ const float MOVE_ACC = 1000;
 
 const float OMEGA_TURN = 270.0;
 const float ALPHA_TURN = 3600.0;
+const float LEFT = -90.0;
+const float RIGHT = 90.0;
 
+
+
+//*****************************************Sensors************************** */
 const float STEERING_ADJUST_LIMIT = 100.0;
 const int ERROR_POLARITY = -1;
 
-//*****************************************Sensors************************** */
 const int NUM_SENSORS = 8;
+const float SENSOR_THRESHOLD = 50;
+const bool INVERT_COLOR = false;
+
+//******************************************Arena Specs********************** */
+const float LINE_LENGTH = 300.0;
