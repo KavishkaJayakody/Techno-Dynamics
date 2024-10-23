@@ -74,3 +74,4 @@ const bool INVERT_COLOR = false;
 
 //******************************************Arena Specs********************** */
 const float LINE_LENGTH = 300.0;
+const float LINE_WIDTH = 30.0;

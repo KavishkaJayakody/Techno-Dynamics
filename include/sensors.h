@@ -131,8 +131,10 @@ public:
         float pTerm = STEERING_KP * m_cross_track_error;
         float dTerm = STEERING_KD * (m_cross_track_error - last_steering_error);
         float adjustment = (pTerm + dTerm) * encoders.loopTime_s();
+
         Serial.print("   adjustment  ");
         Serial.print(adjustment);
+
         adjustment = constrain(adjustment, -STEERING_ADJUST_LIMIT, STEERING_ADJUST_LIMIT);
         last_steering_error = m_cross_track_error;
         m_steering_adjustment = adjustment;
@@ -147,13 +149,16 @@ public:
 
     void map_sensors(){
 
+
+
         // Map the raw ADC readings using the min and max values from calibration
         for (int i = 0; i < NUM_SENSORS; i++)
         {
             adcValues[i] = map(adcValues[i], minValues[i], maxValues[i], 0, 10); // Mapping to a range of 0-100
 
             if (adcValues[i]>SENSOR_THRESHOLD){  //include a code to handle the inverting of colors here
-                sensor_on_line[i] = true;
+                sensor_on_line[i] = true; 
+
             }
             else{
                 sensor_on_line[i] = false;
@@ -163,25 +168,29 @@ public:
         //line state detection
         left_state = true;
         right_state = true;
-        no_line = false;
-        for (int i = 0; i < NUM_SENSORS/2; i++)         //detect for a line in left side of the line
+        no_line = true; 
+        for (int i = 0; i < NUM_SENSORS; i++)         //detect for a line
+        {
+            if (sensor_on_line[i]==true){
+                no_line = false;
+            }
+        }
+
+                                      //Change this accordingly to avoid detecting the adacent colour lines
+        for (int i = 0; i < NUM_SENSORS/4; i++)         //detect for a line in left side of the line
         {
             if (sensor_on_line[i]==false){
                 left_state = false;
             }
-            else{
-                no_line = true;
-            }
         }
-        for (int i = NUM_SENSORS/2; i < NUM_SENSORS/2; i++)         //detect for a line in right side of the line
+        for (int i = 3*NUM_SENSORS/4; i < NUM_SENSORS; i++)         //detect for a line in right side of the line
         {
             if (sensor_on_line[i]==false){
                 right_state = false;
             }
-            else{
-                no_line = true;
-            }
         }
+
+
         if (no_line == true){
             line_state = NO_LINE;
         }

@@ -33,33 +33,50 @@ public:
             //}
         }
     }
+
     void move_till_junction(float distance)
-    {
+    {   
+        bool junction_detected = false;
         sensors.set_steering_mode(STEER_NORMAL);
         motion.reset_drive_system();
         motion.start_move( distance , MOVE_SPEED, 0, MOVE_ACC);
         while (!motion.move_finished())
-        {
-            
-            if (forward.position()>distance - ARRAY_TO_WHEEL_DISTANCE and sensors.line_state !=LINE){
-                forward.set_position(distance - ARRAY_TO_WHEEL_DISTANCE);
-            }
-
+        {   
             if (sensors.line_state !=LINE){
                 sensors.set_steering_mode(STEERING_OFF);
             }
             else {
                 sensors.set_steering_mode(STEER_NORMAL);
             }
+            
+            if (forward.position()>distance - (ARRAY_TO_WHEEL_DISTANCE+LINE_WIDTH) and sensors.line_state !=LINE){  //detect if the expected junction is reached
+                junction_detected = true;
+            }
+            if (junction_detected and (sensors.line_state == LINE or sensors.line_state == NO_LINE)){//only allign to the junction if expected junction distance reached and junction passed.
+                align_to_juction();
+            }
+
+
             delayMicroseconds(2);
 
-            //if (sensors.frontWallExist)
-            //{
-            //    stopAndAdjust();
-            //    break;
-            //}
         }
     }
+    void align_to_juction(){
+        sensors.set_steering_mode(STEER_NORMAL);
+        motion.reset_drive_system();
+        motion.start_move( ARRAY_TO_WHEEL_DISTANCE - LINE_WIDTH , encoders.robot_speed(), 0, MOVE_ACC);
+        while (!motion.move_finished()){ 
+            if (sensors.line_state !=LINE){
+                sensors.set_steering_mode(STEERING_OFF);
+            }
+            else {
+                sensors.set_steering_mode(STEER_NORMAL);
+            }
+            delay(2);
+          }
+
+    }
+
     void turn_180()
     {
         sensors.set_steering_mode(STEERING_OFF);
