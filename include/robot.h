@@ -4,6 +4,7 @@
 #include "encoders.h"
 #include "config.h"
 #include "motion.h"
+#include "sensors.h"
 
 class Robot;
 extern Robot robot;

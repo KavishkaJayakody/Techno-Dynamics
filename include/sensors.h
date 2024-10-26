@@ -25,6 +25,12 @@ enum {
     CROSS_OR_T,
     NO_LINE,
 };
+enum {
+    RED,
+    BLUE,
+    BLACK,
+    WHITE,
+};
 
 class Sensors
 {
@@ -46,6 +52,9 @@ public:
         Serial.println("ADC begining");
         begin_ADC();
         Serial.println("ADC began");
+        pinMode(BUTTON_PIN, INPUT);
+        attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), handleButtonPressISR, CHANGE);
+        pinMode(LED_PIN, INPUT);
     }
 
         float get_steering_feedback()
@@ -124,8 +133,44 @@ public:
         // Serial.println(adcValues[7]);
         
     }
+    static void handleButtonPressISR(){
+        sensors.handleButtonPress();
+    }
+    void handleButtonPress(){
+        button_pressed = true;
+    }
+    void reset_button(){
+        button_pressed = false;
+    }
+    bool is_button_pressed(){
+        bool button_state;
+        noInterrupts();
+        button_state = button_pressed;
+        interrupts();
+        return button_state;
+    }
 
-        float calculate_steering_adjustment()
+    void led_indicator(bool state){
+        if (state){
+            digitalWrite(LED_PIN, HIGH);
+        }
+        else{
+            digitalWrite(LED_PIN, LOW);
+        }
+    }
+    void wait_till_button(){
+        reset_button();
+        while(not is_button_pressed()){
+            led_indicator(1);
+            delay(250);
+            led_indicator(0);
+            delay(250);
+
+        }
+
+    }
+
+    float calculate_steering_adjustment()
     {
         // always calculate the adjustment for testing. It may not get used.
         float pTerm = STEERING_KP * m_cross_track_error;
@@ -213,7 +258,9 @@ public:
 
     // Calibrate function to find minimum and maximum values for each sensor channel
     void calibrate()
-    {
+    {   
+        wait_till_button();
+        led_indicator(1);
         // Initialize min and max arrays
         for (int i = 0; i < NUM_SENSORS; i++)
         {
@@ -240,6 +287,8 @@ public:
             delay(15);
         }
         calibrated = true;
+        wait_till_button();
+        led_indicator(0);
     }
 
     // Function to compute the line error (position of the line)
@@ -267,6 +316,7 @@ private:
     float last_steering_error = 0;
     volatile float m_cross_track_error;
     volatile float m_steering_adjustment;
+    volatile bool button_pressed;
     bool left_state;
     bool right_state;
     bool no_line;

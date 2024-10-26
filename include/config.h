@@ -72,6 +72,9 @@ const int NUM_SENSORS = 8;
 const float SENSOR_THRESHOLD = 50;
 const bool INVERT_COLOR = false;
 
+const int BUTTON_PIN = 0;
+const int LED_PIN = 2;
+
 //******************************************Arena Specs********************** */
 const float LINE_LENGTH = 300.0;
 const float LINE_WIDTH = 30.0;
