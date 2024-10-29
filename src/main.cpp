@@ -30,20 +30,25 @@ void setup() {
 
   sendTicker.attach(0.02, [](){
       encoders.update();
+      
       motion.update();
-      Serial.print(sensors.get_steering_feedback());
-      Serial.print("  error ");
-      Serial.println(sensors.line_error());
       sensors.update();
+      //Serial.print(sensors.get_steering_feedback());
+      //Serial.print("  error ");
+     // Serial.println(sensors.line_error());
+      
+      Serial.print("Steering mode    ");
+      Serial.print(sensors.g_steering_mode);
+      //Serial.print(" steering feedback   ");
+      //Serial.print(sensors.get_steering_feedback());
+      Serial.print(" ");
       motors.update(motion.velocity(), motion.omega(), sensors.get_steering_feedback());
       //Serial.println(encoders.robotAngle());
 
       });
   
 
-  delay(2000);
-  pinMode(2, OUTPUT);
-  digitalWrite(2, HIGH);
+
   //delay(5000);
   //encoders.update();
   //motors.set_right_motor_pwm(500);
@@ -73,10 +78,50 @@ void loop() {
 
 
   motion.reset_drive_system();
-  robot.move(30000);
+  robot.move(1);
+
+
+  //  while(true){
+  //   robot.turn(77);
+  //    delay(250);
+  //  }
+  Serial.print("  Moving    ");
+  //robot.move(30000);
+
+  // while (true){
+  // robot.turn(-93);
+  // delay(1000);
+  // robot.turn(93);
+  // delay(1000);
+  // }
+
+  while (true){
+  robot.move_till_junction(30000);
+  delay(250);
+  if (sensors.last_junction == RIGHT_LINE){
+    robot.turn(RIGHT);
+    delay(1000);
+    robot.move(50);
+  }
+  if (sensors.last_junction == LEFT_LINE){
+    robot.turn(LEFT);
+    delay(1000);
+    robot.move(50);
+  }
+  if (sensors.last_junction == CROSS_OR_T){
+    robot.move(100);
+    delay(250);//robot.turn(77);
+  }
+  delay(250);
+  }
+
+  while (true){
+  robot.move(300);
   delay(250);
   robot.move(-300);
   delay(250);
+  robot.turn(-90);
+  delay(250);}
 
   robot.turn(90);
   delay(250);

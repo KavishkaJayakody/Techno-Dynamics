@@ -43,8 +43,10 @@ public:
     int16_t maxValues[NUM_SENSORS];          // To store maximum values
     int16_t mappedValues[NUM_SENSORS];       // To store mapped ADC values
     bool sensor_on_line[NUM_SENSORS] = {false,false,false,false,false,false,false,false};
+    bool black_surface = true;
     volatile int line_state;
     bool calibrated = false;
+    int last_junction = 0;
     uint8_t g_steering_mode = STEER_NORMAL;
 
     void begin()
@@ -54,7 +56,7 @@ public:
         Serial.println("ADC began");
         pinMode(BUTTON_PIN, INPUT);
         attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), handleButtonPressISR, CHANGE);
-        pinMode(LED_PIN, INPUT);
+        pinMode(LED_PIN, OUTPUT);
     }
 
         float get_steering_feedback()
@@ -73,7 +75,12 @@ public:
         if(calibrated){
             map_sensors();
         }
-        m_cross_track_error = line_error();
+
+        float error=0;
+        if (g_steering_mode == STEER_NORMAL){
+            error = line_error(black_surface);
+        }
+        m_cross_track_error = error;
         calculate_steering_adjustment();
         //Serial.println(adcValues[0]);
     }
@@ -100,17 +107,17 @@ public:
     // Function to read values from all ADS1115 channels
     void readSensors()
     {
-        // Reading 4 channels from the first ADS1115 (0x48)
-        adcValues[0] = ads1.readADC(0); // Channel 0
-        adcValues[1] = ads1.readADC(1); // Channel 1
-        adcValues[2] = ads1.readADC(2); // Channel 2
-        adcValues[3] = ads1.readADC(3); // Channel 3
+        // Reading 4 channels from the first ADS1115 (0x48)    (The array is connected in reverse direction)
+        adcValues[7] = ads1.readADC(0); // Channel 0
+        adcValues[6] = ads1.readADC(1); // Channel 1
+        adcValues[5] = ads1.readADC(2); // Channel 2
+        adcValues[4] = ads1.readADC(3); // Channel 3
 
         // Reading 4 channels from the second ADS1115 (0x49)
-        adcValues[4] = ads2.readADC(0); // Channel 0
-        adcValues[5] = ads2.readADC(1); // Channel 1
-        adcValues[6] = ads2.readADC(2); // Channel 2
-        adcValues[7] = ads2.readADC(3); // Channel 3
+        adcValues[3] = (ads2.readADC(1)+ads1.readADC(3))/2; // Channel 0
+        adcValues[2] = ads2.readADC(1); // Channel 1
+        adcValues[1] = ads2.readADC(2); // Channel 2
+        adcValues[0] = ads2.readADC(3); // Channel 3
 
 
 
@@ -139,7 +146,7 @@ public:
     void handleButtonPress(){
         button_pressed = true;
     }
-    void reset_button(){
+    void reset_button(){  // Call this fuction whenever using the button functionality before calling any other button functions
         button_pressed = false;
     }
     bool is_button_pressed(){
@@ -199,27 +206,46 @@ public:
         // Map the raw ADC readings using the min and max values from calibration
         for (int i = 0; i < NUM_SENSORS; i++)
         {
-            adcValues[i] = map(adcValues[i], minValues[i], maxValues[i], 0, 10); // Mapping to a range of 0-100
+            adcValues[i] = map(adcValues[i], minValues[i], maxValues[i], 0, 100); // Mapping to a range of 0-100
+            //Serial.print(i);
+            //Serial.print(")  ");
+            //Serial.print(adcValues[i]);
+            //Serial.print("   ");
 
-            if (adcValues[i]>SENSOR_THRESHOLD){  //include a code to handle the inverting of colors here
-                sensor_on_line[i] = true; 
-
+            if (!black_surface){ //detect white line in black background
+                if (adcValues[i]>SENSOR_THRESHOLD){  //include a code to handle the inverting of colors here
+                    sensor_on_line[i] = true; 
+                }
+                else{
+                    sensor_on_line[i] = false;
+                }
             }
-            else{
-                sensor_on_line[i] = false;
+            else {
+                if (adcValues[i]<SENSOR_THRESHOLD){
+                    sensor_on_line[i] = true;
+                }
+                else{
+                    sensor_on_line[i] = false;
+                }
             }
+            Serial.print(sensor_on_line[i]);
         }
 
         //line state detection
         left_state = true;
         right_state = true;
         no_line = true; 
+        int on_line_count =0;
         for (int i = 0; i < NUM_SENSORS; i++)         //detect for a line
         {
             if (sensor_on_line[i]==true){
                 no_line = false;
+                on_line_count +=1;
             }
         }
+
+        
+
 
                                       //Change this accordingly to avoid detecting the adacent colour lines
         for (int i = 0; i < NUM_SENSORS/4; i++)         //detect for a line in left side of the line
@@ -238,19 +264,24 @@ public:
 
         if (no_line == true){
             line_state = NO_LINE;
+            Serial.println("NO_LINE");
         }
-        else if (left_state == right_state==true){
+        else if (left_state == true and right_state==true and on_line_count >= NUM_SENSORS*6/8){
             line_state = CROSS_OR_T;
+            Serial.println("CROSS_OR_T");
         }
-        else if (left_state == right_state==false)
-        {
-            line_state = LINE;
-        }
-        else if (left_state == true){
+        else if (left_state == true and on_line_count>=((NUM_SENSORS/2)+2)){
             line_state = LEFT_LINE;
+            Serial.println("LEFT_LINE");
         }
-        else if (right_state == true){
+        else if (right_state == true and on_line_count>=((NUM_SENSORS/2)+2)){
             line_state = RIGHT_LINE;
+            Serial.println("RIGHT_LINE");
+        }
+        else //if (left_state == false and right_state==false)
+        {
+           line_state = LINE;
+           Serial.println("LINE");
         }
 
         
@@ -261,6 +292,7 @@ public:
     {   
         wait_till_button();
         led_indicator(1);
+        Serial.println("Callibration Started");
         // Initialize min and max arrays
         for (int i = 0; i < NUM_SENSORS; i++)
         {
@@ -270,7 +302,7 @@ public:
 
         // Take multiple readings to find min and max
         int t = millis();
-        while (millis() < t + 10000)
+        while (millis() < t + 5000)
         {
             readSensors(); // Read current values
 
@@ -287,20 +319,28 @@ public:
             delay(15);
         }
         calibrated = true;
+        Serial.println("Callibration Finished");
         wait_till_button();
         led_indicator(0);
     }
 
     // Function to compute the line error (position of the line)
-    float line_error()
+    float line_error(bool black_background)
     {
         unsigned long weightedSum = 0;
         unsigned int totalValue = 0;
 
         for (int i = 0; i < NUM_SENSORS; i++)
         {
-            weightedSum += (long)adcValues[i] * i * 1000;
-            totalValue += adcValues[i];
+        float sensorValue = adcValues[i];
+
+        // Adjust sensor interpretation based on the mode
+        if (black_background) {
+            // Invert the sensor value for white-on-black mode
+            sensorValue = 100 - sensorValue;
+        }
+            weightedSum += (long)sensorValue * i * 1000;
+            totalValue += sensorValue;
         }
 
         // Handle case where no line is detected
@@ -308,8 +348,13 @@ public:
         {
             return 0.0; // Return center (3500) if no line detected
         }
-
+        if (black_background) {
+            // Invert the error value for white-on-black mode
+            return (ERROR_POLARITY)*((weightedSum / totalValue)-3500.0)/100.0;//  error -35<error<35
+        }
+        else {
         return (ERROR_POLARITY)*((weightedSum / totalValue)-3500.0)/100.0;//  error -35<error<35
+        }
     }
 private:
     // variables for steering

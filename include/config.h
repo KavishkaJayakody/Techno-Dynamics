@@ -36,40 +36,41 @@ const int maxMotorPercentage = 100;
 //******************************robot dimensions*****************************/
 const float MM_PER_ROTATION = 200;//tyre
 const float PULSES_PER_ROTATION = 1300.0;
-const float ROBOT_RADIUS = 180;  //there is some error in this. Although it says radius put Wheel to wheel diameter
-const float DEG_PER_MM_DIFFERENCE = 180.0/(180.0*3.14);
+const float ROBOT_RADIUS = 170;  //there is some error in this. Although it says radius put Wheel to wheel diameter
+const float DEG_PER_MM_DIFFERENCE = 180.0/(ROBOT_RADIUS*3.14);
 
-const float ARRAY_TO_WHEEL_DISTANCE = 40; //change this accordingly
+const float ARRAY_TO_WHEEL_DISTANCE = 65; //change this accordingly
 
 
 const float RADIANS_PER_DEGREE = 0.0175;
 
-const float rotKp = 5;
-const float rotKd = 10;
+const float rotKp = 7;
+const float rotKd = 19;
 const float rotKi = 0;
-const float fwdKp = 1;
+const float fwdKp = 6.0;//7.0//1.0
 const float fwdKd = 10;
 const float fwdKi = 0;
-const float STEERING_KP = 6;//100;
-const float STEERING_KD = 15;//100;
+const float STEERING_KP = 1.1;//2.2;//100;
+const float STEERING_KD = 1.0;
 
 //****************************************Robot*****************************************//
 const float MOVE_SPEED = 150.0;
-const float MOVE_ACC = 1000;
+const float MOVE_ACC = 750; //1000
+const float IMMEDIATE_ACC = 2000;
 
-const float OMEGA_TURN = 270.0;
-const float ALPHA_TURN = 3600.0;
-const float LEFT = -90.0;
-const float RIGHT = 90.0;
+const float OMEGA_TURN = 150.0;
+const float ALPHA_TURN = 1500.0;
+const float LEFT = -93.0;
+const float RIGHT = 93.0;
 
 
 
 //*****************************************Sensors************************** */
 const float STEERING_ADJUST_LIMIT = 100.0;
-const int ERROR_POLARITY = -1;
+const int ERROR_POLARITY = 1;
 
 const int NUM_SENSORS = 8;
-const float SENSOR_THRESHOLD = 50;
+const float SENSOR_THRESHOLD = 93;
 const bool INVERT_COLOR = false;
 
 const int BUTTON_PIN = 0;

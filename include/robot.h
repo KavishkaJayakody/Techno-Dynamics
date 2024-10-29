@@ -19,12 +19,12 @@ public:
         motion.start_move( distance, MOVE_SPEED, 0, MOVE_ACC);
         while (!motion.move_finished())
         {   
-            if (sensors.line_state !=LINE){
-                sensors.set_steering_mode(STEERING_OFF);
-            }
-            else {
-                sensors.set_steering_mode(STEER_NORMAL);
-            }
+            // if (sensors.line_state == LINE){
+            //     sensors.g_steering_mode = STEER_NORMAL;
+            // }
+            // else {
+            //     sensors.g_steering_mode = STEERING_OFF;
+            // }
             delayMicroseconds(2);
 
             //if (sensors.frontWallExist)
@@ -43,15 +43,16 @@ public:
         motion.start_move( distance , MOVE_SPEED, 0, MOVE_ACC);
         while (!motion.move_finished())
         {   
-            if (sensors.line_state !=LINE){
-                sensors.set_steering_mode(STEERING_OFF);
+            if (sensors.line_state == LINE){
+                sensors.g_steering_mode = STEER_NORMAL;
             }
             else {
-                sensors.set_steering_mode(STEER_NORMAL);
+                sensors.g_steering_mode = STEERING_OFF;
             }
             
-            if (forward.position()>distance - (ARRAY_TO_WHEEL_DISTANCE+LINE_WIDTH) and sensors.line_state !=LINE){  //detect if the expected junction is reached
+            if (sensors.line_state ==LEFT_LINE or sensors.line_state ==RIGHT_LINE){  //detect if the expected junction is reached
                 junction_detected = true;
+                sensors.last_junction = sensors.line_state;
             }
             if (junction_detected and (sensors.line_state == LINE or sensors.line_state == NO_LINE)){//only allign to the junction if expected junction distance reached and junction passed.
                 align_to_juction();
@@ -63,15 +64,15 @@ public:
         }
     }
     void align_to_juction(){
-        sensors.set_steering_mode(STEER_NORMAL);
+        sensors.set_steering_mode(STEERING_OFF);
         motion.reset_drive_system();
-        motion.start_move( ARRAY_TO_WHEEL_DISTANCE - LINE_WIDTH , encoders.robot_speed(), 0, MOVE_ACC);
+        motion.start_move( ARRAY_TO_WHEEL_DISTANCE - (LINE_WIDTH) , encoders.robot_speed(), 0, MOVE_ACC);
         while (!motion.move_finished()){ 
-            if (sensors.line_state !=LINE){
-                sensors.set_steering_mode(STEERING_OFF);
+            if (sensors.line_state == LINE){
+                sensors.g_steering_mode = STEER_NORMAL;
             }
             else {
-                sensors.set_steering_mode(STEER_NORMAL);
+                sensors.g_steering_mode = STEERING_OFF;
             }
             delay(2);
           }
