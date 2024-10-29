@@ -54,11 +54,13 @@ public:
                 junction_detected = true;
                 sensors.last_junction = sensors.line_state;
             }
-            if (junction_detected and (sensors.line_state == LINE or sensors.line_state == NO_LINE)){//only allign to the junction if expected junction distance reached and junction passed.
+            if (sensors.line_state == CROSS_OR_T){  //detect if the expected junction is reached
+                junction_detected = true;
+                sensors.last_junction = sensors.line_state;
+            }
+            if (junction_detected){//only allign to the junction if (expected junction distance reached and) junction passed.
                 align_to_juction();
             }
-
-
             delayMicroseconds(2);
 
         }
@@ -66,14 +68,14 @@ public:
     void align_to_juction(){
         sensors.set_steering_mode(STEERING_OFF);
         motion.reset_drive_system();
-        motion.start_move( ARRAY_TO_WHEEL_DISTANCE - (LINE_WIDTH) , encoders.robot_speed(), 0, MOVE_ACC);
+        motion.start_move( ARRAY_TO_WHEEL_DISTANCE , encoders.robot_speed(), 0, MOVE_ACC);
         while (!motion.move_finished()){ 
-            if (sensors.line_state == LINE){
-                sensors.g_steering_mode = STEER_NORMAL;
-            }
-            else {
-                sensors.g_steering_mode = STEERING_OFF;
-            }
+            // if (sensors.line_state == LINE){
+            //     sensors.g_steering_mode = STEER_NORMAL;
+            // }
+            // else {
+            //     sensors.g_steering_mode = STEERING_OFF;
+            // }
             delay(2);
           }
 

@@ -79,6 +79,7 @@ void loop() {
 
   motion.reset_drive_system();
   robot.move(1);
+  robot.move(100);
 
 
   //  while(true){
@@ -89,30 +90,32 @@ void loop() {
   //robot.move(30000);
 
   // while (true){
-  // robot.turn(-93);
+  // robot.turn(-90);
   // delay(1000);
-  // robot.turn(93);
+  // robot.turn(90);
   // delay(1000);
   // }
 
   while (true){
   robot.move_till_junction(30000);
   delay(250);
-  if (sensors.last_junction == RIGHT_LINE){
-    robot.turn(RIGHT);
-    delay(1000);
-    robot.move(50);
-  }
-  if (sensors.last_junction == LEFT_LINE){
-    robot.turn(LEFT);
-    delay(1000);
-    robot.move(50);
-  }
   if (sensors.last_junction == CROSS_OR_T){
     robot.move(100);
     delay(250);//robot.turn(77);
   }
+  if (sensors.last_junction == RIGHT_LINE){
+    robot.turn(RIGHT);
+    delay(1000);
+    //robot.move(50);
+  }
+  if (sensors.last_junction == LEFT_LINE){
+    robot.turn(LEFT);
+    delay(1000);
+    //robot.move(50);
+  }
+
   delay(250);
+  sensors.led_indicator(false);
   }
 
   while (true){

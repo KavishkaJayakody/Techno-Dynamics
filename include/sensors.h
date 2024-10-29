@@ -47,6 +47,8 @@ public:
     volatile int line_state;
     bool calibrated = false;
     int last_junction = 0;
+    bool left_pin_state;
+    bool right_pin_state;
     uint8_t g_steering_mode = STEER_NORMAL;
 
     void begin()
@@ -57,6 +59,8 @@ public:
         pinMode(BUTTON_PIN, INPUT);
         attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), handleButtonPressISR, CHANGE);
         pinMode(LED_PIN, OUTPUT);
+        pinMode(LEFT_LINE_PIN, INPUT);
+        pinMode(RIGHT_LINE_PIN, INPUT);
     }
 
         float get_steering_feedback()
@@ -75,6 +79,9 @@ public:
         if(calibrated){
             map_sensors();
         }
+
+        left_pin_state = digitalRead(LEFT_LINE_PIN);
+        right_pin_state = digitalRead(RIGHT_LINE_PIN);
 
         float error=0;
         if (g_steering_mode == STEER_NORMAL){
@@ -264,24 +271,25 @@ public:
 
         if (no_line == true){
             line_state = NO_LINE;
-            Serial.println("NO_LINE");
+            //Serial.println("NO_LINE");
         }
-        else if (left_state == true and right_state==true and on_line_count >= NUM_SENSORS*6/8){
+        else if (left_state == true and right_state==true and on_line_count >= NUM_SENSORS/2 and left_pin_state==true and right_pin_state == true){
             line_state = CROSS_OR_T;
-            Serial.println("CROSS_OR_T");
+            led_indicator(true);
+            //Serial.println("CROSS_OR_T");
         }
-        else if (left_state == true and on_line_count>=((NUM_SENSORS/2)+2)){
+        else if (left_state == true and on_line_count>=((NUM_SENSORS/2)+2) and left_pin_state==true){
             line_state = LEFT_LINE;
-            Serial.println("LEFT_LINE");
+            //Serial.println("LEFT_LINE");
         }
-        else if (right_state == true and on_line_count>=((NUM_SENSORS/2)+2)){
+        else if (right_state == true and on_line_count>=((NUM_SENSORS/2)+2) and right_pin_state == true){
             line_state = RIGHT_LINE;
-            Serial.println("RIGHT_LINE");
+            //Serial.println("RIGHT_LINE");
         }
         else //if (left_state == false and right_state==false)
         {
            line_state = LINE;
-           Serial.println("LINE");
+           //Serial.println("LINE");
         }
 
         

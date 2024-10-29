@@ -54,14 +54,14 @@ const float STEERING_KP = 1.1;//2.2;//100;
 const float STEERING_KD = 1.0;
 
 //****************************************Robot*****************************************//
-const float MOVE_SPEED = 150.0;
-const float MOVE_ACC = 750; //1000
+const float MOVE_SPEED = 120.0;
+const float MOVE_ACC = 720; //1000
 const float IMMEDIATE_ACC = 2000;
 
-const float OMEGA_TURN = 150.0;
+const float OMEGA_TURN = 120.0;
 const float ALPHA_TURN = 1500.0;
-const float LEFT = -93.0;
-const float RIGHT = 93.0;
+const float LEFT = -90.0;
+const float RIGHT = 90.0;
 
 
 
@@ -75,6 +75,9 @@ const bool INVERT_COLOR = false;
 
 const int BUTTON_PIN = 0;
 const int LED_PIN = 2;
+
+const int LEFT_LINE_PIN = 25;
+const int RIGHT_LINE_PIN = 26;
 
 //******************************************Arena Specs********************** */
 const float LINE_LENGTH = 300.0;
