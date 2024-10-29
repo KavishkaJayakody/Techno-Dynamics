@@ -52,6 +52,7 @@ public:
             
             if (sensors.line_state ==LEFT_LINE or sensors.line_state ==RIGHT_LINE){  //detect if the expected junction is reached
                 junction_detected = true;
+                delay(61);
                 sensors.last_junction = sensors.line_state;
             }
             if (sensors.line_state == CROSS_OR_T){  //detect if the expected junction is reached
@@ -60,6 +61,7 @@ public:
             }
             if (junction_detected){//only allign to the junction if (expected junction distance reached and) junction passed.
                 align_to_juction();
+                break;
             }
             delayMicroseconds(2);
 

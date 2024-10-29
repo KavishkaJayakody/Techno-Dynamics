@@ -80,8 +80,8 @@ public:
             map_sensors();
         }
 
-        left_pin_state = digitalRead(LEFT_LINE_PIN);
-        right_pin_state = digitalRead(RIGHT_LINE_PIN);
+        left_pin_state = !digitalRead(LEFT_LINE_PIN);
+        right_pin_state = !digitalRead(RIGHT_LINE_PIN);
 
         float error=0;
         if (g_steering_mode == STEER_NORMAL){
@@ -191,8 +191,8 @@ public:
         float dTerm = STEERING_KD * (m_cross_track_error - last_steering_error);
         float adjustment = (pTerm + dTerm) * encoders.loopTime_s();
 
-        Serial.print("   adjustment  ");
-        Serial.print(adjustment);
+        //Serial.print("   adjustment  ");
+        //Serial.print(adjustment);
 
         adjustment = constrain(adjustment, -STEERING_ADJUST_LIMIT, STEERING_ADJUST_LIMIT);
         last_steering_error = m_cross_track_error;
@@ -211,6 +211,7 @@ public:
 
 
         // Map the raw ADC readings using the min and max values from calibration
+        Serial.print(left_pin_state);
         for (int i = 0; i < NUM_SENSORS; i++)
         {
             adcValues[i] = map(adcValues[i], minValues[i], maxValues[i], 0, 100); // Mapping to a range of 0-100
@@ -237,6 +238,7 @@ public:
             }
             Serial.print(sensor_on_line[i]);
         }
+        Serial.print(right_pin_state);
 
         //line state detection
         left_state = true;
@@ -271,25 +273,25 @@ public:
 
         if (no_line == true){
             line_state = NO_LINE;
-            //Serial.println("NO_LINE");
+            Serial.println("NO_LINE");
         }
         else if (left_state == true and right_state==true and on_line_count >= NUM_SENSORS/2 and left_pin_state==true and right_pin_state == true){
             line_state = CROSS_OR_T;
-            led_indicator(true);
-            //Serial.println("CROSS_OR_T");
+            //led_indicator(true);
+            Serial.println("CROSS_OR_T");
         }
-        else if (left_state == true and on_line_count>=((NUM_SENSORS/2)+2) and left_pin_state==true){
+        else if (left_state == true and on_line_count>=((NUM_SENSORS/2)) and left_pin_state==true){
             line_state = LEFT_LINE;
-            //Serial.println("LEFT_LINE");
+            Serial.println("LEFT_LINE");
         }
-        else if (right_state == true and on_line_count>=((NUM_SENSORS/2)+2) and right_pin_state == true){
+        else if (right_state == true and on_line_count>=((NUM_SENSORS/2)) and right_pin_state == true){
             line_state = RIGHT_LINE;
-            //Serial.println("RIGHT_LINE");
+            Serial.println("RIGHT_LINE");
         }
         else //if (left_state == false and right_state==false)
         {
            line_state = LINE;
-           //Serial.println("LINE");
+           Serial.println("LINE");
         }
 
         

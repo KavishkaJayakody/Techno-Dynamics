@@ -50,8 +50,8 @@ const float rotKi = 0;
 const float fwdKp = 6.0;//7.0//1.0
 const float fwdKd = 10;
 const float fwdKi = 0;
-const float STEERING_KP = 1.1;//2.2;//100;
-const float STEERING_KD = 1.0;
+const float STEERING_KP = 1.0;//2.2;//100;
+const float STEERING_KD = 2.0;
 
 //****************************************Robot*****************************************//
 const float MOVE_SPEED = 120.0;
@@ -60,8 +60,8 @@ const float IMMEDIATE_ACC = 2000;
 
 const float OMEGA_TURN = 120.0;
 const float ALPHA_TURN = 1500.0;
-const float LEFT = -90.0;
-const float RIGHT = 90.0;
+const float LEFT = -87.0;
+const float RIGHT = 87.0;
 
 
 
@@ -70,7 +70,7 @@ const float STEERING_ADJUST_LIMIT = 100.0;
 const int ERROR_POLARITY = 1;
 
 const int NUM_SENSORS = 8;
-const float SENSOR_THRESHOLD = 93;
+const float SENSOR_THRESHOLD = 93.5;
 const bool INVERT_COLOR = false;
 
 const int BUTTON_PIN = 0;

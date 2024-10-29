@@ -37,11 +37,11 @@ void setup() {
       //Serial.print("  error ");
      // Serial.println(sensors.line_error());
       
-      Serial.print("Steering mode    ");
-      Serial.print(sensors.g_steering_mode);
+      //Serial.print("Steering mode    ");
+      //Serial.print(sensors.g_steering_mode);
       //Serial.print(" steering feedback   ");
       //Serial.print(sensors.get_steering_feedback());
-      Serial.print(" ");
+      //Serial.print(" ");
       motors.update(motion.velocity(), motion.omega(), sensors.get_steering_feedback());
       //Serial.println(encoders.robotAngle());
 
@@ -97,62 +97,67 @@ void loop() {
   // }
 
   while (true){
-  robot.move_till_junction(30000);
-  delay(250);
-  if (sensors.last_junction == CROSS_OR_T){
-    robot.move(100);
-    delay(250);//robot.turn(77);
-  }
-  if (sensors.last_junction == RIGHT_LINE){
-    robot.turn(RIGHT);
-    delay(1000);
-    //robot.move(50);
-  }
-  if (sensors.last_junction == LEFT_LINE){
-    robot.turn(LEFT);
-    delay(1000);
-    //robot.move(50);
-  }
-
-  delay(250);
-  sensors.led_indicator(false);
+      robot.move_till_junction(30000);
+      delay(250);
+      if (sensors.last_junction == CROSS_OR_T){
+        sensors.led_indicator(true);
+        Serial.print("CROSS_OR_T");
+        //robot.move(100);
+        delay(250);//robot.turn(77);
+      }
+      else if (sensors.last_junction == RIGHT_LINE){
+        Serial.print("RIGHT_LINE");
+        robot.turn(RIGHT);
+        delay(1000);
+        //robot.move(50);
+      }
+      else if (sensors.last_junction == LEFT_LINE){
+        Serial.print("LEFT_LINE");
+        robot.turn(LEFT);
+        delay(1000);
+        //robot.move(50);
+      }
+      sensors.last_junction = LINE;
+      delay(250);
+      sensors.led_indicator(false);
   }
 
   while (true){
-  robot.move(300);
-  delay(250);
-  robot.move(-300);
-  delay(250);
-  robot.turn(-90);
-  delay(250);}
+      robot.move(300);
+      delay(250);
+      robot.move(-300);
+      delay(250);
+      robot.turn(-90);
+      delay(250);
+      }
 
-  robot.turn(90);
-  delay(250);
-  robot.move(300);
-  delay(250);
-  robot.turn(-90);
-  delay(250);
-  robot.move(300);
-  delay(250);
-  robot.move(-300);
-  delay(250);
+    robot.turn(90);
+    delay(250);
+    robot.move(300);
+    delay(250);
+    robot.turn(-90);
+    delay(250);
+    robot.move(300);
+    delay(250);
+    robot.move(-300);
+    delay(250);
 
-  robot.turn(90);
-  delay(250);
-  robot.move(300);
-  delay(250);
-  robot.turn(-90);
-  delay(250);
-  robot.move(300);
-  delay(250);
-  robot.move(-300);
-  delay(250);
-  robot.turn(-90);
-  delay(250);
-  robot.move(600);
-  delay(250);
-  robot.turn(90);
-  delay(250);
+    robot.turn(90);
+    delay(250);
+    robot.move(300);
+    delay(250);
+    robot.turn(-90);
+    delay(250);
+    robot.move(300);
+    delay(250);
+    robot.move(-300);
+    delay(250);
+    robot.turn(-90);
+    delay(250);
+    robot.move(600);
+    delay(250);
+    robot.turn(90);
+    delay(250);
 
 
   
