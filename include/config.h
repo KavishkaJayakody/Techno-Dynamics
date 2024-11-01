@@ -3,6 +3,21 @@
 #pragma once
 #include "esp_system.h"
 
+
+
+//*****************************communications******************************* */
+
+const char* SSID = "SLT-ADSL-92776";   // network credentials
+const char* PASSWORD = "J1234567890";
+
+const int LOCAL_PORT = 12345;  // UDP port to listen on
+
+const char* REMOTE_IP = "192.168.1.3";
+const int REMOTE_PORT = 12345;
+
+
+
+
 //*****************************encoder pin allocation***********************
 const int LeftEncoderPin1 = 16;
 const int LeftEncoderPin2 = 17;
@@ -44,17 +59,17 @@ const float ARRAY_TO_WHEEL_DISTANCE = 65; //change this accordingly
 
 const float RADIANS_PER_DEGREE = 0.0175;
 
-const float rotKp = 7;
-const float rotKd = 19;
-const float rotKi = 0;
-const float fwdKp = 6.0;//7.0//1.0
-const float fwdKd = 10;
-const float fwdKi = 0;
-const float STEERING_KP = 1.0;//2.2;//100;
-const float STEERING_KD = 2.0;
+const float ROT_KP = 7;
+const float ROT_KD = 19;
+const float ROT_KI = 0;
+const float FWD_KP = 6.0;//7.0//1.0
+const float FWD_KD = 10;
+const float FWD_KI = 0;
+const float STR_KP = 1.0;//2.2;//100;
+const float STR_KD = 2.0;
 
 //****************************************Robot*****************************************//
-const float MOVE_SPEED = 120.0;
+const float MOVE_SPEED = 100.0;
 const float MOVE_ACC = 720; //1000
 const float IMMEDIATE_ACC = 2000;
 

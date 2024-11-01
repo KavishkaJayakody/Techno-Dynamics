@@ -14,6 +14,13 @@ class Motors
 public:
 float speed = 0;
 float omega = 0;
+volatile float fwdKp = FWD_KP;
+volatile float fwdKd = FWD_KD;
+volatile float fwdKi = FWD_KI;
+volatile float rotKp = ROT_KP;
+volatile float rotKd = ROT_KD;
+volatile float rotKi = ROT_KI;
+
 void begin()
   {
     pinMode(LEFT_MOTOR_PWM, OUTPUT);
@@ -56,9 +63,11 @@ void begin()
     float increment = m_omega * encoders.loopTime_s();
     m_rot_error += increment - encoders.robot_rot_change();
     float diff = m_rot_error - m_previous_rot_error;
-    Serial.print(" m_rot_error ");
-    Serial.print(m_rot_error);
-    Serial.print("  ");
+
+    // Serial.print(" m_rot_error ");
+    // Serial.print(m_rot_error);
+    // Serial.print("  ");
+
     m_previous_rot_error = m_rot_error;
     m_rot_error -= steering_adjustment;
     acc_rot_error += m_rot_error;

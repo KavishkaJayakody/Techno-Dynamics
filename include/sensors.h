@@ -50,12 +50,16 @@ public:
     bool left_pin_state;
     bool right_pin_state;
     uint8_t g_steering_mode = STEER_NORMAL;
+    volatile float steeringKp = STR_KP;
+    volatile float steeringKd = STR_KD;
+
+    int val[4] = {1,2,3,5}; //remove this. just for testing of communications class
 
     void begin()
     {   
-        Serial.println("ADC begining");
+        Serial.println("Initializing ADC  :");
         begin_ADC();
-        Serial.println("ADC began");
+        Serial.println("ADC Initialized");
         pinMode(BUTTON_PIN, INPUT);
         attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), handleButtonPressISR, CHANGE);
         pinMode(LED_PIN, OUTPUT);
@@ -95,7 +99,6 @@ public:
     // Initialize the ADS1115 sensors
     void begin_ADC()
     {   
-        Serial.println("ADC starting");
         // Initialize the first ADS1115 with I2C address 0x48
         ads1.begin();
 
@@ -187,8 +190,8 @@ public:
     float calculate_steering_adjustment()
     {
         // always calculate the adjustment for testing. It may not get used.
-        float pTerm = STEERING_KP * m_cross_track_error;
-        float dTerm = STEERING_KD * (m_cross_track_error - last_steering_error);
+        float pTerm = steeringKp * m_cross_track_error;
+        float dTerm = steeringKd * (m_cross_track_error - last_steering_error);
         float adjustment = (pTerm + dTerm) * encoders.loopTime_s();
 
         //Serial.print("   adjustment  ");

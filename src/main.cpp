@@ -6,7 +6,7 @@
 #include "profile.h"
 #include "sensors.h"
 #include "Wire.h"
-
+#include "communications.h"
 
 // put function declarations here:
 Motors motors;
@@ -17,6 +17,7 @@ Motion motion;
 Profile forward;
 Profile rotation;
 Sensors sensors;
+Communications communications;
 
 
 void setup() {
@@ -26,11 +27,19 @@ void setup() {
   Serial.begin(115200);
   Wire.begin();
   sensors.begin();
-  sensors.calibrate();
+  communications.begin();
+
+  // while (true){
+  //   communications.send(sensors.val, 4);
+  //   delay(500);
+  // }
+
+  //sensors.calibrate();
 
   sendTicker.attach(0.02, [](){
       encoders.update();
-      
+      communications.send(sensors.val, NUM_SENSORS);
+      communications.check(); 
       motion.update();
       sensors.update();
       //Serial.print(sensors.get_steering_feedback());
