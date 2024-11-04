@@ -38,7 +38,8 @@ void setup() {
 
   sendTicker.attach(0.02, [](){
       encoders.update();
-      communications.send(sensors.val, NUM_SENSORS);
+      communications.send("IRSENSORS",sensors.val, NUM_SENSORS+2);
+      communications.send_velocity();
       communications.check(); 
       motion.update();
       sensors.update();

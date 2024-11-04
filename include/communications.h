@@ -16,7 +16,7 @@ void begin() {
     WiFi.begin(ssid, password);
     
     // Wait for connection
-    Serial.println("Connecting to WiFi...");
+    Serial.print("Connecting to WiFi...");
     sensors.reset_button();
     sensors.led_indicator(true);
     while (WiFi.status() != WL_CONNECTED) {
@@ -28,8 +28,9 @@ void begin() {
         }
         Serial.print(".");
     }
+    sensors.led_indicator(false);
     if (WiFi.status() == WL_CONNECTED){
-        Serial.print(":");
+        Serial.println(" ");
         
         Serial.print("Connected to WiFi. Local IP:");
         Serial.println(WiFi.localIP());
@@ -163,6 +164,79 @@ void send(float* data, size_t length) {
     udp.printf(message.c_str());
     udp.endPacket();
 }
+void send(String d_type, float* data, size_t length) {
+    if (WiFi.status() != WL_CONNECTED) {
+        Serial.print("Not Connected");
+        return ;
+    }
+    String message = d_type + " : ";
+    for (size_t i = 0; i < length; i++) {
+        message += String(data[i]);
+        if (i < length - 1) message += ",";
+    }
+    udp.beginPacket(REMOTE_IP, REMOTE_PORT);
+    udp.printf(message.c_str());
+    udp.endPacket();
+}
+void send(String d_type, int* data, size_t length) {
+    if (WiFi.status() != WL_CONNECTED) {
+        Serial.print("Not Connected");
+        return ;
+    }
+    String message = d_type + " : ";
+    for (size_t i = 0; i < length; i++) {
+        message += String(data[i]);
+        if (i < length - 1) message += ",";
+    }
+    udp.beginPacket(REMOTE_IP, REMOTE_PORT);
+    udp.printf(message.c_str());
+    udp.endPacket();
+}
+void send(String d_type, bool* data, size_t length) {
+    if (WiFi.status() != WL_CONNECTED) {
+        Serial.print("Not Connected");
+        return ;
+    }
+    String message = d_type + " : ";
+    for (size_t i = 0; i < length; i++) {
+        message += String(data[i]);
+        if (i < length - 1) message += ",";
+    }
+    udp.beginPacket(REMOTE_IP, REMOTE_PORT);
+    udp.printf(message.c_str());
+    udp.endPacket();
+}
+
+void send(String d_type, float data) {
+    if (WiFi.status() != WL_CONNECTED) {
+        Serial.print("Not Connected");
+        return ;
+    }
+    String message = d_type + " : " + String(data);
+    udp.beginPacket(REMOTE_IP, REMOTE_PORT);
+    udp.printf(message.c_str());
+    udp.endPacket();
+}
+void send(String d_type, int data) {
+    if (WiFi.status() != WL_CONNECTED) {
+        Serial.print("Not Connected");
+        return ;
+    }
+    String message = d_type + " : " + String(data);
+    udp.beginPacket(REMOTE_IP, REMOTE_PORT);
+    udp.printf(message.c_str());
+    udp.endPacket();
+}
+void send(String d_type) {
+    if (WiFi.status() != WL_CONNECTED) {
+        Serial.print("Not Connected");
+        return ;
+    }
+    String message = d_type;
+    udp.beginPacket(REMOTE_IP, REMOTE_PORT);
+    udp.printf(message.c_str());
+    udp.endPacket();
+}
 
 // Send string array
 void send(String* data, size_t length) {
@@ -194,7 +268,20 @@ void send(bool* data, size_t length) {
     udp.printf(message.c_str());
     udp.endPacket();
 }
-
+void send_velocity() {
+    if (WiFi.status() != WL_CONNECTED) {
+        Serial.print("Not Connected");
+        return ;
+    }
+    String message = "VELOCITY:" 
+                    + String(motion.velocity())+","
+                    +String(encoders.robot_speed())+","
+                    +String(motion.omega())+","
+                    +String(encoders.robot_omega());
+    udp.beginPacket(REMOTE_IP, REMOTE_PORT);
+    udp.printf(message.c_str());
+    udp.endPacket();
+}
 
 
 void send(int16_t* data, size_t length) {

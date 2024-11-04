@@ -53,7 +53,7 @@ public:
     volatile float steeringKp = STR_KP;
     volatile float steeringKd = STR_KD;
 
-    int val[4] = {1,2,3,5}; //remove this. just for testing of communications class
+    float val[10] = {1,2,3,4,5,6,7,8,9,10}; //remove this. just for testing of communications class
 
     void begin()
     {   
