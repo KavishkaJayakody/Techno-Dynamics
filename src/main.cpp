@@ -34,11 +34,11 @@ void setup() {
   //   delay(500);
   // }
 
-  //sensors.calibrate();
+  sensors.calibrate();
 
   sendTicker.attach(0.02, [](){
       encoders.update();
-      communications.send("IRSENSORS",sensors.val, NUM_SENSORS+2);
+      communications.send("IRSENSORS",sensors.all_IR_readings, NUM_SENSORS+2);
       communications.send_velocity();
       communications.check(); 
       motion.update();
@@ -52,7 +52,9 @@ void setup() {
       //Serial.print(" steering feedback   ");
       //Serial.print(sensors.get_steering_feedback());
       //Serial.print(" ");
+
       motors.update(motion.velocity(), motion.omega(), sensors.get_steering_feedback());
+
       //Serial.println(encoders.robotAngle());
 
       });
@@ -89,7 +91,13 @@ void loop() {
 
   motion.reset_drive_system();
   robot.move(1);
-  robot.move(100);
+  while (true){
+    robot.move(1000);
+    delay(500);
+    robot.turn(90);
+    delay(500);
+  }
+  robot.move(1000);
 
 
   //  while(true){

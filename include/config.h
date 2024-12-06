@@ -7,32 +7,32 @@
 
 //*****************************communications******************************* */
 
-const char* SSID = "SLT-ADSL-92776";   // network credentials
-const char* PASSWORD = "J1234567890";
+const char* SSID = "SLT-4G_WataNandun";//"SLT-ADSL-92776";   // network credentials
+const char* PASSWORD = "Nwata@#com";//"J1234567890";
 
 const int LOCAL_PORT = 12345;  // UDP port to listen on
 
-const char* REMOTE_IP = "192.168.1.3";
+const char* REMOTE_IP = "192.168.1.131";//"192.168.1.3";
 const int REMOTE_PORT = 12345;
 
 
 
 
 //*****************************encoder pin allocation***********************
-const int LeftEncoderPin1 = 16;
-const int LeftEncoderPin2 = 17;
+const int LeftEncoderPin1 = 15;
+const int LeftEncoderPin2 = 4;
 
-const int RightEncoderPin1 = 4;
-const int RightEncoderPin2 = 15; 
+const int RightEncoderPin1 = 17;
+const int RightEncoderPin2 = 16; 
 
 //****************************motor********************************************* */
 const int LEFT_MOTOR_PWM = 13;
-const int LEFT_MOTOR_IN1 = 12;
-const int LEFT_MOTOR_IN2 = 14;
+const int LEFT_MOTOR_IN1 = 14;
+const int LEFT_MOTOR_IN2 = 12;
 
 const int RIGHT_MOTOR_PWM = 5;
-const int RIGHT_MOTOR_IN1 = 19;
-const int RIGHT_MOTOR_IN2 = 18;
+const int RIGHT_MOTOR_IN1 = 18;
+const int RIGHT_MOTOR_IN2 = 19;
 
 const int PWM_RESOLUTION_BITS = 10;
 const int PWM_RESOLUTION = 1023; //2^10-1
@@ -91,8 +91,8 @@ const bool INVERT_COLOR = false;
 const int BUTTON_PIN = 0;
 const int LED_PIN = 2;
 
-const int LEFT_LINE_PIN = 25;
-const int RIGHT_LINE_PIN = 26;
+const int LEFT_LINE_PIN = 36;
+const int RIGHT_LINE_PIN = 39;
 
 //******************************************Arena Specs********************** */
 const float LINE_LENGTH = 300.0;

@@ -53,7 +53,7 @@ public:
     volatile float steeringKp = STR_KP;
     volatile float steeringKd = STR_KD;
 
-    float val[10] = {1,2,3,4,5,6,7,8,9,10}; //remove this. just for testing of communications class
+    float all_IR_readings[10] = {0,0,0,0,0,0,0,0,0,0}; //values from left sensors to right sensors
 
     void begin()
     {   
@@ -86,6 +86,13 @@ public:
 
         left_pin_state = !digitalRead(LEFT_LINE_PIN);
         right_pin_state = !digitalRead(RIGHT_LINE_PIN);
+        ///
+        for (int i=0;i<NUM_SENSORS;i++){
+            all_IR_readings[i+1] = adcValues[i];
+        }
+        all_IR_readings[0]= 100*left_pin_state;
+        all_IR_readings[9]= 100*right_pin_state;
+        ///
 
         float error=0;
         if (g_steering_mode == STEER_NORMAL){
