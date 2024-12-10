@@ -124,6 +124,8 @@ void begin()
     float v = left_feed_velocity;
     //Serial.print("left feed  ");
     //Serial.println(v);
+    //v = 0.0533*v*v*v-0.1899*v*v+1.1948*v;  //compensation for motor miss match
+
     float l_feed_percentage = (0.2*v*v+68.83*v+45000)/1023.0;
     //Serial.print("  left   ");
     //Serial.println(l_feed_percentage);

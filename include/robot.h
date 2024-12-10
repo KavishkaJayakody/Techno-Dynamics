@@ -35,6 +35,29 @@ public:
         }
     }
 
+        void move_staright(float distance)
+    {
+        sensors.set_steering_mode(STEERING_OFF);
+        motion.reset_drive_system();
+        motion.start_move( distance, MOVE_SPEED, 0, MOVE_ACC);
+        while (!motion.move_finished())
+        {   
+            // if (sensors.line_state == LINE){
+            //     sensors.g_steering_mode = STEER_NORMAL;
+            // }
+            // else {
+            //     sensors.g_steering_mode = STEERING_OFF;
+            // }
+            delayMicroseconds(2);
+
+            //if (sensors.frontWallExist)
+            //{
+            //    stopAndAdjust();
+            //    break;
+            //}
+        }
+    }
+
     void move_till_junction(float distance)
     {   
         bool junction_detected = false;

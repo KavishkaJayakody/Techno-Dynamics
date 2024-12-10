@@ -59,11 +59,11 @@ const float ARRAY_TO_WHEEL_DISTANCE = 65; //change this accordingly
 
 const float RADIANS_PER_DEGREE = 0.0175;
 
-const float ROT_KP = 7;
-const float ROT_KD = 19;
+const float ROT_KP = 0;//7;
+const float ROT_KD = 0;//19;
 const float ROT_KI = 0;
-const float FWD_KP = 6.0;//7.0//1.0
-const float FWD_KD = 10;
+const float FWD_KP = 2.5;//6.0;//7.0//1.0
+const float FWD_KD = 1;//10;
 const float FWD_KI = 0;
 const float STR_KP = 1.0;//2.2;//100;
 const float STR_KD = 2.0;
@@ -97,3 +97,8 @@ const int RIGHT_LINE_PIN = 39;
 //******************************************Arena Specs********************** */
 const float LINE_LENGTH = 300.0;
 const float LINE_WIDTH = 30.0;
+
+//******************************************Mechanisms************************ */
+
+const int LIFTING_SERVO_PIN = 27;
+const int GRABBING_SERVO_PIN = 26;

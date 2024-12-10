@@ -7,6 +7,7 @@
 #include "sensors.h"
 #include "Wire.h"
 #include "communications.h"
+#include "mechanisms.h"
 
 // put function declarations here:
 Motors motors;
@@ -18,6 +19,7 @@ Profile forward;
 Profile rotation;
 Sensors sensors;
 Communications communications;
+Mechanisms mechanisms;
 
 
 void setup() {
@@ -28,6 +30,7 @@ void setup() {
   Wire.begin();
   sensors.begin();
   communications.begin();
+  mechanisms.begin();
 
   // while (true){
   //   communications.send(sensors.val, 4);
@@ -43,6 +46,8 @@ void setup() {
       communications.check(); 
       motion.update();
       sensors.update();
+
+
       //Serial.print(sensors.get_steering_feedback());
       //Serial.print("  error ");
      // Serial.println(sensors.line_error());
@@ -53,7 +58,7 @@ void setup() {
       //Serial.print(sensors.get_steering_feedback());
       //Serial.print(" ");
 
-      motors.update(motion.velocity(), motion.omega(), sensors.get_steering_feedback());
+      motors.update(motion.velocity(), motion.omega(), sensors.get_steering_feedback());/////////////////////
 
       //Serial.println(encoders.robotAngle());
 
@@ -73,6 +78,16 @@ void setup() {
 }
 
 void loop() {
+
+  // for (int i=0;i<5000;i=i+32){
+  //   motors.set_left_motor_pwm(i);
+  //   motors.set_right_motor_pwm(i);
+  //   delay(1000);
+  //   Serial.print("left ");
+  //   Serial.print(encoders.leftRPS());
+  //   Serial.print("  right ");
+  //   Serial.println(encoders.rightRPS());
+  // }
 //   sensors.set_steering_mode(STEER_NORMAL);
 //   delay(5000);
 //   motors.stop();
@@ -90,11 +105,18 @@ void loop() {
 
 
   motion.reset_drive_system();
+  mechanisms.lift();
+  mechanisms.lower();
+  delay(5000);
   robot.move(1);
   while (true){
-    robot.move(1000);
+    robot.move_staright(500);
+    
+    motion.stop();
     delay(500);
-    robot.turn(90);
+
+    robot.turn(-90);
+    motion.stop();
     delay(500);
   }
   robot.move(1000);
