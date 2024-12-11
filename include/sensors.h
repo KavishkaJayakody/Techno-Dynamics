@@ -3,13 +3,14 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <ADS1X15.h> // Include the ADS1X15 library
+#include <Adafruit_VL53L0X.h>
 #include "config.h"
 #include "Adafruit_TCS34725.h"
 
 ADS1115 ads1(0x48);
 ADS1115 ads2(0x49);
 
-Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_2_4MS, TCS34725_GAIN_1X);
+Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_600MS, TCS34725_GAIN_1X); //Device ID 0x12
 
 
 class Sensors;
@@ -60,7 +61,7 @@ public:
     uint8_t g_steering_mode = STEER_NORMAL;
     volatile float steeringKp = STR_KP;
     volatile float steeringKd = STR_KD;
-    int prominent_color = UNKNOWN;
+    volatile int prominent_color = UNKNOWN;
 
     float all_IR_readings[10] = {0,0,0,0,0,0,0,0,0,0}; //values from left sensors to right sensors
 
@@ -88,7 +89,7 @@ public:
     };
 
     void update()
-    {   updateProminentColor();
+    {
         readSensors();
         if(calibrated){
             map_sensors();
@@ -397,7 +398,8 @@ public:
             }
             }
 
-    int getProminentColor(){
+    int readProminentColor(){
+        updateProminentColor();
         return prominent_color;
     }
     String getProminentColorinword(){
@@ -417,10 +419,12 @@ public:
             return "UNKNOWN";
             }
     }
+
+
     void updateProminentColor() {
-        color_sensor_token ++;
-        color_sensor_token = color_sensor_token % 5;
-        if (color_sensor_available && color_sensor_token==1){
+        //color_sensor_token ++;
+        //color_sensor_token = color_sensor_token % 5;
+        if (color_sensor_available ){//&& color_sensor_token==1){
         // Variables to store color data
         uint16_t red, green, blue, clear;
 

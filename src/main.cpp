@@ -13,6 +13,7 @@
 Motors motors;
 Encoders encoders;
 Ticker sendTicker;
+Ticker controlTicker;
 Robot robot;
 Motion motion;
 Profile forward;
@@ -34,13 +35,18 @@ void setup() {
 
 
   //sensors.calibrate();
+  controlTicker.attach(0.005,[](){
+      encoders.update();
+      motion.update();
+      motors.update(motion.velocity(), motion.omega(), sensors.get_steering_feedback());
+
+  });
 
   sendTicker.attach(0.02, [](){
-      encoders.update();
+      
       communications.send("IRSENSORS",sensors.all_IR_readings, NUM_SENSORS+2);
       communications.send_velocity();
       communications.check(); 
-      motion.update();
       sensors.update();
       Serial.println(sensors.getProminentColorinword());
 
@@ -55,8 +61,7 @@ void setup() {
       //Serial.print(sensors.get_steering_feedback());
       //Serial.print(" ");
 
-      motors.update(motion.velocity(), motion.omega(), sensors.get_steering_feedback());/////////////////////
-
+      
       //Serial.println(encoders.robotAngle());
 
       });
