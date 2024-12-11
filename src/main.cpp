@@ -32,12 +32,8 @@ void setup() {
   communications.begin();
   mechanisms.begin();
 
-  // while (true){
-  //   communications.send(sensors.val, 4);
-  //   delay(500);
-  // }
 
-  sensors.calibrate();
+  //sensors.calibrate();
 
   sendTicker.attach(0.02, [](){
       encoders.update();
@@ -46,6 +42,7 @@ void setup() {
       communications.check(); 
       motion.update();
       sensors.update();
+      Serial.println(sensors.getProminentColorinword());
 
 
       //Serial.print(sensors.get_steering_feedback());

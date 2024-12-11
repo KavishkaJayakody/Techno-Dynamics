@@ -4,8 +4,13 @@
 #include <Wire.h>
 #include <ADS1X15.h> // Include the ADS1X15 library
 #include "config.h"
+#include "Adafruit_TCS34725.h"
+
 ADS1115 ads1(0x48);
 ADS1115 ads2(0x49);
+
+Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_2_4MS, TCS34725_GAIN_1X);
+
 
 class Sensors;
 
@@ -30,6 +35,7 @@ enum {
     BLUE,
     BLACK,
     WHITE,
+    UNKNOWN,
 };
 
 class Sensors
@@ -46,12 +52,15 @@ public:
     bool black_surface = true;
     volatile int line_state;
     bool calibrated = false;
+    bool color_sensor_available = false;
+    int color_sensor_token = 0;
     int last_junction = 0;
     bool left_pin_state;
     bool right_pin_state;
     uint8_t g_steering_mode = STEER_NORMAL;
     volatile float steeringKp = STR_KP;
     volatile float steeringKd = STR_KD;
+    int prominent_color = UNKNOWN;
 
     float all_IR_readings[10] = {0,0,0,0,0,0,0,0,0,0}; //values from left sensors to right sensors
 
@@ -59,6 +68,7 @@ public:
     {   
         Serial.println("Initializing ADC  :");
         begin_ADC();
+        begin_color_sensor();
         Serial.println("ADC Initialized");
         pinMode(BUTTON_PIN, INPUT);
         attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), handleButtonPressISR, CHANGE);
@@ -78,7 +88,7 @@ public:
     };
 
     void update()
-    {
+    {   updateProminentColor();
         readSensors();
         if(calibrated){
             map_sensors();
@@ -374,6 +384,79 @@ public:
         }
         else {
         return (ERROR_POLARITY)*((weightedSum / totalValue)-3500.0)/100.0;//  error -35<error<35
+        }
+    }
+    void begin_color_sensor() {
+            // Initialize the TCS34725 sensor
+            if (tcs.begin()) {
+                Serial.println("TCS34725 found");
+                color_sensor_available = true;
+            } else {
+                Serial.println("No TCS34725 found ... check your connections");
+                wait_till_button(); // halt program
+            }
+            }
+
+    int getProminentColor(){
+        return prominent_color;
+    }
+    String getProminentColorinword(){
+        if (prominent_color == RED){
+            return "RED";
+            }
+        else if (prominent_color == BLUE){
+            return "BLUE";
+            }
+        else if (prominent_color == BLACK){
+            return "BLACK";
+            }
+        else if (prominent_color == WHITE){
+            return "WHITE";
+            }
+        else {
+            return "UNKNOWN";
+            }
+    }
+    void updateProminentColor() {
+        color_sensor_token ++;
+        color_sensor_token = color_sensor_token % 5;
+        if (color_sensor_available && color_sensor_token==1){
+        // Variables to store color data
+        uint16_t red, green, blue, clear;
+
+        // Get raw data from the sensor
+        tcs.getRawData(&red, &green, &blue, &clear);
+
+        // Calculate the RGB values scaled to 0-255
+        float r = red / (float)clear * 255.0;
+        float g = green / (float)clear * 255.0;
+        float b = blue / (float)clear * 255.0;
+
+        // Serial.print(" r- ");
+        // Serial.print(r);
+        // Serial.print(" g- ");
+        // Serial.print(g);
+        // Serial.print(" b- ");
+        // Serial.print(b);
+
+        float avg = (r+b+g)/3;
+
+        // Determine the prominent color
+        if (clear < 400) {
+            prominent_color = BLACK; // Low light indicates black
+        }
+        else if (abs(r-avg) < 10 && abs(g-avg) < 10 && abs(b-avg) < 10) {
+            prominent_color = WHITE; // High values across RGB indicate white
+        }
+        else if (r > b && r > g) {
+            prominent_color =RED;
+        } else if (b > r && b > g) {
+            prominent_color = BLUE;
+        } else if (r > 200 && g > 200 && b > 200) {
+            prominent_color = HIGH;; // High values across RGB indicate white
+        } else {
+            prominent_color = UNKNOWN; // Default case if no prominent color
+        }
         }
     }
 private:
