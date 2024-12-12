@@ -165,6 +165,7 @@ void begin()
       percentage = 0;
     }
     int left_pwm = calculate_pwm(percentage);
+    
 
     set_left_motor_pwm(left_pwm);
   }
@@ -186,6 +187,7 @@ void begin()
 
     m_right_motor_percentage = percentage;
     int right_pwm = calculate_pwm(percentage);
+    
 
     // Serial.print("   right pwm percentage: ");
     // Serial.println(percentage);
@@ -200,14 +202,14 @@ void begin()
       pwm = -pwm + M_BALNCE_PWM;
       digitalWrite(LEFT_MOTOR_IN1, HIGH);
       digitalWrite(LEFT_MOTOR_IN2, LOW);
-      ledcWrite(2, pwm);
+      ledcWrite(2, (sqrt(pwm*2.5/1000)/0.65)*1000/2.5);
     }
     else
     {
       pwm = pwm + M_BALNCE_PWM;
       digitalWrite(LEFT_MOTOR_IN1, LOW);
       digitalWrite(LEFT_MOTOR_IN2, HIGH);
-      ledcWrite(2, pwm);
+      ledcWrite(2, (sqrt(pwm*2.5/1000)/0.65)*1000/2.5);
     }
   }
     void set_right_motor_pwm(int pwm)
@@ -218,14 +220,14 @@ void begin()
       pwm = -pwm - M_BALNCE_PWM;
       digitalWrite(RIGHT_MOTOR_IN1, HIGH);
       digitalWrite(RIGHT_MOTOR_IN2, LOW);
-      ledcWrite(1, pwm);
+      ledcWrite(1, (pow(2.718,(4*2.5*pwm)/(3*1000))/25)*1000/2.5);
     }
     else
     {
       pwm = pwm - M_BALNCE_PWM;
       digitalWrite(RIGHT_MOTOR_IN1, LOW);
       digitalWrite(RIGHT_MOTOR_IN2, HIGH);
-      ledcWrite(1, pwm);
+      ledcWrite(1, (pow(2.718,(4*2.5*pwm)/(3*1000))/25)*1000/2.5);
     }
   }
 

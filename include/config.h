@@ -51,7 +51,7 @@ const int maxMotorPercentage = 100;
 //******************************robot dimensions*****************************/
 const float MM_PER_ROTATION = 200;//tyre
 const float PULSES_PER_ROTATION = 1300.0;
-const float ROBOT_RADIUS = 170;  //there is some error in this. Although it says radius put Wheel to wheel diameter
+const float ROBOT_RADIUS = 174;  //there is some error in this. Although it says radius put Wheel to wheel diameter
 const float DEG_PER_MM_DIFFERENCE = 180.0/(ROBOT_RADIUS*3.14);
 
 const float ARRAY_TO_WHEEL_DISTANCE = 65; //change this accordingly
@@ -59,21 +59,21 @@ const float ARRAY_TO_WHEEL_DISTANCE = 65; //change this accordingly
 
 const float RADIANS_PER_DEGREE = 0.0175;
 
-const float ROT_KP = 0;//7;
-const float ROT_KD = 0;//19;
+const float ROT_KP = 1.2;//7;
+const float ROT_KD = 0.6;//19;
 const float ROT_KI = 0;
-const float FWD_KP = 2.5;//6.0;//7.0//1.0
-const float FWD_KD = 0;//10;
+const float FWD_KP = 1.2;//2.5;//6.0;//7.0//1.0
+const float FWD_KD = 0.5;//10;
 const float FWD_KI = 0;
 const float STR_KP = 1.0;//2.2;//100;
 const float STR_KD = 2.0;
 
 //****************************************Robot*****************************************//
 const float MOVE_SPEED = 100.0;
-const float MOVE_ACC = 720; //1000
+const float MOVE_ACC = 1000; //720//1000
 const float IMMEDIATE_ACC = 2000;
 
-const float OMEGA_TURN = 120.0;
+const float OMEGA_TURN = 180;
 const float ALPHA_TURN = 1500.0;
 const float LEFT = -87.0;
 const float RIGHT = 87.0;
@@ -93,6 +93,9 @@ const int LED_PIN = 2;
 
 const int LEFT_LINE_PIN = 36;
 const int RIGHT_LINE_PIN = 39;
+
+const int XSHUT_PIN = 25;
+const float OBJECT_DETECT_RANGE = 70;
 
 //******************************************Arena Specs********************** */
 const float LINE_LENGTH = 300.0;

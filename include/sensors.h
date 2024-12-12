@@ -12,6 +12,9 @@ ADS1115 ads2(0x49);
 
 Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_600MS, TCS34725_GAIN_1X); //Device ID 0x12
 
+Adafruit_VL53L0X ToF_bottom = Adafruit_VL53L0X(); // Sensor at default address (0x29)
+Adafruit_VL53L0X ToF_top = Adafruit_VL53L0X();     // Sensor to readdress(0x30)
+
 
 class Sensors;
 
@@ -62,6 +65,11 @@ public:
     volatile float steeringKp = STR_KP;
     volatile float steeringKd = STR_KD;
     volatile int prominent_color = UNKNOWN;
+    volatile float top_ToF_reading = 0;
+    volatile float bottom_ToF_reading = 0;
+    volatile bool object_infront_top_ToF = false;
+    volatile bool object_infront_bottom_ToF = false;
+
 
     float all_IR_readings[10] = {0,0,0,0,0,0,0,0,0,0}; //values from left sensors to right sensors
 
@@ -69,7 +77,8 @@ public:
     {   
         Serial.println("Initializing ADC  :");
         begin_ADC();
-        begin_color_sensor();
+        //begin_color_sensor();
+        //begin_ToF();
         Serial.println("ADC Initialized");
         pinMode(BUTTON_PIN, INPUT);
         attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), handleButtonPressISR, CHANGE);
@@ -91,6 +100,7 @@ public:
     void update()
     {
         readSensors();
+        //ToF_measure();
         if(calibrated){
             map_sensors();
         }
@@ -462,6 +472,73 @@ public:
             prominent_color = UNKNOWN; // Default case if no prominent color
         }
         }
+    }
+    void begin_ToF(){
+                // Setup XSHUT pin as output
+        pinMode(XSHUT_PIN, OUTPUT);
+
+        // Step 1: Initialize the default sensor
+        digitalWrite(XSHUT_PIN, LOW); // Disable the second sensor
+        delay(10);                    // Ensure it's off
+        if (!ToF_bottom.begin(0x29)) { // Default address is 0x29
+            Serial.println("Failed to initialize sensor at default address (0x29)");
+            wait_till_button();
+        }
+        Serial.println("VL53L0X at 0x29 initialized");
+
+        // Step 2: Readdress the second sensor
+        digitalWrite(XSHUT_PIN, HIGH); // Enable the second sensor
+        delay(10);                     // Allow time for initialization
+        if (!ToF_top.begin(0x30)) {  // Assign a new address (0x30)
+            Serial.println("Failed to initialize second sensor at new address (0x30)");
+            wait_till_button();
+        }
+        Serial.println("VL53L0X at 0x30 initialized");
+    
+    }
+    void ToF_measure(){
+        VL53L0X_RangingMeasurementData_t measure;
+
+        // Read from the default sensor
+        ToF_bottom.rangingTest(&measure, false);
+        if (measure.RangeStatus != 4) {
+            //Serial.print("Sensor at 0x29: ");
+            //Serial.print(measure.RangeMilliMeter);
+            //Serial.println(" mm");
+            bottom_ToF_reading = measure.RangeMilliMeter;
+            if (bottom_ToF_reading<=OBJECT_DETECT_RANGE){
+                object_infront_bottom_ToF = true;
+            }
+            else{
+                object_infront_bottom_ToF = false;
+                
+            }
+        } else {
+            object_infront_bottom_ToF = false;
+            //Serial.println("Sensor at 0x29: Out of range");
+        }
+
+        // Read from the readdressed sensor
+        ToF_top.rangingTest(&measure, false);
+        if (measure.RangeStatus != 4) {
+            // Serial.print("Sensor at 0x30: ");
+            // Serial.print(measure.RangeMilliMeter);
+            // Serial.println(" mm");
+            top_ToF_reading = measure.RangeMilliMeter;
+                        if (top_ToF_reading<=OBJECT_DETECT_RANGE){
+                object_infront_top_ToF = true;
+            }
+            else{
+                object_infront_top_ToF = false;
+                
+            }
+        } else {
+            object_infront_top_ToF = false;
+            //Serial.println("Sensor at 0x30: Out of range");
+        }
+
+        //delay(500); // Wait before next reading
+
     }
 private:
     // variables for steering

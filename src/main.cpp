@@ -33,8 +33,8 @@ void setup() {
   communications.begin();
   mechanisms.begin();
 
-
   //sensors.calibrate();
+
   controlTicker.attach(0.005,[](){
       encoders.update();
       motion.update();
@@ -47,8 +47,16 @@ void setup() {
       communications.send("IRSENSORS",sensors.all_IR_readings, NUM_SENSORS+2);
       communications.send_velocity();
       communications.check(); 
-      sensors.update();
-      Serial.println(sensors.getProminentColorinword());
+      // sensors.update();
+      // Serial.print("color ");
+      // Serial.print(sensors.getProminentColorinword());
+      // Serial.print("  Bottom ToF ");
+      // Serial.print(sensors.bottom_ToF_reading);
+      // Serial.print(sensors.object_infront_bottom_ToF);
+      // Serial.print(" Top ToF ");
+      // Serial.print(sensors.bottom_ToF_reading);
+      // Serial.print(sensors.object_infront_bottom_ToF);
+      
 
 
       //Serial.print(sensors.get_steering_feedback());
@@ -81,10 +89,12 @@ void setup() {
 
 void loop() {
 
-  // for (int i=0;i<5000;i=i+32){
-  //   motors.set_left_motor_pwm(i);
-  //   motors.set_right_motor_pwm(i);
+  // for (int i=0;i<1023;i=i+32){
+
+  //   motors.set_left_motor_pwm((sqrt(i*2.5/1000)/0.65)*1000/2.5);
+  //   motors.set_right_motor_pwm((pow(2.718,(4*2.5*i)/(3*1000))/25)*1000/2.5);
   //   delay(1000);
+  //   Serial.print(i);
   //   Serial.print("left ");
   //   Serial.print(encoders.leftRPS());
   //   Serial.print("  right ");
@@ -107,19 +117,27 @@ void loop() {
 
 
   motion.reset_drive_system();
-  mechanisms.lift();
-  mechanisms.lower();
-  delay(5000);
-  robot.move(1);
+  //mechanisms.lift();
+  //mechanisms.lower();
+  delay(1000);
+  robot.move_staright(1000);
   while (true){
-    robot.move_staright(500);
-    
+    //robot.move_staright(500);
+    robot.turn(-90);
     motion.stop();
-    delay(500);
+    delay(1000);
 
     robot.turn(-90);
     motion.stop();
-    delay(500);
+    delay(1000);
+
+        robot.turn(90);
+    motion.stop();
+    delay(1000);
+
+    robot.turn(90);
+    motion.stop();
+    delay(1000);
   }
   robot.move(1000);
 
