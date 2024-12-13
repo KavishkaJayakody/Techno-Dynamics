@@ -12,6 +12,12 @@ extern Robot robot;
 class Robot
 {
 public:
+
+    bool barcode_finished = false;
+    int inputArray[30] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    int box_position;
+    int last_scanned_pos = 0;
+
     void move(float distance)
     {
         sensors.set_steering_mode(STEER_NORMAL);
@@ -34,8 +40,87 @@ public:
             //}
         }
     }
+    void scan_barcode(){
+        sensors.set_steering_mode(STEERING_OFF);
+        motion.reset_drive_system();
+        motion.start_move( MAX_BARCODE_LENGTH, MOVE_SPEED, 0, MOVE_ACC);
+        while (!motion.move_finished())
+        {   
+            if (encoders.robotDistance()>=(250-165-15)){
+                while(!barcode_finished){
+                    if (29.5<(((int)encoders.robotDistance()-(250-165-15))%30)<30.5){
+                        if (sensors.line_state == CROSS_OR_T){
+                            inputArray[last_scanned_pos] = 1;
 
-        void move_staright(float distance)
+                        }
+                        else if (sensors.line_state == NO_LINE){
+                            inputArray[last_scanned_pos] = 0;
+
+                        }
+                        else if (sensors.line_state == LINE){
+                            barcode_finished = true;
+                            decode_barcode();
+                            align_to_juction();
+                        }
+                        last_scanned_pos++;
+
+                    }
+                    delay(2);
+                }
+            }
+
+            delayMicroseconds(2);
+        }
+        
+    }
+    void decode_barcode() {
+        int inputIndex = 0;   // Index for traversing the input array.
+        int outputIndex = 0;  // Index for storing the decoded values.
+        byte decodedArray[15] = {0}; // Initialize decoded array.
+
+        while (inputIndex < 30) {
+            // Check if the current bit and the next bit form "11".
+            if (inputArray[inputIndex] == 1 && inputArray[inputIndex + 1] == 1) {
+                decodedArray[outputIndex] = 1; // Decode as 1.
+                inputIndex += 2;               // Skip two bits.
+            } else if (inputArray[inputIndex] == 1) {
+                decodedArray[outputIndex] = 0; // Decode as 0.
+                inputIndex += 1;               // Skip one bit.
+            } else {
+                inputIndex++;                  // Skip invalid or zero bits.
+                continue;
+            }
+
+            outputIndex++; // Move to the next output position.
+        }
+
+        // Find the index of the last non-zero element in `decodedArray`.
+        int decimalValue = 0;
+        int effectiveLength = 0;
+        for (int i = 14; i >= 0; i--) {
+            if (decodedArray[i] != 0) {
+                effectiveLength = i + 1;
+                break;
+            }
+        }
+
+        // Convert the truncated `decodedArray` into a decimal number.
+        for (int i = 0; i < effectiveLength; i++) {
+            decimalValue = (decimalValue << 1) | decodedArray[i];
+        }
+
+        // Calculate the box position.
+        int box_position = decimalValue % 5;
+
+        // Print the results.
+        Serial.print("Decoded Decimal Value: ");
+        Serial.println(decimalValue);
+        Serial.print("Box Position: ");
+        Serial.println(box_position);
+    }
+
+
+    void move_staright(float distance)
     {
         sensors.set_steering_mode(STEERING_OFF);
         motion.reset_drive_system();

@@ -242,15 +242,24 @@ public:
 
 
         // Map the raw ADC readings using the min and max values from calibration
-        Serial.print(left_pin_state);
+        //////////////////////////////////////////////////////////////////////////////////////////Serial.print(left_pin_state);
+
         for (int i = 0; i < NUM_SENSORS; i++)
         {
             adcValues[i] = map(adcValues[i], minValues[i], maxValues[i], 0, 100); // Mapping to a range of 0-100
+        }
+
+        float alpha=0.5; //complementary filter for erroneous sensor(2nd one)
+        adcValues[1]=(1-alpha)*((adcValues[0]+adcValues[2])/2)+(alpha)*(100-adcValues[1]);
+
+        
+        for (int i = 0; i < NUM_SENSORS; i++)
+        {
+            //adcValues[i] = map(adcValues[i], minValues[i], maxValues[i], 0, 100); // Mapping to a range of 0-100
             //Serial.print(i);
             //Serial.print(")  ");
             //Serial.print(adcValues[i]);
             //Serial.print("   ");
-
             if (!black_surface){ //detect white line in black background
                 if (adcValues[i]>SENSOR_THRESHOLD){  //include a code to handle the inverting of colors here
                     sensor_on_line[i] = true; 
@@ -267,9 +276,9 @@ public:
                     sensor_on_line[i] = false;
                 }
             }
-            Serial.print(sensor_on_line[i]);
+            /////////////////////////////////////////////////////////////////////////////////////////Serial.print(sensor_on_line[i]);
         }
-        Serial.print(right_pin_state);
+       //////////////////////////////////////////////////////////////////////////////////////////////// Serial.print(right_pin_state);
 
         //line state detection
         left_state = true;

@@ -125,10 +125,16 @@ void begin()
     //Serial.print("left feed  ");
     //Serial.println(v);
     //v = 0.0533*v*v*v-0.1899*v*v+1.1948*v;  //compensation for motor miss match
-
-    float l_feed_percentage = (0.2*v*v+68.83*v+45000)/1023.0;
-    //Serial.print("  left   ");
-    //Serial.println(l_feed_percentage);
+    float l_feed_percentage;
+    if (v>=0){
+        l_feed_percentage = (-0.0004*v*v)+(0.3113*v)+43.2991;//23.2991
+    }
+    else {
+      v=-v;
+      l_feed_percentage = -((-0.0004*v*v)+(0.3113*v)+53.2991);//23.2991
+    }
+    // Serial.print("  left   ");
+    // Serial.print(l_feed_percentage);
     return l_feed_percentage;
   }
 
@@ -139,9 +145,16 @@ void begin()
     float v = right_feed_velocity;
     //Serial.print("  right feed  ");
     //Serial.print(v);
-    float r_feed_percentage = (0.2*v*v+68.83*v+45000)/1023.0;
-    //Serial.print("   right   ");
-    //Serial.println(r_feed_percentage);
+    float r_feed_percentage;
+    if(v>=0){
+      r_feed_percentage = (0.0003*v*v*v)-(0.0177*v*v)+(0.4125*v)+2.8691;//(0.2*v*v+68.83*v+45000)/1023.0;
+    }
+    else{
+      v = -v;
+      r_feed_percentage = -((0.0003*v*v*v)-(0.0177*v*v)+(0.4125*v)+2.8691);
+    }
+    // Serial.print("   right   ");
+    // Serial.println(r_feed_percentage);
     return r_feed_percentage;
   }
   void stop()
@@ -152,15 +165,15 @@ void begin()
     void set_left_motor_percentage(float percentage)
   {
     percentage = constrain(percentage, -maxMotorPercentage, maxMotorPercentage);
-    if (percentage > MIN_MOTOR_PERCENTAGE)
+    if (percentage > LEFT_MIN_MOTOR_PERCENTAGE)
     {
-      percentage = map(percentage, MIN_MOTOR_PERCENTAGE, maxMotorPercentage, MIN_MOTOR_BIAS, maxMotorPercentage);
+      //percentage = map(percentage, LEFT_MIN_MOTOR_PERCENTAGE, maxMotorPercentage, MIN_MOTOR_BIAS, maxMotorPercentage);
     }
-    else if (percentage < -MIN_MOTOR_PERCENTAGE)
+    else if (percentage < -LEFT_MIN_MOTOR_PERCENTAGE)
     {
-      percentage = map(percentage, -maxMotorPercentage, -MIN_MOTOR_PERCENTAGE, -maxMotorPercentage, -MIN_MOTOR_BIAS);
+      //percentage = map(percentage, -maxMotorPercentage, -LEFT_MIN_MOTOR_PERCENTAGE, -maxMotorPercentage, -MIN_MOTOR_BIAS);
     }
-    else if (-MIN_MOTOR_PERCENTAGE <= percentage <= MIN_MOTOR_PERCENTAGE)
+    else if (-LEFT_MIN_MOTOR_PERCENTAGE <= percentage <= LEFT_MIN_MOTOR_PERCENTAGE)
     {
       percentage = 0;
     }
@@ -172,15 +185,15 @@ void begin()
     void set_right_motor_percentage(float percentage)
   {
     percentage = constrain(percentage, -maxMotorPercentage, maxMotorPercentage);
-    if (percentage > MIN_MOTOR_PERCENTAGE)
+    if (percentage > RIGHT_MIN_MOTOR_PERCENTAGE)
     {
-      percentage = map(percentage, MIN_MOTOR_PERCENTAGE, maxMotorPercentage, MIN_MOTOR_BIAS, maxMotorPercentage);
+      //percentage = map(percentage, RIGHT_MIN_MOTOR_PERCENTAGE, maxMotorPercentage, MIN_MOTOR_BIAS, maxMotorPercentage);
     }
-    else if (percentage < -MIN_MOTOR_PERCENTAGE)
+    else if (percentage < -RIGHT_MIN_MOTOR_PERCENTAGE)
     {
-      percentage = map(percentage, -maxMotorPercentage, -MIN_MOTOR_PERCENTAGE, -maxMotorPercentage, -MIN_MOTOR_BIAS);
+      //percentage = map(percentage, -maxMotorPercentage, -RIGHT_MIN_MOTOR_PERCENTAGE, -maxMotorPercentage, -MIN_MOTOR_BIAS);
     }
-    else if (-MIN_MOTOR_PERCENTAGE <= percentage <= MIN_MOTOR_PERCENTAGE)
+    else if (-RIGHT_MIN_MOTOR_PERCENTAGE <= percentage <= RIGHT_MIN_MOTOR_PERCENTAGE)
     {
       percentage = 0;
     }
@@ -202,14 +215,14 @@ void begin()
       pwm = -pwm + M_BALNCE_PWM;
       digitalWrite(LEFT_MOTOR_IN1, HIGH);
       digitalWrite(LEFT_MOTOR_IN2, LOW);
-      ledcWrite(2, (sqrt(pwm*2.5/1000)/0.65)*1000/2.5);
+      ledcWrite(2, pwm);//(sqrt(pwm*2.5/1000)/0.65)*1000/2.5);
     }
     else
     {
       pwm = pwm + M_BALNCE_PWM;
       digitalWrite(LEFT_MOTOR_IN1, LOW);
       digitalWrite(LEFT_MOTOR_IN2, HIGH);
-      ledcWrite(2, (sqrt(pwm*2.5/1000)/0.65)*1000/2.5);
+      ledcWrite(2,pwm);//(sqrt(pwm*2.5/1000)/0.65)*1000/2.5);
     }
   }
     void set_right_motor_pwm(int pwm)
@@ -220,14 +233,14 @@ void begin()
       pwm = -pwm - M_BALNCE_PWM;
       digitalWrite(RIGHT_MOTOR_IN1, HIGH);
       digitalWrite(RIGHT_MOTOR_IN2, LOW);
-      ledcWrite(1, (pow(2.718,(4*2.5*pwm)/(3*1000))/25)*1000/2.5);
+      ledcWrite(1, pwm);//(pow(2.718,(4*2.5*pwm)/(3*1000))/25)*1000/2.5);
     }
     else
     {
       pwm = pwm - M_BALNCE_PWM;
       digitalWrite(RIGHT_MOTOR_IN1, LOW);
       digitalWrite(RIGHT_MOTOR_IN2, HIGH);
-      ledcWrite(1, (pow(2.718,(4*2.5*pwm)/(3*1000))/25)*1000/2.5);
+      ledcWrite(1, pwm);//(pow(2.718,(4*2.5*pwm)/(3*1000))/25)*1000/2.5);
     }
   }
 
