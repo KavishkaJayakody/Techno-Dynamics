@@ -6,6 +6,7 @@
 #include <Adafruit_VL53L0X.h>
 #include "config.h"
 #include "Adafruit_TCS34725.h"
+#include "mechanisms.h"
 
 ADS1115 ads1(0x48);
 ADS1115 ads2(0x49);
@@ -41,6 +42,12 @@ enum {
     WHITE,
     UNKNOWN,
 };
+enum {
+    CM5,
+    CM10,
+    CM15,
+    INVALID,
+};
 
 class Sensors
 {
@@ -61,6 +68,7 @@ public:
     int last_junction = 0;
     bool left_pin_state;
     bool right_pin_state;
+    int box_height;
     uint8_t g_steering_mode = STEER_NORMAL;
     volatile float steeringKp = STR_KP;
     volatile float steeringKd = STR_KD;
@@ -242,7 +250,7 @@ public:
 
 
         // Map the raw ADC readings using the min and max values from calibration
-        //////////////////////////////////////////////////////////////////////////////////////////Serial.print(left_pin_state);
+        ////////////////////////////////////Serial.print(left_pin_state);
 
         for (int i = 0; i < NUM_SENSORS; i++)
         {
@@ -276,9 +284,9 @@ public:
                     sensor_on_line[i] = false;
                 }
             }
-            /////////////////////////////////////////////////////////////////////////////////////////Serial.print(sensor_on_line[i]);
+            //////////////////////////////////////////////////////////////////Serial.print(sensor_on_line[i]);
         }
-       //////////////////////////////////////////////////////////////////////////////////////////////// Serial.print(right_pin_state);
+       /////////////////////////////////////////////////////////////////////////////Serial.print(right_pin_state);
 
         //line state detection
         left_state = true;
@@ -288,11 +296,13 @@ public:
         for (int i = 0; i < NUM_SENSORS; i++)         //detect for a line
         {
             if (sensor_on_line[i]==true){
-                no_line = false;
+                //no_line = false;
                 on_line_count +=1;
             }
         }
-
+        if (on_line_count>3){
+            no_line = false;
+        }
         
 
 
@@ -313,25 +323,25 @@ public:
 
         if (no_line == true){
             line_state = NO_LINE;
-            Serial.println("NO_LINE");
+            ////////////////////////////////////////////////////////////Serial.println("NO_LINE");
         }
         else if (left_state == true and right_state==true and on_line_count >= NUM_SENSORS/2 and left_pin_state==true and right_pin_state == true){
             line_state = CROSS_OR_T;
             //led_indicator(true);
-            Serial.println("CROSS_OR_T");
+            ////////////////////////////////////////////////////////////Serial.println("CROSS_OR_T");
         }
         else if (left_state == true and on_line_count>=((NUM_SENSORS/2)) and left_pin_state==true){
             line_state = LEFT_LINE;
-            Serial.println("LEFT_LINE");
+            ///////////////////////////////////////////////////////////////////Serial.println("LEFT_LINE");
         }
         else if (right_state == true and on_line_count>=((NUM_SENSORS/2)) and right_pin_state == true){
             line_state = RIGHT_LINE;
-            Serial.println("RIGHT_LINE");
+            //////////////////////////////////////////////////////////////////Serial.println("RIGHT_LINE");
         }
         else //if (left_state == false and right_state==false)
         {
            line_state = LINE;
-           Serial.println("LINE");
+           ///////////////////////////////////////////////////////////////Serial.println("LINE");
         }
 
         
@@ -549,6 +559,39 @@ public:
         //delay(500); // Wait before next reading
 
     }
+    void measure_height(){
+        bool base = false;
+        bool mid = false;
+        bool top = false;
+        mechanisms.lower();
+        ToF_measure();
+            if (object_infront_bottom_ToF){
+                base = true;
+            }
+            if (object_infront_top_ToF){
+                mid = true;
+            }
+        mechanisms.lift();
+            if (object_infront_bottom_ToF){
+                mid = true;
+            }
+            if (object_infront_top_ToF){
+                top = true;
+            }
+        if (base && mid && (!top)){
+            box_height = CM10;
+        }
+        else if (base && (!mid) && (!top)){
+            box_height = CM5;
+        }
+        else if (base && mid && top){
+            box_height = CM15;
+        }
+        else {
+            box_height = INVALID;
+        }
+
+}
 private:
     // variables for steering
     float last_steering_error = 0;

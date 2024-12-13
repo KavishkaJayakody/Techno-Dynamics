@@ -323,3 +323,27 @@ private:
   bool m_controller_output_enabled;
   unsigned long i = 0;
 };
+
+//The code used to find the feed forward percentages
+
+
+  //motors.set_left_motor_pwm(700);
+  //motors.set_right_motor_pwm(700);
+  //while(1){}
+  // sensors.set_steering_mode(STEERING_OFF);
+  //  for (int i=-1023;i<1023;i=i+32){
+
+  //   motors.set_left_motor_pwm(i);//(sqrt(i*2.5/1000)/0.65)*1000/2.5);
+  //   motors.set_right_motor_pwm(0);//(pow(2.718,(4*2.5*i)/(3*1000))/25)*1000/2.5);
+  //   float avg_speed = 0;
+  //   for (int j=0;j<100; j++){
+  //     avg_speed += encoders.robot_speed();
+  //     delay(20);
+  //   }
+  //   avg_speed = avg_speed/100;
+  //   Serial.print(i);
+  //   Serial.print("  percentage ");
+  //   Serial.print( i*100/1023);
+  //   Serial.print("  velcity ");
+  //   Serial.println(avg_speed);
+  // }

@@ -14,7 +14,7 @@ class Robot
 public:
 
     bool barcode_finished = false;
-    int inputArray[30] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    int inputArray[40] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
     int box_position;
     int last_scanned_pos = 0;
 
@@ -41,27 +41,56 @@ public:
         }
     }
     void scan_barcode(){
+        encoders.reset();
         sensors.set_steering_mode(STEERING_OFF);
         motion.reset_drive_system();
         motion.start_move( MAX_BARCODE_LENGTH, MOVE_SPEED, 0, MOVE_ACC);
+        int length_to_next_strip = 250-165-15;//70
         while (!motion.move_finished())
-        {   
-            if (encoders.robotDistance()>=(250-165-15)){
+        {  
+            Serial.println(encoders.robotDistance());
+            if (encoders.robotDistance()>=(250-165+15)){//70
                 while(!barcode_finished){
-                    if (29.5<(((int)encoders.robotDistance()-(250-165-15))%30)<30.5){
+                    if ((int)encoders.robotDistance()>length_to_next_strip){
+                        length_to_next_strip +=30;
+                        
                         if (sensors.line_state == CROSS_OR_T){
                             inputArray[last_scanned_pos] = 1;
+                            sensors.led_indicator(1);
+                            if (last_scanned_pos>7){
+                                if(inputArray[last_scanned_pos]==0 &&inputArray[last_scanned_pos-1]==1 && inputArray[last_scanned_pos-2]==0 && inputArray[last_scanned_pos-3]==1 && inputArray[last_scanned_pos-4]==0 && inputArray[last_scanned_pos-5]==1 && inputArray[last_scanned_pos-6]==0){
+                                    barcode_finished = true;
+                                    for (int i=0; i<40;i++){
+                                        Serial.print(inputArray[i]);
+                                    }
+                                    decode_barcode();
+                                    align_to_juction();
+                                
+                                }
+                                if(inputArray[last_scanned_pos]==0 && inputArray[last_scanned_pos]==0 && inputArray[last_scanned_pos]==0){
+                                    barcode_finished = true;
+                                    for (int i=0; i<40;i++){
+                                        Serial.print(inputArray[i]);
+                                    }
+                                    decode_barcode();
+                                    align_to_juction();
+                                
+                                }
+                            }
 
                         }
-                        else if (sensors.line_state == NO_LINE){
+                        else if (sensors.line_state != CROSS_OR_T){
                             inputArray[last_scanned_pos] = 0;
+                            sensors.led_indicator(0);
+
 
                         }
-                        else if (sensors.line_state == LINE){
-                            barcode_finished = true;
-                            decode_barcode();
-                            align_to_juction();
-                        }
+                        // else if (sensors.line_state == LINE){
+                        //     barcode_finished = true;
+                        //     decode_barcode();
+                        //     align_to_juction();
+                        // }
+                        Serial.print(last_scanned_pos);
                         last_scanned_pos++;
 
                     }
@@ -191,6 +220,36 @@ public:
 
     }
 
+    void move_till_junction_and_turn(){
+        robot.move_till_junction(30000);
+        delay(250);
+        if (sensors.last_junction == CROSS_OR_T){
+            sensors.led_indicator(true);
+            Serial.print("CROSS_OR_T");
+            //robot.move(100);
+            delay(250);//robot.turn(77);
+        }
+        else if (sensors.last_junction == RIGHT_LINE){
+            Serial.print("RIGHT_LINE");
+            robot.turn(RIGHT);
+            delay(1000);
+            //robot.move(50);
+        }
+        else if (sensors.last_junction == LEFT_LINE){
+            Serial.print("LEFT_LINE");
+            robot.turn(LEFT);
+            delay(1000);
+            //robot.move(50);
+        }
+        sensors.last_junction = LINE;
+        delay(250);
+        sensors.led_indicator(false);
+    }
+    void follow_dashed_line(){
+
+    }
+    
+
     void turn_180()
     {
         sensors.set_steering_mode(STEERING_OFF);
@@ -219,18 +278,18 @@ public:
         }
     }
 
-    // void maze(int barcode)
-    // {
+    void maze(int barcode)
+    {
         
-    //     if (barcode == 0)
-    //     {
-    //         //move forward until T junction release, turn right, pick,move forward
+        if (barcode == 0)
+        {
+            //move forward until T junction release, turn right, pick,move forward
 
-    //     }
+        }
 
-    //     if (barcode == 1)
-    //     {
-    //         //turn left move fwd until 1st T junction turn left pick move fwd 1st T junc
-    //     }
-    // }
+        if (barcode == 1)
+        {
+            //turn left move fwd until 1st T junction turn left pick move fwd 1st T junc
+        }
+    }
 };

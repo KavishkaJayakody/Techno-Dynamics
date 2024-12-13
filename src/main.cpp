@@ -35,18 +35,22 @@ void setup() {
 
   sensors.calibrate();
 
-  controlTicker.attach(0.005,[](){
+  // controlTicker.attach(0.005,[](){
+  //     encoders.update();
+  //     motion.update();
+  //     motors.update(motion.velocity(), motion.omega(), sensors.get_steering_feedback());
+
+  // });
+
+  sendTicker.attach(0.02, [](){
+
       encoders.update();
       motion.update();
       motors.update(motion.velocity(), motion.omega(), sensors.get_steering_feedback());
-
-  });
-
-  sendTicker.attach(0.02, [](){
       
-      communications.send("IRSENSORS",sensors.all_IR_readings, NUM_SENSORS+2);
-      communications.send_velocity();
-      communications.check(); 
+      //communications.send("IRSENSORS",sensors.all_IR_readings, NUM_SENSORS+2);
+      //communications.send_velocity();
+      //communications.check(); 
       sensors.update();
       // Serial.print("color ");
       // Serial.print(sensors.getProminentColorinword());
@@ -88,99 +92,62 @@ void setup() {
 }
 
 void loop() {
-  //while(1){}
-  //motors.set_left_motor_pwm(700);
-  //motors.set_right_motor_pwm(700);
-  //while(1){}
-  // sensors.set_steering_mode(STEERING_OFF);
-  //  for (int i=-1023;i<1023;i=i+32){
-
-  //   motors.set_left_motor_pwm(i);//(sqrt(i*2.5/1000)/0.65)*1000/2.5);
-  //   motors.set_right_motor_pwm(0);//(pow(2.718,(4*2.5*i)/(3*1000))/25)*1000/2.5);
-  //   float avg_speed = 0;
-  //   for (int j=0;j<100; j++){
-  //     avg_speed += encoders.robot_speed();
-  //     delay(20);
-  //   }
-  //   avg_speed = avg_speed/100;
-  //   Serial.print(i);
-  //   Serial.print("  percentage ");
-  //   Serial.print( i*100/1023);
-  //   Serial.print("  velcity ");
-  //   Serial.println(avg_speed);
-  // }
-
-  // while(1){}
-//   sensors.set_steering_mode(STEER_NORMAL);
-//   delay(5000);
-//   motors.stop();
-//   delay(1000);
-//  for (int i=0;i<10; i++){
-//   motors.speed =20*i;
-//   delay(100);
-//  }
-//  while (true){
-//   motors.reset_controllers();
-//   delay(100);
-//  }
-
-
-
 
   motion.reset_drive_system();
   robot.move_staright(0.1);
+  delay(1000);
+  while(1){
+     robot.move_till_junction_and_turn();
+     delay(1000);
+  }
+  robot.move_till_junction_and_turn();
+  robot.scan_barcode();
+  delay(1000);
+  robot.move_till_junction_and_turn();
+  robot.move_till_junction(3000);
+  robot.turn(RIGHT);
+  robot.move_till_junction(3000);
+  robot.turn(LEFT);
+  robot.move_till_junction(3000);
+  robot.turn(RIGHT);
+  robot.move_till_junction(3000);
+  //robot.turn(LEFT);
+  robot.move_till_junction(3000);
+  robot.turn(RIGHT);
+  while (1){}
 
   delay(5000);
   sensors.led_indicator(1);
+  robot.scan_barcode();
   
-  //robot.turn(-350000);
-  //robot.move_staright(-1000);
-  //mechanisms.lift();
-  //mechanisms.lower();
-  // delay(1000);
-  // //robot.move_staright(1000);
   while (true){
     //robot.move_staright(500);
-    robot.turn(-35);
+    robot.turn(-77);
     motion.stop();
     delay(1000);
 
 
 
-    robot.turn(-35);
+    robot.turn(-77);
     motion.stop();
-    delay(1000);
+    //delay(1000);
 
-    robot.move_staright(500);
-    delay(1000);
+    //robot.move_staright(500);
+    //delay(1000);
 
-    robot.turn(50);
+    robot.turn(75);
     motion.stop();
-    delay(1000);
+    //delay(1000);
 
-    robot.turn(50);
+    robot.turn(75);
     motion.stop();
-    delay(1000);
+    //delay(1000);
 
-    robot.move_staright(500);
-    delay(1000);
+    //robot.move_staright(500);
+    //delay(1000);
   }
-  // robot.move(1000);
-
-
-  //  while(true){
-  //   robot.turn(77);
-  //    delay(250);
-  //  }
   Serial.print("  Moving    ");
-  //robot.move(30000);
 
-  // while (true){
-  // robot.turn(-90);
-  // delay(1000);
-  // robot.turn(90);
-  // delay(1000);
-  // }
   robot.move_till_junction(3000);
   robot.turn(RIGHT);
   robot.move_till_junction(3000);
@@ -194,29 +161,7 @@ void loop() {
   while (1){}
   
   while (true){
-      robot.move_till_junction(30000);
-      delay(250);
-      if (sensors.last_junction == CROSS_OR_T){
-        sensors.led_indicator(true);
-        Serial.print("CROSS_OR_T");
-        //robot.move(100);
-        delay(250);//robot.turn(77);
-      }
-      else if (sensors.last_junction == RIGHT_LINE){
-        Serial.print("RIGHT_LINE");
-        robot.turn(RIGHT);
-        delay(1000);
-        //robot.move(50);
-      }
-      else if (sensors.last_junction == LEFT_LINE){
-        Serial.print("LEFT_LINE");
-        robot.turn(LEFT);
-        delay(1000);
-        //robot.move(50);
-      }
-      sensors.last_junction = LINE;
-      delay(250);
-      sensors.led_indicator(false);
+    robot.move_till_junction_and_turn();
   }
 
   while (true){
@@ -257,7 +202,10 @@ void loop() {
     delay(250);
 
 
-  
+
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // while (true){
   //   Serial.println(encoders.robotAngle());
   // }
@@ -300,4 +248,3 @@ void loop() {
    
    //Serial.println("h");
   //delay(18);
-}
