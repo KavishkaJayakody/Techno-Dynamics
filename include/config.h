@@ -66,12 +66,12 @@ const float ROT_KI = 0;
 const float FWD_KP = 1.2;//2.5;//6.0;//7.0//1.0
 const float FWD_KD = 0.5;//10;
 const float FWD_KI = 0;
-const float STR_KP = 7;//100;
-const float STR_KD = 2.0;
+const float STR_KP = 1;//100;
+const float STR_KD = 0;
 
 //****************************************Robot*****************************************//
-const float MOVE_SPEED = 100.0;
-const float MOVE_ACC = 30;//1000; //720//1000
+const float MOVE_SPEED = 60.0;
+const float MOVE_ACC = 10;//1000; //720//1000
 const float IMMEDIATE_ACC = 2000;
 
 const float OMEGA_TURN = 100;
@@ -96,12 +96,12 @@ const int LEFT_LINE_PIN = 36;
 const int RIGHT_LINE_PIN = 39;
 
 const int XSHUT_PIN = 25;
-const float OBJECT_DETECT_RANGE = 70;
+const float OBJECT_DETECT_RANGE = 300;
 
 //******************************************Arena Specs********************** */
 const float LINE_LENGTH = 300.0;
 const float LINE_WIDTH = 30.0;
-const float MAX_BARCODE_LENGTH = 1500.0;
+const float MAX_BARCODE_LENGTH = 870.0;
 
 //******************************************Mechanisms************************ */
 

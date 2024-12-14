@@ -250,11 +250,12 @@ public:
 
 
         // Map the raw ADC readings using the min and max values from calibration
-        ////////////////////////////////////Serial.print(left_pin_state);
+        Serial.print(left_pin_state);
 
         for (int i = 0; i < NUM_SENSORS; i++)
         {
             adcValues[i] = map(adcValues[i], minValues[i], maxValues[i], 0, 100); // Mapping to a range of 0-100
+            adcValues[i] = constrain(adcValues[i], 0, 100);
         }
 
         float alpha=0.5; //complementary filter for erroneous sensor(2nd one)
@@ -284,9 +285,9 @@ public:
                     sensor_on_line[i] = false;
                 }
             }
-            //////////////////////////////////////////////////////////////////Serial.print(sensor_on_line[i]);
+            Serial.print(sensor_on_line[i]);
         }
-       /////////////////////////////////////////////////////////////////////////////Serial.print(right_pin_state);
+       Serial.print(right_pin_state);
 
         //line state detection
         left_state = true;
@@ -323,25 +324,25 @@ public:
 
         if (no_line == true){
             line_state = NO_LINE;
-            ////////////////////////////////////////////////////////////Serial.println("NO_LINE");
+            Serial.println("NO_LINE");
         }
         else if (left_state == true and right_state==true and on_line_count >= NUM_SENSORS/2 and left_pin_state==true and right_pin_state == true){
             line_state = CROSS_OR_T;
             //led_indicator(true);
-            ////////////////////////////////////////////////////////////Serial.println("CROSS_OR_T");
+            Serial.println("CROSS_OR_T");
         }
         else if (left_state == true and on_line_count>=((NUM_SENSORS/2)) and left_pin_state==true){
             line_state = LEFT_LINE;
-            ///////////////////////////////////////////////////////////////////Serial.println("LEFT_LINE");
+            Serial.println("LEFT_LINE");
         }
         else if (right_state == true and on_line_count>=((NUM_SENSORS/2)) and right_pin_state == true){
             line_state = RIGHT_LINE;
-            //////////////////////////////////////////////////////////////////Serial.println("RIGHT_LINE");
+            Serial.println("RIGHT_LINE");
         }
         else //if (left_state == false and right_state==false)
         {
            line_state = LINE;
-           ///////////////////////////////////////////////////////////////Serial.println("LINE");
+           Serial.println("LINE");
         }
 
         
@@ -493,37 +494,49 @@ public:
         }
     }
     void begin_ToF(){
-                // Setup XSHUT pin as output
-        pinMode(XSHUT_PIN, OUTPUT);
 
-        // Step 1: Initialize the default sensor
-        digitalWrite(XSHUT_PIN, LOW); // Disable the second sensor
-        delay(10);                    // Ensure it's off
-        if (!ToF_bottom.begin(0x29)) { // Default address is 0x29
-            Serial.println("Failed to initialize sensor at default address (0x29)");
-            wait_till_button();
-        }
-        Serial.println("VL53L0X at 0x29 initialized");
+        if (!ToF_bottom.begin()) {
+                 Serial.println("Failed to find VL53L0X sensor! Check wiring.");
+                    //while (1);
+                 }
 
-        // Step 2: Readdress the second sensor
-        digitalWrite(XSHUT_PIN, HIGH); // Enable the second sensor
-        delay(10);                     // Allow time for initialization
-        if (!ToF_top.begin(0x30)) {  // Assign a new address (0x30)
-            Serial.println("Failed to initialize second sensor at new address (0x30)");
-            wait_till_button();
-        }
-        Serial.println("VL53L0X at 0x30 initialized");
+        Serial.println("VL53L0X sensor initialized.");
+        //         // Setup XSHUT pin as output
+        // pinMode(XSHUT_PIN, OUTPUT);
+
+        // // Step 1: Initialize the default sensor
+        // digitalWrite(XSHUT_PIN, LOW); // Disable the second sensor
+        // delay(10);                    // Ensure it's off
+        // if (!ToF_bottom.begin(0x29)) { // Default address is 0x29
+        //     Serial.println("Failed to initialize sensor at default address (0x29)");
+        //     wait_till_button();
+        // }
+        // Serial.println("VL53L0X at 0x29 initialized");
+
+        // // Step 2: Readdress the second sensor
+        // digitalWrite(XSHUT_PIN, HIGH); // Enable the second sensor
+        // delay(10);                     // Allow time for initialization
+        // if (!ToF_top.begin(0x30)) {  // Assign a new address (0x30)
+        //     Serial.println("Failed to initialize second sensor at new address (0x30)");
+        //     wait_till_button();
+        // }
+        // Serial.println("VL53L0X at 0x30 initialized");
     
     }
     void ToF_measure(){
-        VL53L0X_RangingMeasurementData_t measure;
+          VL53L0X_RangingMeasurementData_t measure;
 
-        // Read from the default sensor
-        ToF_bottom.rangingTest(&measure, false);
-        if (measure.RangeStatus != 4) {
-            //Serial.print("Sensor at 0x29: ");
-            //Serial.print(measure.RangeMilliMeter);
-            //Serial.println(" mm");
+  // Perform a ranging measurement
+            ToF_bottom.rangingTest(&measure, false); // Pass 'true' to get debug data printed to Serial
+
+            // Check if the measurement is valid
+            if (measure.RangeStatus != 4) {  // 4 means out of range
+                Serial.print("Distance: ");
+                Serial.print(measure.RangeMilliMeter);
+                Serial.println(" mm");
+            } else {
+                Serial.println("Out of range");
+            }
             bottom_ToF_reading = measure.RangeMilliMeter;
             if (bottom_ToF_reading<=OBJECT_DETECT_RANGE){
                 object_infront_bottom_ToF = true;
@@ -532,31 +545,47 @@ public:
                 object_infront_bottom_ToF = false;
                 
             }
-        } else {
-            object_infront_bottom_ToF = false;
-            //Serial.println("Sensor at 0x29: Out of range");
-        }
+        // VL53L0X_RangingMeasurementData_t measure;
 
-        // Read from the readdressed sensor
-        ToF_top.rangingTest(&measure, false);
-        if (measure.RangeStatus != 4) {
-            // Serial.print("Sensor at 0x30: ");
-            // Serial.print(measure.RangeMilliMeter);
-            // Serial.println(" mm");
-            top_ToF_reading = measure.RangeMilliMeter;
-                        if (top_ToF_reading<=OBJECT_DETECT_RANGE){
-                object_infront_top_ToF = true;
-            }
-            else{
-                object_infront_top_ToF = false;
+        // // Read from the default sensor
+        // // ToF_bottom.rangingTest(&measure, false);
+        // // if (measure.RangeStatus != 4) {
+        // //     //Serial.print("Sensor at 0x29: ");
+        // //     //Serial.print(measure.RangeMilliMeter);
+        // //     //Serial.println(" mm");
+        // //     bottom_ToF_reading = measure.RangeMilliMeter;
+        // //     if (bottom_ToF_reading<=OBJECT_DETECT_RANGE){
+        // //         object_infront_bottom_ToF = true;
+        // //     }
+        // //     else{
+        // //         object_infront_bottom_ToF = false;
                 
-            }
-        } else {
-            object_infront_top_ToF = false;
-            //Serial.println("Sensor at 0x30: Out of range");
-        }
+        // //     }
+        // // } else {
+        // //     object_infront_bottom_ToF = false;
+        // //     //Serial.println("Sensor at 0x29: Out of range");
+        // // }
 
-        //delay(500); // Wait before next reading
+        // // Read from the readdressed sensor
+        // ToF_top.rangingTest(&measure, false);
+        // if (measure.RangeStatus != 4) {
+        //     // Serial.print("Sensor at 0x30: ");
+        //     // Serial.print(measure.RangeMilliMeter);
+        //     // Serial.println(" mm");
+        //     top_ToF_reading = measure.RangeMilliMeter;
+        //                 if (top_ToF_reading<=OBJECT_DETECT_RANGE){
+        //         object_infront_top_ToF = true;
+        //     }
+        //     else{
+        //         object_infront_top_ToF = false;
+                
+        //     }
+        // } else {
+        //     object_infront_top_ToF = false;
+        //     //Serial.println("Sensor at 0x30: Out of range");
+        // }
+
+        // //delay(500); // Wait before next reading
 
     }
     void measure_height(){

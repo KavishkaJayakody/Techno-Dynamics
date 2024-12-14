@@ -50,7 +50,10 @@ public:
         {  
             Serial.println(encoders.robotDistance());
             if (encoders.robotDistance()>=(250-165+15)){//70
-                while(!barcode_finished){
+                while(!barcode_finished || !motion.move_finished()){
+                    if ((int)encoders.robotDistance()>870){
+                        return;
+                    }
                     if ((int)encoders.robotDistance()>length_to_next_strip){
                         length_to_next_strip +=30;
                         
@@ -68,12 +71,12 @@ public:
                                 
                                 }
                                 if(inputArray[last_scanned_pos]==0 && inputArray[last_scanned_pos]==0 && inputArray[last_scanned_pos]==0){
-                                    barcode_finished = true;
+                                    //barcode_finished = true;
                                     for (int i=0; i<40;i++){
                                         Serial.print(inputArray[i]);
                                     }
-                                    decode_barcode();
-                                    align_to_juction();
+                                    // decode_barcode();
+                                    //align_to_juction();
                                 
                                 }
                             }
@@ -226,7 +229,7 @@ public:
         if (sensors.last_junction == CROSS_OR_T){
             sensors.led_indicator(true);
             Serial.print("CROSS_OR_T");
-            //robot.move(100);
+            robot.move(100);
             delay(250);//robot.turn(77);
         }
         else if (sensors.last_junction == RIGHT_LINE){
