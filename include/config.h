@@ -7,13 +7,13 @@
 
 //*****************************communications******************************* */
 
-const char* SSID = "SLT-4G_WataNandun";//"SLT-ADSL-92776";   // network credentials
-const char* PASSWORD = "Nwata@#com";//"J1234567890";
+const char* SSID = "SLT-ADSL-92776";//"SLT-4G_WataNandun";//;   // network credentials
+const char* PASSWORD = "J1234567890";//"Nwata@#com";//
 
 const int LOCAL_PORT = 12345;  // UDP port to listen on
 
-const char* REMOTE_IP = "192.168.1.131";//"192.168.1.3";
-const int REMOTE_PORT = 12345;
+const char* REMOTE_IP = "192.168.1.8";//"192.168.1.3";
+const int REMOTE_PORT = 3333;
 
 
 
@@ -44,8 +44,8 @@ const int MOTOR_LEFT_POLARITY = 1;
 
 const int M_BALNCE_PWM = 0; //adjust this value to bring both the motors to same speed
 
-const int LEFT_MIN_MOTOR_PERCENTAGE = 45;
-const int RIGHT_MIN_MOTOR_PERCENTAGE = 2;
+const int LEFT_MIN_MOTOR_PERCENTAGE = 20;
+const int RIGHT_MIN_MOTOR_PERCENTAGE = 13;
 const int MIN_MOTOR_BIAS = 5;
 const int maxMotorPercentage = 100;
 
@@ -70,13 +70,13 @@ const float STR_KP = 1;//100;
 const float STR_KD = 0;
 
 //****************************************Robot*****************************************//
-const float MOVE_SPEED = 60.0;
-const float MOVE_ACC = 10;//1000; //720//1000
+const float MOVE_SPEED = 200;//100//60.0;
+const float MOVE_ACC = 100;//10//1000; //720//1000
 const float IMMEDIATE_ACC = 2000;
 
-const float OMEGA_TURN = 100;
-const float ALPHA_TURN = 5.0;//1500
-const float LEFT = -77.0;
+const float OMEGA_TURN = 180;
+const float ALPHA_TURN = 180;//5.0;//1500
+const float LEFT = -85.0;
 const float RIGHT = 75.0;
 
 
@@ -94,6 +94,7 @@ const int LED_PIN = 2;
 
 const int LEFT_LINE_PIN = 36;
 const int RIGHT_LINE_PIN = 39;
+const int FRONT_IR_PIN = 25;
 
 const int XSHUT_PIN = 25;
 const float OBJECT_DETECT_RANGE = 300;

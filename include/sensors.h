@@ -93,6 +93,7 @@ public:
         pinMode(LED_PIN, OUTPUT);
         pinMode(LEFT_LINE_PIN, INPUT);
         pinMode(RIGHT_LINE_PIN, INPUT);
+        pinMode(FRONT_IR_PIN,INPUT);
     }
 
         float get_steering_feedback()
@@ -130,6 +131,9 @@ public:
         m_cross_track_error = error;
         calculate_steering_adjustment();
         //Serial.println(adcValues[0]);
+    }
+    bool front_wall_exist(){
+        return digitalRead(FRONT_IR_PIN);
     }
 
     // Initialize the ADS1115 sensors

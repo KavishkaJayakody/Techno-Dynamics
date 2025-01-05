@@ -21,6 +21,7 @@ Profile rotation;
 Sensors sensors;
 Communications communications;
 Mechanisms mechanisms;
+bool pressed=false;
 
 
 void setup() {
@@ -29,11 +30,11 @@ void setup() {
   encoders.reset();
   Serial.begin(115200);
   Wire.begin();
-  sensors.begin();
+  //sensors.begin();
   communications.begin();
   mechanisms.begin();
 
-  sensors.calibrate();
+  //sensors.calibrate();
 
   controlTicker.attach(0.005,[](){
       encoders.update();
@@ -47,34 +48,12 @@ void setup() {
       // encoders.update();
       // motion.update();
       // motors.update(motion.velocity(), motion.omega(), sensors.get_steering_feedback());
-      
-      communications.send("IRSENSORS",sensors.all_IR_readings, NUM_SENSORS+2);
+      //communications.send("HI THERE");
+      //communications.send("IRSENSORS",sensors.all_IR_readings, NUM_SENSORS+2);
       communications.send_velocity();
       communications.check(); 
-      sensors.update();
-      // Serial.print("color ");
-      // Serial.print(sensors.getProminentColorinword());
-      // Serial.print("  Bottom ToF ");
-      // Serial.print(sensors.bottom_ToF_reading);
-      // Serial.print(sensors.object_infront_bottom_ToF);
-      // Serial.print(" Top ToF ");
-      // Serial.print(sensors.bottom_ToF_reading);
-      // Serial.print(sensors.object_infront_bottom_ToF);
-      
+      //sensors.update();
 
-
-      //Serial.print(sensors.get_steering_feedback());
-      //Serial.print("  error ");
-     // Serial.println(sensors.line_error());
-      
-      //Serial.print("Steering mode    ");
-      //Serial.print(sensors.g_steering_mode);
-      //Serial.print(" steering feedback   ");
-      //Serial.print(sensors.get_steering_feedback());
-      //Serial.print(" ");
-
-      
-      //Serial.println(encoders.robotAngle());
 
       });
   
@@ -93,15 +72,42 @@ void setup() {
 
 void loop() {
 
+  // sensors.set_steering_mode(STEERING_OFF);
+  // motors.disable_controllers();
+  // for (int i=-1023;i<1023;i=i+32){
+
+  //   motors.set_left_motor_pwm(0);
+  //   motors.set_right_motor_pwm(i);
+  //   float avg_speed = 0;
+  //   for (int j=0;j<100; j++){
+  //     avg_speed += encoders.robot_speed();
+  //     delay(20);
+  //   }
+  //   avg_speed = (avg_speed/100)*2;
+  //   Serial.println(String(i) + " percentage " + String(i * 100 / 1023) + " velocity " + String(avg_speed));
+  //   communications.send(String(i * 100 / 1023) + "," + String(avg_speed));
+  // }
+  // while(1){}
+
   motion.reset_drive_system();
   robot.move_staright(0.1);
   delay(1000);
+  while (true){
+      robot.move_staright(1000);
+      delay(250);
+      robot.move_staright(-1000);
+      delay(250);
+      robot.turn(-86);
+      delay(250);
+      robot.turn(86);
+      delay(250);
+      }
   sensors.led_indicator(1);
   robot.scan_barcode();
   sensors.led_indicator(1);
   delay(3000);
   sensors.led_indicator(0);
-  robot.decode_barcode();
+  //robot.decode_barcode();
   sensors.led_indicator(1);
   delay(3000);
   sensors.led_indicator(0);
@@ -115,162 +121,27 @@ void loop() {
   robot.turn(RIGHT);
   robot.move_till_junction(3000);
   robot.turn(LEFT);
-  robot.turn(RIGHT);
-  robot.move_till_junction(3000);
-  //robot.turn(LEFT);
-  robot.move_till_junction(3000);
-  robot.turn(LEFT);
-  // robot.turn(RIGHT);
-  robot.move(500);
-  while(1){
-    robot.move_till_junction_and_turn();
+  if (sensors.front_wall_exist()){
+      robot.turn(RIGHT);
+      robot.move_till_junction(3000);
+      //robot.turn(LEFT);
+      robot.move_till_junction(3000);
+      robot.turn(LEFT);
+
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+
   }
+
+
+
   
 
 
-  // sensors.led_indicator(1);
-  // robot.scan_barcode();
-
-  
-  //   sensors.set_steering_mode(STEERING_OFF);
-  //   for (int i=-1023;i<1023;i=i+32){
-
-  //   motors.set_left_motor_pwm(i);//(sqrt(i*2.5/1000)/0.65)*1000/2.5);
-  //   motors.set_right_motor_pwm(0);//(pow(2.718,(4*2.5*i)/(3*1000))/25)*1000/2.5);
-  //   float avg_speed = 0;
-  //   for (int j=0;j<100; j++){
-  //     avg_speed += encoders.robot_speed();
-  //     delay(20);
-  //   }
-  //   avg_speed = avg_speed/100;
-  //   Serial.print(i);
-  //   Serial.print("  percentage ");
-  //   Serial.print( i*100/1023);
-  //   Serial.print("  velcity ");
-  //   Serial.println(avg_speed);
-  // }
 
 
-
-  while (true){
-      robot.move_staright(300);
-      delay(250);
-      robot.move_staright(-300);
-      delay(250);
-      robot.turn(-90);
-      delay(250);
-      robot.turn(90);
-      delay(250);
-      }
-  while(1){
-     robot.move_till_junction_and_turn();
-     delay(1000);
-  }
-  robot.move_till_junction_and_turn();
-  robot.scan_barcode();
-  delay(1000);
-  robot.move_till_junction_and_turn();
-  robot.move_till_junction(3000);
-  robot.turn(RIGHT);
-  robot.move_till_junction(3000);
-  robot.turn(LEFT);
-  robot.move_till_junction(3000);
-  robot.turn(RIGHT);
-  robot.move_till_junction(3000);
-  //robot.turn(LEFT);
-  robot.move_till_junction(3000);
-  robot.turn(RIGHT);
-  while (1){}
-
-  delay(5000);
-  sensors.led_indicator(1);
-  robot.scan_barcode();
-  
-  while (true){
-    //robot.move_staright(500);
-    robot.turn(-77);
-    motion.stop();
-    delay(1000);
-
-
-
-    robot.turn(-77);
-    motion.stop();
-    //delay(1000);
-
-    //robot.move_staright(500);
-    //delay(1000);
-
-    robot.turn(75);
-    motion.stop();
-    //delay(1000);
-
-    robot.turn(75);
-    motion.stop();
-    //delay(1000);
-
-    //robot.move_staright(500);
-    //delay(1000);
-  }
-  Serial.print("  Moving    ");
-
-  robot.move_till_junction(3000);
-  robot.turn(RIGHT);
-  robot.move_till_junction(3000);
-  robot.turn(LEFT);
-  robot.move_till_junction(3000);
-  robot.turn(RIGHT);
-  robot.move_till_junction(3000);
-  robot.turn(LEFT);
-  robot.move_till_junction(3000);
-  robot.turn(RIGHT);
-  while (1){}
-  
-  while (true){
-    robot.move_till_junction_and_turn();
-  }
-
-  while (true){
-      robot.move(300);
-      delay(250);
-      robot.move(-300);
-      delay(250);
-      robot.turn(-90);
-      delay(250);
-      robot.turn(-90);
-      delay(250);
-      }
-
-    robot.turn(90);
-    delay(250);
-    robot.move(300);
-    delay(250);
-    robot.turn(-90);
-    delay(250);
-    robot.move(300);
-    delay(250);
-    robot.move(-300);
-    delay(250);
-
-    robot.turn(90);
-    delay(250);
-    robot.move(300);
-    delay(250);
-    robot.turn(-90);
-    delay(250);
-    robot.move(300);
-    delay(250);
-    robot.move(-300);
-    delay(250);
-    robot.turn(-90);
-    delay(250);
-    robot.move(600);
-    delay(250);
-    robot.turn(90);
-    delay(250);
-
-
-
+ 
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -316,3 +187,106 @@ void loop() {
    
    //Serial.println("h");
   //delay(18);
+
+
+  //  while (true){
+  //     robot.move_staright(300);
+  //     delay(250);
+  //     robot.move_staright(-300);
+  //     delay(250);
+  //     robot.turn(-90);
+  //     delay(250);
+  //     robot.turn(90);
+  //     delay(250);
+  //     }
+  // while(1){
+  //    robot.move_till_junction_and_turn();
+  //    delay(1000);
+  // }
+  // robot.move_till_junction_and_turn();
+  // robot.scan_barcode();
+  // delay(1000);
+  // robot.move_till_junction_and_turn();
+  // robot.move_till_junction(3000);
+  // robot.turn(RIGHT);
+  // robot.move_till_junction(3000);
+  // robot.turn(LEFT);
+  // robot.move_till_junction(3000);
+  // robot.turn(RIGHT);
+  // robot.move_till_junction(3000);
+  // //robot.turn(LEFT);
+  // robot.move_till_junction(3000);
+  // robot.turn(RIGHT);
+  // while (1){}
+
+  // delay(5000);
+  // sensors.led_indicator(1);
+  // robot.scan_barcode();
+  
+  // while (true){
+  //   //robot.move_staright(500);
+  //   robot.turn(-77);
+  //   motion.stop();
+  //   delay(1000);
+
+
+
+  //   robot.turn(-77);
+  //   motion.stop();
+  //   //delay(1000);
+
+  //   //robot.move_staright(500);
+  //   //delay(1000);
+
+  //   robot.turn(75);
+  //   motion.stop();
+  //   //delay(1000);
+
+  //   robot.turn(75);
+  //   motion.stop();
+  //   //delay(1000);
+
+  //   //robot.move_staright(500);
+  //   //delay(1000);
+  // }
+  // Serial.print("  Moving    ");
+
+  // robot.move_till_junction(3000);
+  // robot.turn(RIGHT);
+  // robot.move_till_junction(3000);
+  // robot.turn(LEFT);
+  // robot.move_till_junction(3000);
+  // robot.turn(RIGHT);
+  // robot.move_till_junction(3000);
+  // robot.turn(LEFT);
+  // robot.move_till_junction(3000);
+  // robot.turn(RIGHT);
+  // while (1){}
+  
+  // while (true){
+  //   robot.move_till_junction_and_turn();
+  // }
+
+  // while (true){
+  //     robot.move(300);
+  //     delay(250);
+  //     robot.move(-300);
+  //     delay(250);
+  //     robot.turn(-90);
+  //     delay(250);
+  //     robot.turn(-90);
+  //     delay(250);
+  //     }
+
+  //   robot.turn(90);
+  //   delay(250);
+  //   robot.move(300);
+  //   delay(250);
+  //   robot.turn(-90);
+  //   delay(250);
+  //   robot.move(300);
+  //   delay(250);
+  //   robot.move(-300);
+
+
+
