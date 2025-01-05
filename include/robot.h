@@ -207,6 +207,11 @@ public:
 
         }
     }
+
+    void navigate_dashed_lines(){
+        move(1000);
+        
+    }
     void align_to_juction(){
         sensors.set_steering_mode(STEERING_OFF);
         motion.reset_drive_system();
@@ -268,6 +273,42 @@ public:
             delayMicroseconds(2);
         }
         delay(1);
+    }
+    void hidden_task(){
+        move_till_junction(3000);
+        turn(LEFT);
+        move(300);
+        move(70);
+        mechanisms.lower();
+        mechanisms.grab();
+        mechanisms.lift();
+        turn(LEFT);
+        turn(LEFT);
+        move_till_junction(3000);
+        turn(LEFT);
+        move_till_junction(3000);
+        turn(LEFT);
+        move(300);
+        mechanisms.lower();
+        mechanisms.lift();
+        turn(RIGHT);
+        turn(RIGHT);
+        move_till_junction(3000);
+        turn(RIGHT);
+        move_till_junction(3000);
+        move(100);
+        mechanisms.lower();
+        mechanisms.release();
+        move(-100);
+        mechanisms.grab();
+        move(300);
+        move(-50);
+        turn(LEFT);
+        turn(LEFT);
+        move_till_junction(3000);
+        turn(RIGHT);
+
+
     }
     void turn(float angle)
     {

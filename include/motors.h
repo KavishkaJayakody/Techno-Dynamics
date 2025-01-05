@@ -121,17 +121,17 @@ void begin()
   {
     ///////give the percentage required to acheive a given velocity--- |v|<500
     //int l_rps = (left_feed_velocity * PULSES_PER_ROTATION) / MM_PER_ROTATION;
-    float v = left_feed_velocity;
+    float v = left_feed_velocity/2;//     /2 is due to a mistake in calculations
     //Serial.print("left feed  ");
     //Serial.println(v);
     //v = 0.0533*v*v*v-0.1899*v*v+1.1948*v;  //compensation for motor miss match
     float l_feed_percentage;
     if (v>=0){
-        l_feed_percentage = (-0.0004*v*v)+(0.3113*v)+43.2991;//23.2991
+        l_feed_percentage = 0.12*v+62;//(-0.0004*v*v)+(0.3113*v)+43.2991;//23.2991
     }
     else {
-      v=-v;
-      l_feed_percentage = -((-0.0004*v*v)+(0.3113*v)+53.2991);//23.2991
+      //v=-v;
+      l_feed_percentage = 0.167*v-56;//-((-0.0004*v*v)+(0.3113*v)+53.2991);//23.2991
     }
     // Serial.print("  left   ");
     // Serial.print(l_feed_percentage);
@@ -142,17 +142,28 @@ void begin()
   {
     ///////give the percentage required to acheive a given velocity--- |v|<500
     //int r_rps = (left_feed_velocity * PULSES_PER_ROTATION) / MM_PER_ROTATION;
-    float v = right_feed_velocity;
+    float v = right_feed_velocity/2;//     /2 is due to a mistake in calculations
     //Serial.print("  right feed  ");
     //Serial.print(v);
     float r_feed_percentage;
-    if(v>=0){
-      r_feed_percentage = (0.0003*v*v*v)-(0.0177*v*v)+(0.4125*v)+2.8691;//(0.2*v*v+68.83*v+45000)/1023.0;
+    if (v>=150){
+      r_feed_percentage = 2*pow(1.02,v-150)+16;}
+    else if (v>=0){
+      r_feed_percentage = 11+v/20;
+    }
+    else if(v>=-150){
+      r_feed_percentage = -7+v/15;
     }
     else{
-      v = -v;
-      r_feed_percentage = -((0.0003*v*v*v)-(0.0177*v*v)+(0.4125*v)+2.8691);
+      r_feed_percentage = -2*pow(1.021,-v-150)-15;
     }
+    // if(v>=0){
+    //   r_feed_percentage = (0.0003*v*v*v)-(0.0177*v*v)+(0.4125*v)+2.8691;//(0.2*v*v+68.83*v+45000)/1023.0;
+    // }
+    // else{
+    //   v = -v;
+    //   r_feed_percentage = -((0.0003*v*v*v)-(0.0177*v*v)+(0.4125*v)+2.8691);
+    // }
     // Serial.print("   right   ");
     // Serial.println(r_feed_percentage);
     return r_feed_percentage;
@@ -215,14 +226,14 @@ void begin()
       pwm = -pwm + M_BALNCE_PWM;
       digitalWrite(LEFT_MOTOR_IN1, HIGH);
       digitalWrite(LEFT_MOTOR_IN2, LOW);
-      ledcWrite(2, pwm);//(sqrt(pwm*2.5/1000)/0.65)*1000/2.5);
+      ledcWrite(2, pwm);
     }
     else
     {
       pwm = pwm + M_BALNCE_PWM;
       digitalWrite(LEFT_MOTOR_IN1, LOW);
       digitalWrite(LEFT_MOTOR_IN2, HIGH);
-      ledcWrite(2,pwm);//(sqrt(pwm*2.5/1000)/0.65)*1000/2.5);
+      ledcWrite(2,pwm);
     }
   }
     void set_right_motor_pwm(int pwm)
@@ -233,14 +244,14 @@ void begin()
       pwm = -pwm - M_BALNCE_PWM;
       digitalWrite(RIGHT_MOTOR_IN1, HIGH);
       digitalWrite(RIGHT_MOTOR_IN2, LOW);
-      ledcWrite(1, pwm);//(pow(2.718,(4*2.5*pwm)/(3*1000))/25)*1000/2.5);
+      ledcWrite(1, pwm);
     }
     else
     {
       pwm = pwm - M_BALNCE_PWM;
       digitalWrite(RIGHT_MOTOR_IN1, LOW);
       digitalWrite(RIGHT_MOTOR_IN2, HIGH);
-      ledcWrite(1, pwm);//(pow(2.718,(4*2.5*pwm)/(3*1000))/25)*1000/2.5);
+      ledcWrite(1, pwm);
     }
   }
 
@@ -327,14 +338,12 @@ private:
 //The code used to find the feed forward percentages
 
 
-  //motors.set_left_motor_pwm(700);
-  //motors.set_right_motor_pwm(700);
-  //while(1){}
+  //disable_controllers()
   // sensors.set_steering_mode(STEERING_OFF);
   //  for (int i=-1023;i<1023;i=i+32){
 
-  //   motors.set_left_motor_pwm(i);//(sqrt(i*2.5/1000)/0.65)*1000/2.5);
-  //   motors.set_right_motor_pwm(0);//(pow(2.718,(4*2.5*i)/(3*1000))/25)*1000/2.5);
+  //   motors.set_left_motor_pwm(i);
+  //   motors.set_right_motor_pwm(0);
   //   float avg_speed = 0;
   //   for (int j=0;j<100; j++){
   //     avg_speed += encoders.robot_speed();
@@ -344,6 +353,6 @@ private:
   //   Serial.print(i);
   //   Serial.print("  percentage ");
   //   Serial.print( i*100/1023);
-  //   Serial.print("  velcity ");
+  //   Serial.print("  velocity ");
   //   Serial.println(avg_speed);
   // }
