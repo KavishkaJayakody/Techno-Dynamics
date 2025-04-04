@@ -10,13 +10,17 @@
 # define GOOD 1
 # define BAD 0
 
-class tasks
+class Tasks; // Forward declaration of the tasks class
+
+extern Tasks tasks; // Declare the tasks object
+
+class Tasks
 {
 public:
     // robotigation robot; // robotigation object
     // encodersoders encoders; // encodersoders object
     // raspi raspi; // Raspberry Pi object
-    tasks(); // Constructor with robotigation object;
+    // tasks(); // Constructor with robotigation object;
     bool task1(); // IMPLEMENTED
     bool task2(); // IMPLEMENTED
     bool task3(); // IMPLEMENTED
@@ -35,7 +39,7 @@ private:
 
 // FINAL FINAL SIDE OF THE CAM - RIGHT SIDE
 
-bool tasks::task1()
+bool Tasks::task1()
 {   
     int potatoJuncs = 0;
     bool potatoFound = false;
@@ -76,7 +80,7 @@ bool tasks::task1()
     return true; // Return true to indicate task 1 is done
 }
 
-bool tasks::task2()
+bool Tasks::task2()
 {
     bool wallDone = false;
     float side = 1; // right line (should turn left)
@@ -207,7 +211,7 @@ bool tasks::task2()
 // }
 
 
-bool tasks::task3()
+bool Tasks::task3()
 {   
     // READ APRILTAG
     // robot start facing the wall
@@ -276,7 +280,7 @@ bool tasks::task3()
     return true; // Return true to indicate task 3 is done
 }
 
-bool tasks::task4()
+bool Tasks::task4()
 {
     std::vector<std::vector<int>> boxColors = {{0,0,0}, {0,0,0}, {0,0,0}}; // Initialize the box array
 
@@ -318,13 +322,13 @@ bool tasks::task4()
     return true; // Return true to indicate task 4 is done
 }
 
-bool tasks::task5()
+bool Tasks::task5()
 {
     // Task 5 implementation
     return true; // Return true to indicate task 5 is done
 }
 
-bool tasks::task6()
+bool Tasks::task6()
 {
     int dry = 0; // Initialize dry to false
     float startDist;

@@ -8,6 +8,7 @@
 #include "Wire.h"
 #include "communications.h"
 #include "mechanisms.h"
+#include "tasks.h"
 
 // put function declarations here:
 Motors motors;
@@ -21,6 +22,7 @@ Profile rotation;
 Sensors sensors;
 Communications communications;
 Mechanisms mechanisms;
+Tasks tasks;
 bool pressed=false;
 
 
@@ -71,93 +73,94 @@ void setup() {
 }
 
 void loop() {
+  tasks.task1();
+}
+  // // sensors.set_steering_mode(STEERING_OFF);
+  // // motors.disable_controllers();
+  // // for (int i=-100;i<101;i++){
 
-  // sensors.set_steering_mode(STEERING_OFF);
-  // motors.disable_controllers();
-  // for (int i=-100;i<101;i++){
+  // //   motors.set_left_motor_percentage(i);
+  // //   motors.set_right_motor_percentage(0);
+  // //   float avg_speed = 0;
+  // //   for (int j=0;j<100; j++){
+  // //     avg_speed += encoders.robot_speed();
+  // //     delay(2);
+  // //   }
+  // //   avg_speed = (avg_speed/100)*2;
+  // //   Serial.println(String(i) + " ,"+ String(avg_speed));
+  // //   //communications.send(String(i * 100 / 1023) + "," + String(avg_speed));
+  // // }
+  // // while(1){}
 
-  //   motors.set_left_motor_percentage(i);
-  //   motors.set_right_motor_percentage(0);
-  //   float avg_speed = 0;
-  //   for (int j=0;j<100; j++){
-  //     avg_speed += encoders.robot_speed();
-  //     delay(2);
-  //   }
-  //   avg_speed = (avg_speed/100)*2;
-  //   Serial.println(String(i) + " ,"+ String(avg_speed));
-  //   //communications.send(String(i * 100 / 1023) + "," + String(avg_speed));
-  // }
-  // while(1){}
-
-  motion.reset_drive_system();
-  robot.move_staright(0.1);
-  delay(1000);
-  // for (int i=0; i<10;i++){
-  //   robot.turn(360);
-  //   delay(1000);
-  //   communications.send("Distance ", encoders.robotAngle());
-  // }
-  Serial.println("Start");
-  //robot.move_till_potato(6000);
-  robot.move_till_junction(6000);
-  delay(2000);
-  robot.move_till_potato(6000);
-  delay(2000);
-   robot.turn(RIGHT);
-   delay(2000);
+  // motion.reset_drive_system();
+  // robot.move_staright(0.1);
+  // delay(1000);
+  // // for (int i=0; i<10;i++){
+  // //   robot.turn(360);
+  // //   delay(1000);
+  // //   communications.send("Distance ", encoders.robotAngle());
+  // // }
+  // Serial.println("Start");
+  // //robot.move_till_potato(6000);
   // robot.move_till_junction(6000);
   // delay(2000);
-  // robot.move_till_junction(6000);
+  // robot.move_till_potato(6000);
   // delay(2000);
-  // robot.turn(LEFT);
-  // delay(2000);
-  // robot.move_till_junction(6000);
-  // delay(2000);
-  // robot.move_till_junction(6000);
-  // delay(2000);
-  // robot.turn(LEFT);
-  // delay(2000);
-  // robot.move_till_junction(6000);
-  // delay(2000);
-  // robot.move_till_junction(6000);
-  // delay(2000);
-  // robot.turn(RIGHT);
-  // delay(2000);
-  // robot.move_till_junction(6000);
-  // delay(2000);
-  // robot.move_till_junction(6000);
-  // delay(2000);
-  // robot.turn(RIGHT);
-  // delay(2000);
-  // robot.move_till_junction(6000);
-  // delay(2000);
-  // robot.move_till_junction(6000);
-  // delay(2000);
-  // robot.move_staright(150);
-  while (true){
-      // robot.move_staright(315*2);
-      // delay(1000);
-      // robot.turn(-90);
-      // delay(1000);
-      // robot.move_staright(315*2);
-      // delay(250);
-      // robot.turn(-90);
-      // delay(1000);
+  //  robot.turn(RIGHT);
+  //  delay(2000);
+  // // robot.move_till_junction(6000);
+  // // delay(2000);
+  // // robot.move_till_junction(6000);
+  // // delay(2000);
+  // // robot.turn(LEFT);
+  // // delay(2000);
+  // // robot.move_till_junction(6000);
+  // // delay(2000);
+  // // robot.move_till_junction(6000);
+  // // delay(2000);
+  // // robot.turn(LEFT);
+  // // delay(2000);
+  // // robot.move_till_junction(6000);
+  // // delay(2000);
+  // // robot.move_till_junction(6000);
+  // // delay(2000);
+  // // robot.turn(RIGHT);
+  // // delay(2000);
+  // // robot.move_till_junction(6000);
+  // // delay(2000);
+  // // robot.move_till_junction(6000);
+  // // delay(2000);
+  // // robot.turn(RIGHT);
+  // // delay(2000);
+  // // robot.move_till_junction(6000);
+  // // delay(2000);
+  // // robot.move_till_junction(6000);
+  // // delay(2000);
+  // // robot.move_staright(150);
+  // while (true){
+  //     // robot.move_staright(315*2);
+  //     // delay(1000);
+  //     // robot.turn(-90);
+  //     // delay(1000);
+  //     // robot.move_staright(315*2);
+  //     // delay(250);
+  //     // robot.turn(-90);
+  //     // delay(1000);
 
       
 
-      }
-  sensors.led_indicator(1);
-  robot.scan_barcode();
-  sensors.led_indicator(1);
-  delay(3000);
-  sensors.led_indicator(0);
-  //robot.decode_barcode();
-  sensors.led_indicator(1);
-  delay(3000);
-  sensors.led_indicator(0);
-  robot.move_till_junction(3000);
-  robot.turn(RIGHT);
+  //     }
+  // sensors.led_indicator(1);
+  // robot.scan_barcode();
+  // sensors.led_indicator(1);
+  // delay(3000);
+  // sensors.led_indicator(0);
+  // //robot.decode_barcode();
+  // sensors.led_indicator(1);
+  // delay(3000);
+  // sensors.led_indicator(0);
+  // robot.move_till_junction(3000);
+  // robot.turn(RIGHT);
 
 
   
@@ -166,7 +169,7 @@ void loop() {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
 
-  }
+  // }
 
 
 
