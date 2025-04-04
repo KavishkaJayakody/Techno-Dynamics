@@ -279,7 +279,7 @@ public:
             if (sensors.is_potato_present()){
                     motion.stop();
                     return true;
-                    break;
+                    // break;
             }
 
 
