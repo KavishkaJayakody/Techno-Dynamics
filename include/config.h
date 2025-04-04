@@ -79,6 +79,7 @@ const float OMEGA_TURN = 120;
 const float ALPHA_TURN = 90;//5.0;//1500
 const float LEFT = 85.0;
 const float RIGHT = -85.0;
+const float ABOUTTURN = 180;
 
 
 
