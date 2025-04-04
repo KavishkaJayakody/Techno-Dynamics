@@ -152,7 +152,7 @@ public:
     }
 
 
-    void move_staright(float distance)
+    void move_straight(float distance)
     {
         sensors.set_steering_mode(STEERING_OFF);
         motion.reset_drive_system();
@@ -262,7 +262,12 @@ public:
         }
         return true;
     }
-    void move_till_potato(float distance)
+
+    void move_till_wall(float distance) {
+
+    };
+
+    bool move_till_potato(float distance)
     {   
         distance = distance;
         bool junction_detected = false;
@@ -271,10 +276,13 @@ public:
         motion.start_move( distance , MOVE_SPEED, 0, MOVE_ACC);
         while (!motion.move_finished())
         {   
-           if (sensors.is_potato_present()){
-            	motion.stop();
-                break;
-           }
+            if (sensors.is_potato_present()){
+                    motion.stop();
+                    return true;
+                    break;
+            }
+
+
 
             delayMicroseconds(2);
 
