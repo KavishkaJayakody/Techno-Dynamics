@@ -93,7 +93,7 @@ public:
         pinMode(LED_PIN, OUTPUT);
         pinMode(LEFT_LINE_PIN, INPUT);
         pinMode(RIGHT_LINE_PIN, INPUT);
-        pinMode(FRONT_IR_PIN,INPUT);
+        pinMode(POTATO_IR_PIN,INPUT);
     }
 
         float get_steering_feedback()
@@ -132,9 +132,7 @@ public:
         calculate_steering_adjustment();
         //Serial.println(adcValues[0]);
     }
-    bool front_wall_exist(){
-        return digitalRead(FRONT_IR_PIN);
-    }
+
 
     // Initialize the ADS1115 sensors
     void begin_ADC()
@@ -227,6 +225,16 @@ public:
 
     }
 
+    bool is_wall_present(){
+        return true;
+
+    }
+
+    bool is_potato_present(){
+        digitalRead(POTATO_IR_PIN);
+        return true;
+    }
+
     float calculate_steering_adjustment()
     {
         // always calculate the adjustment for testing. It may not get used.
@@ -254,7 +262,7 @@ public:
 
 
         // Map the raw ADC readings using the min and max values from calibration
-        Serial.print(left_pin_state);
+        //Serial.print(left_pin_state);
 
         for (int i = 0; i < NUM_SENSORS; i++)
         {
@@ -263,7 +271,7 @@ public:
         }
 
         float alpha=0.5; //complementary filter for erroneous sensor(2nd one)
-        adcValues[1]=(1-alpha)*((adcValues[0]+adcValues[2])/2)+(alpha)*(100-adcValues[1]);
+        adcValues[1]=(1-alpha)*((adcValues[0]+adcValues[2])/2)+(alpha)*(adcValues[1]);
 
         
         for (int i = 0; i < NUM_SENSORS; i++)
@@ -289,9 +297,15 @@ public:
                     sensor_on_line[i] = false;
                 }
             }
-            Serial.print(sensor_on_line[i]);
+            //Serial.print(sensor_on_line[i]);
         }
-       Serial.print(right_pin_state);
+        //Serial.print("     ");
+        for (int i = 0; i < NUM_SENSORS; i++)
+        {
+            //Serial.print(adcValues[i]);
+            //Serial.print(",");
+        }
+       //Serial.print(right_pin_state);
 
         //line state detection
         left_state = true;
@@ -328,25 +342,25 @@ public:
 
         if (no_line == true){
             line_state = NO_LINE;
-            Serial.println("NO_LINE");
+            //Serial.println("NO_LINE");
         }
         else if (left_state == true and right_state==true and on_line_count >= NUM_SENSORS/2 and left_pin_state==true and right_pin_state == true){
             line_state = CROSS_OR_T;
             //led_indicator(true);
-            Serial.println("CROSS_OR_T");
+            //Serial.println("CROSS_OR_T");
         }
         else if (left_state == true and on_line_count>=((NUM_SENSORS/2)) and left_pin_state==true){
             line_state = LEFT_LINE;
-            Serial.println("LEFT_LINE");
+            //Serial.println("LEFT_LINE");
         }
         else if (right_state == true and on_line_count>=((NUM_SENSORS/2)) and right_pin_state == true){
             line_state = RIGHT_LINE;
-            Serial.println("RIGHT_LINE");
+            //Serial.println("RIGHT_LINE");
         }
         else //if (left_state == false and right_state==false)
         {
            line_state = LINE;
-           Serial.println("LINE");
+           //Serial.println("LINE");
         }
 
         

@@ -30,11 +30,11 @@ void setup() {
   encoders.reset();
   Serial.begin(115200);
   Wire.begin();
-  //sensors.begin();
+  sensors.begin();
   communications.begin();
   mechanisms.begin();
 
-  //sensors.calibrate();
+  sensors.calibrate();
 
   controlTicker.attach(0.005,[](){
       encoders.update();
@@ -51,8 +51,8 @@ void setup() {
       //communications.send("HI THERE");
       //communications.send("IRSENSORS",sensors.all_IR_readings, NUM_SENSORS+2);
       communications.send_velocity();
-      communications.check(); 
-      //sensors.update();
+      //communications.check(); 
+      sensors.update();
 
 
       });
@@ -74,33 +74,78 @@ void loop() {
 
   // sensors.set_steering_mode(STEERING_OFF);
   // motors.disable_controllers();
-  // for (int i=-1023;i<1023;i=i+32){
+  // for (int i=-100;i<101;i++){
 
-  //   motors.set_left_motor_pwm(0);
-  //   motors.set_right_motor_pwm(i);
+  //   motors.set_left_motor_percentage(i);
+  //   motors.set_right_motor_percentage(0);
   //   float avg_speed = 0;
   //   for (int j=0;j<100; j++){
   //     avg_speed += encoders.robot_speed();
-  //     delay(20);
+  //     delay(2);
   //   }
   //   avg_speed = (avg_speed/100)*2;
-  //   Serial.println(String(i) + " percentage " + String(i * 100 / 1023) + " velocity " + String(avg_speed));
-  //   communications.send(String(i * 100 / 1023) + "," + String(avg_speed));
+  //   Serial.println(String(i) + " ,"+ String(avg_speed));
+  //   //communications.send(String(i * 100 / 1023) + "," + String(avg_speed));
   // }
   // while(1){}
 
   motion.reset_drive_system();
   robot.move_staright(0.1);
   delay(1000);
+  // for (int i=0; i<10;i++){
+  //   robot.turn(360);
+  //   delay(1000);
+  //   communications.send("Distance ", encoders.robotAngle());
+  // }
+  Serial.println("Start");
+  //robot.move_till_potato(6000);
+  robot.move_till_junction(6000);
+  delay(2000);
+  robot.move_till_potato(6000);
+  delay(2000);
+   robot.turn(RIGHT);
+   delay(2000);
+  // robot.move_till_junction(6000);
+  // delay(2000);
+  // robot.move_till_junction(6000);
+  // delay(2000);
+  // robot.turn(LEFT);
+  // delay(2000);
+  // robot.move_till_junction(6000);
+  // delay(2000);
+  // robot.move_till_junction(6000);
+  // delay(2000);
+  // robot.turn(LEFT);
+  // delay(2000);
+  // robot.move_till_junction(6000);
+  // delay(2000);
+  // robot.move_till_junction(6000);
+  // delay(2000);
+  // robot.turn(RIGHT);
+  // delay(2000);
+  // robot.move_till_junction(6000);
+  // delay(2000);
+  // robot.move_till_junction(6000);
+  // delay(2000);
+  // robot.turn(RIGHT);
+  // delay(2000);
+  // robot.move_till_junction(6000);
+  // delay(2000);
+  // robot.move_till_junction(6000);
+  // delay(2000);
+  // robot.move_staright(150);
   while (true){
-      robot.move_staright(1000);
-      delay(250);
-      robot.move_staright(-1000);
-      delay(250);
-      robot.turn(-86);
-      delay(250);
-      robot.turn(86);
-      delay(250);
+      // robot.move_staright(315*2);
+      // delay(1000);
+      // robot.turn(-90);
+      // delay(1000);
+      // robot.move_staright(315*2);
+      // delay(250);
+      // robot.turn(-90);
+      // delay(1000);
+
+      
+
       }
   sensors.led_indicator(1);
   robot.scan_barcode();
@@ -115,18 +160,7 @@ void loop() {
   robot.turn(RIGHT);
 
 
-  robot.move_till_junction(3000);
-  //robot.turn(RIGHT);
-  robot.move_till_junction(3000);
-  robot.turn(RIGHT);
-  robot.move_till_junction(3000);
-  robot.turn(LEFT);
-  if (sensors.front_wall_exist()){
-      robot.turn(RIGHT);
-      robot.move_till_junction(3000);
-      //robot.turn(LEFT);
-      robot.move_till_junction(3000);
-      robot.turn(LEFT);
+  
 
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -142,7 +176,7 @@ void loop() {
 
 
  
-}
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // while (true){

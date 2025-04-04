@@ -208,14 +208,88 @@ public:
         }
     }
 
+
+    void move_till_line(float distance)
+    {   
+        bool junction_detected = false;
+        sensors.set_steering_mode(STEERING_OFF);
+        motion.reset_drive_system();
+        motion.start_move( distance , MOVE_SPEED, 0, MOVE_ACC);
+        while (!motion.move_finished())
+        {   
+            if (sensors.line_state == LINE){
+                sensors.g_steering_mode = STEER_NORMAL;
+            }
+            else {
+                sensors.g_steering_mode = STEERING_OFF;
+            }
+            
+            if (sensors.line_state ==LEFT_LINE or sensors.line_state ==RIGHT_LINE){  //detect if the expected junction is reached
+                junction_detected = true;
+                delay(61);
+                sensors.last_junction = sensors.line_state;
+            }
+            if (sensors.line_state == CROSS_OR_T){  //detect if the expected junction is reached
+                junction_detected = true;
+                sensors.last_junction = sensors.line_state;
+            }
+            if (junction_detected){//only allign to the junction if (expected junction distance reached and) junction passed.
+                align_to_juction();
+                break;
+            }
+            delayMicroseconds(2);
+
+        }
+    }
+
+
+    bool move_till_wall_task2(float distance)
+    {   
+        distance = TASK2_TOTAL_LENGTH - distance;
+        bool junction_detected = false;
+        sensors.set_steering_mode(STEERING_OFF);
+        motion.reset_drive_system();
+        motion.start_move( distance , MOVE_SPEED, 0, MOVE_ACC);
+        while (!motion.move_finished())
+        {   
+           if (sensors.is_wall_present()){
+            	motion.stop();
+                return false;
+           }
+
+            delayMicroseconds(2);
+
+        }
+        return true;
+    }
+    void move_till_potato(float distance)
+    {   
+        distance = distance;
+        bool junction_detected = false;
+        sensors.set_steering_mode(STEERING_OFF);
+        motion.reset_drive_system();
+        motion.start_move( distance , MOVE_SPEED, 0, MOVE_ACC);
+        while (!motion.move_finished())
+        {   
+           if (sensors.is_potato_present()){
+            	motion.stop();
+                break;
+           }
+
+            delayMicroseconds(2);
+
+        }
+    }
+
+
     void navigate_dashed_lines(){
         move(1000);
         
     }
     void align_to_juction(){
         sensors.set_steering_mode(STEERING_OFF);
-        motion.reset_drive_system();
-        motion.start_move( ARRAY_TO_WHEEL_DISTANCE , encoders.robot_speed(), 0, MOVE_ACC);
+        //motion.reset_drive_system();
+        motion.start_move( ARRAY_TO_WHEEL_DISTANCE , encoders.robot_speed(), 0, 10*MOVE_ACC);
         while (!motion.move_finished()){ 
             // if (sensors.line_state == LINE){
             //     sensors.g_steering_mode = STEER_NORMAL;
@@ -314,7 +388,7 @@ public:
     {
         sensors.set_steering_mode(STEERING_OFF);
         motion.reset_drive_system();
-        motion.start_turn(-angle, OMEGA_TURN, 0, ALPHA_TURN);
+        motion.start_turn(angle, OMEGA_TURN, 0, ALPHA_TURN);
 
         while (!motion.turn_finished())
         {

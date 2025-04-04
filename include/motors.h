@@ -121,17 +121,17 @@ void begin()
   {
     ///////give the percentage required to acheive a given velocity--- |v|<500
     //int l_rps = (left_feed_velocity * PULSES_PER_ROTATION) / MM_PER_ROTATION;
-    float v = left_feed_velocity/2;//     /2 is due to a mistake in calculations
+    float v = left_feed_velocity;//     /2 is due to a mistake in calculations
     //Serial.print("left feed  ");
     //Serial.println(v);
     //v = 0.0533*v*v*v-0.1899*v*v+1.1948*v;  //compensation for motor miss match
     float l_feed_percentage;
     if (v>=0){
-        l_feed_percentage = 0.12*v+62;//(-0.0004*v*v)+(0.3113*v)+43.2991;//23.2991
+        l_feed_percentage = 0.14*v+2.0;//(-0.0004*v*v)+(0.3113*v)+43.2991;//23.2991
     }
     else {
       //v=-v;
-      l_feed_percentage = 0.167*v-56;//-((-0.0004*v*v)+(0.3113*v)+53.2991);//23.2991
+      l_feed_percentage = 0.14*v-6.0;//-((-0.0004*v*v)+(0.3113*v)+53.2991);//23.2991
     }
     // Serial.print("  left   ");
     // Serial.print(l_feed_percentage);
@@ -142,20 +142,14 @@ void begin()
   {
     ///////give the percentage required to acheive a given velocity--- |v|<500
     //int r_rps = (left_feed_velocity * PULSES_PER_ROTATION) / MM_PER_ROTATION;
-    float v = right_feed_velocity/2;//     /2 is due to a mistake in calculations
+    float v = right_feed_velocity;//     /2 is due to a mistake in calculations
     //Serial.print("  right feed  ");
     //Serial.print(v);
     float r_feed_percentage;
-    if (v>=150){
-      r_feed_percentage = 2*pow(1.02,v-150)+16;}
-    else if (v>=0){
-      r_feed_percentage = 11+v/20;
-    }
-    else if(v>=-150){
-      r_feed_percentage = -7+v/15;
-    }
-    else{
-      r_feed_percentage = -2*pow(1.021,-v-150)-15;
+    if (v>0){
+      r_feed_percentage = 0.12*v+3.3;}
+    else {
+      r_feed_percentage = 0.12*v-3.3;
     }
     // if(v>=0){
     //   r_feed_percentage = (0.0003*v*v*v)-(0.0177*v*v)+(0.4125*v)+2.8691;//(0.2*v*v+68.83*v+45000)/1023.0;
@@ -176,18 +170,18 @@ void begin()
     void set_left_motor_percentage(float percentage)
   {
     percentage = constrain(percentage, -maxMotorPercentage, maxMotorPercentage);
-    if (percentage > LEFT_MIN_MOTOR_PERCENTAGE)
-    {
-      //percentage = map(percentage, LEFT_MIN_MOTOR_PERCENTAGE, maxMotorPercentage, MIN_MOTOR_BIAS, maxMotorPercentage);
-    }
-    else if (percentage < -LEFT_MIN_MOTOR_PERCENTAGE)
-    {
-      //percentage = map(percentage, -maxMotorPercentage, -LEFT_MIN_MOTOR_PERCENTAGE, -maxMotorPercentage, -MIN_MOTOR_BIAS);
-    }
-    else if (-LEFT_MIN_MOTOR_PERCENTAGE <= percentage <= LEFT_MIN_MOTOR_PERCENTAGE)
-    {
-      percentage = 0;
-    }
+    // if (percentage > LEFT_MIN_MOTOR_PERCENTAGE)
+    // {
+    //   //percentage = map(percentage, LEFT_MIN_MOTOR_PERCENTAGE, maxMotorPercentage, MIN_MOTOR_BIAS, maxMotorPercentage);
+    // }
+    // else if (percentage < -LEFT_MIN_MOTOR_PERCENTAGE)
+    // {
+    //   //percentage = map(percentage, -maxMotorPercentage, -LEFT_MIN_MOTOR_PERCENTAGE, -maxMotorPercentage, -MIN_MOTOR_BIAS);
+    // }
+    // else if (-LEFT_MIN_MOTOR_PERCENTAGE <= percentage <= LEFT_MIN_MOTOR_PERCENTAGE)
+    // {
+    //   percentage = 0;
+    // }
     int left_pwm = calculate_pwm(percentage);
     
 
@@ -196,18 +190,18 @@ void begin()
     void set_right_motor_percentage(float percentage)
   {
     percentage = constrain(percentage, -maxMotorPercentage, maxMotorPercentage);
-    if (percentage > RIGHT_MIN_MOTOR_PERCENTAGE)
-    {
-      //percentage = map(percentage, RIGHT_MIN_MOTOR_PERCENTAGE, maxMotorPercentage, MIN_MOTOR_BIAS, maxMotorPercentage);
-    }
-    else if (percentage < -RIGHT_MIN_MOTOR_PERCENTAGE)
-    {
-      //percentage = map(percentage, -maxMotorPercentage, -RIGHT_MIN_MOTOR_PERCENTAGE, -maxMotorPercentage, -MIN_MOTOR_BIAS);
-    }
-    else if (-RIGHT_MIN_MOTOR_PERCENTAGE <= percentage <= RIGHT_MIN_MOTOR_PERCENTAGE)
-    {
-      percentage = 0;
-    }
+    // if (percentage > RIGHT_MIN_MOTOR_PERCENTAGE)
+    // {
+    //   //percentage = map(percentage, RIGHT_MIN_MOTOR_PERCENTAGE, maxMotorPercentage, MIN_MOTOR_BIAS, maxMotorPercentage);
+    // }
+    // else if (percentage < -RIGHT_MIN_MOTOR_PERCENTAGE)
+    // {
+    //   //percentage = map(percentage, -maxMotorPercentage, -RIGHT_MIN_MOTOR_PERCENTAGE, -maxMotorPercentage, -MIN_MOTOR_BIAS);
+    // }
+    // else if (-RIGHT_MIN_MOTOR_PERCENTAGE <= percentage <= RIGHT_MIN_MOTOR_PERCENTAGE)
+    // {
+    //   percentage = 0;
+    // }
 
     m_right_motor_percentage = percentage;
     int right_pwm = calculate_pwm(percentage);
