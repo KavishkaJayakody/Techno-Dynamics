@@ -156,29 +156,12 @@ public:
     }
 
     void move_till_wall(float distance) {
- test
         // this should stop at the wall and move back a bit to turn (most probably) and possibly align
         return;
     }
 
-    bool move_till_potato(float distance) {   
-=======
-        sensors.set_steering_mode(STEERING_OFF);
-        motion.reset_drive_system();
-        motion.start_move( distance , MOVE_SPEED, 0, MOVE_ACC);
-        while (!motion.move_finished())
-        {
-            if (sensors.is_wall_present()){
-                motion.stop();
-                break;
-                }
-            delayMicroseconds(2);
-        }
-    }
-
     bool move_till_potato(float distance)
-    {   
-      main
+    { 
         bool junction_detected = false;
         sensors.set_steering_mode(STEERING_OFF);
         motion.reset_drive_system();
@@ -206,36 +189,14 @@ public:
                 break;
             }
             if (sensors.is_potato_present()){
-test
                 Serial.println("POTATO DETECTED");
                 motion.stop();
                 return true;
-=======
                 motion.stop();
                 return true;
             }
-            if (sensors.line_state == LINE){
-                sensors.g_steering_mode = STEER_NORMAL;
-            }
-            else {
-                sensors.g_steering_mode = STEERING_OFF;
-            }
-            
-            if (sensors.line_state ==LEFT_LINE or sensors.line_state ==RIGHT_LINE){  //detect if the expected junction is reached
-                junction_detected = true;
-                delay(6);
-                sensors.last_junction = sensors.line_state;
-            }
-            if (sensors.line_state == CROSS_OR_T){  //detect if the expected junction is reached
-                junction_detected = true;
-                sensors.last_junction = sensors.line_state;
-            }
-            if (junction_detected){//only allign to the junction if (expected junction distance reached and) junction passed.
-                align_to_juction();
-                return false;
- main
-                break;
-            }
+           
+        
             delayMicroseconds(2);
 
         }

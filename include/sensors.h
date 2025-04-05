@@ -48,6 +48,11 @@ enum {
     CM15,
     INVALID,
 };
+enum{
+    FOLLOW_LINE,
+    FOLLOW_WALL,
+    FOLLOW_WALL_AND_LINE,
+};
 
 class Sensors
 {
@@ -69,6 +74,7 @@ public:
     bool left_pin_state;
     bool right_pin_state;
     int box_height;
+    bool front_wall_present = false;
     uint8_t g_steering_mode = STEER_NORMAL;
     volatile float steeringKp = STR_KP;
     volatile float steeringKd = STR_KD;
@@ -77,6 +83,8 @@ public:
     volatile float bottom_ToF_reading = 0;
     volatile bool object_infront_top_ToF = false;
     volatile bool object_infront_bottom_ToF = false;
+
+    int follow_mode = FOLLOW_LINE;
 
 
     float all_IR_readings[10] = {0,0,0,0,0,0,0,0,0,0}; //values from left sensors to right sensors
@@ -108,9 +116,20 @@ public:
         pinMode(SHARP_IR_RIGHT, INPUT);
     }
 
-        float get_steering_feedback()
-    {
-        return m_steering_adjustment;
+    float get_steering_feedback()
+    {   
+        if (follow_mode == FOLLOW_LINE){
+            return m_steering_adjustment;
+        }
+        else if (follow_mode == FOLLOW_WALL){
+            return sharp_ir_steering;
+        }
+        else if (follow_mode == FOLLOW_WALL_AND_LINE){
+            return constrain(m_steering_adjustment+sharp_ir_steering, -STEERING_ADJUST_LIMIT, STEERING_ADJUST_LIMIT);
+        }
+        else {
+            return m_steering_adjustment;
+        }
     };
 
     float get_cross_track_error()
@@ -240,10 +259,7 @@ public:
 
     }
 
-    bool is_wall_present(){
-        return true;
 
-    }
 
     bool is_potato_present(){
         if (digitalRead(POTATO_IR_PIN))
@@ -277,6 +293,7 @@ public:
         m_steering_adjustment = 0;
         g_steering_mode = mode;
     }
+    
 
     void map_sensors(){
 
@@ -672,10 +689,17 @@ public:
         sharp_ir_left_distance = 53.92/ (sharp_ir_left + 0.1);  // Example formula for GP2Y0A21YK
         sharp_ir_right_distance = 52.6 / (sharp_ir_right + 0.17);
 
-        Serial.print("Left Distance: ");
-        Serial.print(sharp_ir_left_distance);
-        Serial.print(" mm, Right Distance: ");
-        Serial.println(sharp_ir_right_distance);
+        //Serial.print("Left Distance: ");
+        //Serial.print(sharp_ir_left_distance);
+        //Serial.print(" mm, Right Distance: ");
+        //Serial.println(sharp_ir_right_distance);
+
+        if (sharp_ir_left_distance < WALL_DETECTION_RANGE || sharp_ir_right_distance < WALL_DETECTION_RANGE){
+            front_wall_present = true;
+        }
+        else {
+            front_wall_present = false;
+        }
 
         // Limit the distance readings to reasonable values
         sharp_ir_left_distance = constrain(sharp_ir_left_distance, 0, 800);
@@ -700,6 +724,16 @@ public:
         
         // Store current error for next derivative calculation
         last_sharp_ir_error = sharp_ir_error;
+    }
+
+    bool is_wall_present(){
+        if(front_wall_present){
+            return true;
+        }
+        else {
+        return false;
+        }
+
     }
 
     // Getter functions for Sharp IR readings and error
