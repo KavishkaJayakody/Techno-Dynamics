@@ -163,7 +163,7 @@ public:
     bool move_till_potato(float distance)
     { 
         bool junction_detected = false;
-        sensors.set_steering_mode(STEERING_OFF);
+        sensors.set_steering_mode(STEER_NORMAL);
         motion.reset_drive_system();
         motion.start_move( distance , MOVE_SPEED, 0, MOVE_ACC);
         while (!motion.move_finished())
@@ -172,7 +172,8 @@ public:
                 sensors.g_steering_mode = STEER_NORMAL;
             }
             else {
-                sensors.g_steering_mode = STEERING_OFF;
+                // sensors.g_steering_mode = STEERING_OFF;
+                sensors.g_steering_mode = STEER_NORMAL;
             }
             
             if (sensors.line_state ==LEFT_LINE or sensors.line_state ==RIGHT_LINE){  //detect if the expected junction is reached
@@ -192,11 +193,8 @@ public:
                 Serial.println("POTATO DETECTED");
                 motion.stop();
                 return true;
-                motion.stop();
-                return true;
             }
            
-        
             delayMicroseconds(2);
 
         }
@@ -211,12 +209,12 @@ public:
         //motion.reset_drive_system();
         motion.start_move( ARRAY_TO_WHEEL_DISTANCE , encoders.robot_speed(), 0, 10*MOVE_ACC);
         while (!motion.move_finished()){ 
-            // if (sensors.line_state == LINE){
-            //     sensors.g_steering_mode = STEER_NORMAL;
-            // }
-            // else {
-            //     sensors.g_steering_mode = STEERING_OFF;
-            // }
+            if (sensors.line_state == LINE){
+                sensors.g_steering_mode = STEER_NORMAL;
+            }
+            else {
+                sensors.g_steering_mode = STEERING_OFF;
+            }
             delay(2);
           }
 

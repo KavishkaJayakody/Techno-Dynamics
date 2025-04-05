@@ -65,8 +65,8 @@ const float ROT_KI = 0;
 const float FWD_KP = 1.2;//2.5;//6.0;//7.0//1.0
 const float FWD_KD = 0.5;//10;
 const float FWD_KI = 0;
-const float STR_KP = 5.0;//100;
-const float STR_KD = 0;
+const float STR_KP = 2.5;//2.5, 100;
+const float STR_KD = 0.1;
 
 //****************************************Robot*****************************************//
 const float MOVE_SPEED = 100;//100//60.0;
