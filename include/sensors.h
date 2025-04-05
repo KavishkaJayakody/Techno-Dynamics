@@ -81,6 +81,16 @@ public:
 
     float all_IR_readings[10] = {0,0,0,0,0,0,0,0,0,0}; //values from left sensors to right sensors
 
+    volatile float sharp_ir_left = 0;    // Raw reading from left Sharp IR
+    volatile float sharp_ir_right = 0;   // Raw reading from right Sharp IR
+    volatile float sharp_ir_left_distance = 0;  // Distance in mm for left sensor
+    volatile float sharp_ir_right_distance = 0; // Distance in mm for right sensor
+    volatile float sharp_ir_error = 0;        // Error between left and right Sharp IR readings
+    volatile float sharp_ir_steering = 0;     // Steering adjustment based on Sharp IR readings
+    const float SHARP_IR_KP = 0.5;            // Proportional gain for Sharp IR steering
+    const float SHARP_IR_KD = 0.1;            // Derivative gain for Sharp IR steering
+    volatile float last_sharp_ir_error = 0;   // Previous error for derivative calculation
+
     void begin()
     {   
         Serial.println("Initializing ADC  :");
@@ -93,7 +103,9 @@ public:
         pinMode(LED_PIN, OUTPUT);
         pinMode(LEFT_LINE_PIN, INPUT);
         pinMode(RIGHT_LINE_PIN, INPUT);
-        pinMode(POTATO_IR_PIN,INPUT_PULLDOWN);
+        pinMode(POTATO_IR_PIN,INPUT_PULLUP);
+        pinMode(SHARP_IR_LEFT, INPUT);
+        pinMode(SHARP_IR_RIGHT, INPUT);
     }
 
         float get_steering_feedback()
@@ -113,6 +125,8 @@ public:
         if(calibrated){
             map_sensors();
         }
+        readSharpIRSensors();  // Read Sharp IR sensors
+        calculateSharpIRError();  // Calculate error and steering adjustment
 
         left_pin_state = !digitalRead(LEFT_LINE_PIN);
         right_pin_state = !digitalRead(RIGHT_LINE_PIN);
@@ -132,6 +146,7 @@ public:
         calculate_steering_adjustment();
         //Serial.println(adcValues[0]);
     }
+    
 
 
     // Initialize the ADS1115 sensors
@@ -645,6 +660,56 @@ public:
         }
 
 }
+
+    // Function to read Sharp IR sensors
+    void readSharpIRSensors() {
+        // Read raw analog values
+        sharp_ir_left = analogRead(SHARP_IR_LEFT);
+        sharp_ir_right = analogRead(SHARP_IR_RIGHT);
+
+        // Convert to distance (mm) - you'll need to calibrate these formulas
+        // These are example formulas, you'll need to adjust based on your specific sensor model
+        sharp_ir_left_distance = 2076.0 / (sharp_ir_left - 11.0);  // Example formula for GP2Y0A21YK
+        sharp_ir_right_distance = 2076.0 / (sharp_ir_right - 11.0);
+
+        Serial.print("Left Distance: ");
+        Serial.print(sharp_ir_left_distance);
+        Serial.print(" mm, Right Distance: ");
+        Serial.println(sharp_ir_right_distance);
+
+        // Limit the distance readings to reasonable values
+        sharp_ir_left_distance = constrain(sharp_ir_left_distance, 0, 800);
+        sharp_ir_right_distance = constrain(sharp_ir_right_distance, 0, 800);
+    }
+
+    // Calculate error and steering adjustment based on Sharp IR readings
+    void calculateSharpIRError() {
+        // Calculate error as difference between left and right distances
+        // Positive error means robot is too far to the right
+        // Negative error means robot is too far to the left
+        sharp_ir_error = sharp_ir_right_distance - sharp_ir_left_distance;
+
+        // Calculate steering adjustment using PD control
+        float p_term = SHARP_IR_KP * sharp_ir_error;
+        float d_term = SHARP_IR_KD * (sharp_ir_error - last_sharp_ir_error);
+        
+        sharp_ir_steering = p_term + d_term;
+        
+        // Constrain the steering adjustment
+        sharp_ir_steering = constrain(sharp_ir_steering, -STEERING_ADJUST_LIMIT, STEERING_ADJUST_LIMIT);
+        
+        // Store current error for next derivative calculation
+        last_sharp_ir_error = sharp_ir_error;
+    }
+
+    // Getter functions for Sharp IR readings and error
+    float getSharpIRLeftDistance() { return sharp_ir_left_distance; }
+    float getSharpIRRightDistance() { return sharp_ir_right_distance; }
+    float getSharpIRLeftRaw() { return sharp_ir_left; }
+    float getSharpIRRightRaw() { return sharp_ir_right; }
+    float getSharpIRError() { return sharp_ir_error; }
+    float getSharpIRSteering() { return sharp_ir_steering; }
+
 private:
     // variables for steering
     float last_steering_error = 0;

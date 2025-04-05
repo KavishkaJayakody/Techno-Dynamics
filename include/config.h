@@ -97,6 +97,9 @@ const int LEFT_LINE_PIN = 36;
 const int RIGHT_LINE_PIN = 39;
 const int POTATO_IR_PIN = 25;
 
+const int SHARP_IR_LEFT = 34;  // Analog pin for left Sharp IR sensor
+const int SHARP_IR_RIGHT = 32; // Analog pin for right Sharp IR sensor
+
 const int XSHUT_PIN = 25;
 const float OBJECT_DETECT_RANGE = 300;
 

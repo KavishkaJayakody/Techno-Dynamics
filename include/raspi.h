@@ -31,6 +31,9 @@ public:
     int boxColumnColors(bool goodRed); // Get the box colors of the column
     int rightBoxColumnColors(bool goodRed); // turn camera to right and Get the box colors of the column
     bool takeRightBox(); // Ask Raspberry Pi to take the box
+    void takeFrontBox();
+    void placeFrontBox(); // Ask Raspberry Pi to place the box
+    void placeRightBox(); // Ask Raspberry Pi to place the box
 
     void waitForResponse(); // Wait for a response from the Raspberry Pi
     bool waitForBoolResponse(); // Wait for a boolean response from the Raspberry Pi
@@ -64,7 +67,8 @@ void Raspi::takeRightPotato()
 bool Raspi::takeRightBox()
     {
         Serial.println("TAKE_POTATO");
-        waitForResponse();
+        // waitForResponse();
+        return waitForBoolResponse();
     }
 
 bool Raspi::isRedGood()

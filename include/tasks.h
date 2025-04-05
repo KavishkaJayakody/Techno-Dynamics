@@ -39,7 +39,7 @@ private:
     // task 2
     bool task2_done = false; // Flag to indicate if task 2 is done
     bool goodRed = false; // Flag to indicate if the red box is good
-
+    bool armHasBox = false; // Flag to indicate if the arm has a box
 };
 
 // FINAL FINAL SIDE OF THE CAM - RIGHT SIDE
@@ -327,32 +327,87 @@ float Tasks::task4() {
         boxColors[0][1] = raspi.findBoxColour();
         if (boxColors[0][1] == 1 && goodRed || boxColors[0][1] == 0 && !goodRed) {
             raspi.takeRightBox(); // ask raspberry to take the box
-            i = 0; j = 1; tookGood = true; // we have found the good box
+            i = 0; j = 1; 
+            tookGood = true; // we have found the good box
+            armHasBox = true; 
+            boxColors[0][1] == -1; // set to empty
             break;
         }
+
         if (boxColors[0][1] != -1) {
             raspi.takeRightBox(); // take the bad box
-            robot.turn(RIGHT);
-            robot.move_straight(150); // move back a bit
-            // now we talking
-            boxColors[0][2] = raspi.findBoxColour(); // ask raspberry to find box color. true (1) if red. false (0) if blue
-            robot.turn(LEFTQTR);
-            boxColors[1][2] = raspi.findBoxColour(); // ask raspberry to find box color. true (1) if red. false (0) if blue
-            robot.turn(LEFTQTR) ;
-            boxColors[1][1] = raspi.findBoxColour(); // ask raspberry to find box color. true (1) if red. false (0) if blue
-            robot.turn(LEFTQTR);
-            boxColors[1][0] = raspi.findBoxColour(); // ask raspberry to find box color. true (1) if red. false (0) if blue
-            robot.turn(LEFTQTR);
-            boxColors[0][0] = raspi.findBoxColour(); // ask raspberry to find box color. true (1) if red. false (0) if blue
-
-            // if all five are filled then 0,1 is empty for sure.
+            armHasBox = true; // bad box in the arm
+            // boxColors[0][1] == -1; // set to empty
         }
+        robot.turn(RIGHT);
+        robot.move_straight(150); // move to the white box
+        
+        // now we talking
+
+        // we go to the (0,1) position and look around.
+        std::vector<int> u = {0,1,1,1,0};
+        std::vector<int> v = {2,2,1,0,0};
+        // std::vector<int> emp = {};
+        for (int k = 0; k < 5; k++) {
+            boxColors[u[k]][v[k]] = raspi.findBoxColour(); // ask raspberry to find box color. true (1) if red. false (0) if blue
+            
+            // save the good box location
+            if (boxColors[u[k]][v[k]] == 1 && goodRed || boxColors[u[k]][v[k]] == 0 && !goodRed) {
+                i = u[k]; j = v[k]; 
+                armHasBox = true; // we have found the good box
+                tookGood = true; // we have found the good box
+                break;
+            } else if (boxColors[u[k]][v[k]] != -1) {
+                raspi.takeRightBox(); // take the bad box
+                armHasBox = true; // bad box in the arm
+            }
+            
+            if (k<4) {
+                robot.turn(LEFTQTR);
+            }
+
+            // if we find an empty box and if arm still has a box, place it there.
+            if (armHasBox && boxColors[u[k]][v[k]] == -1){
+                // keep the box there. if none are empty, no box was there.
+                robot.turn(RIGHT);
+                // move to the box
+                if (k % 2 == 0) {
+                    robot.move_straight(150); // move to the next box
+                } else {
+                    robot.move_straight(200); // move back to the previous box
+                }
+                // take the box
+                raspi.placeFrontBox();
+                boxColors[u[k]][v[k]] = boxColors[0][1]; // set the box color to the one we have
+                boxColors[0][1] == -1; // set to empty
+                // move back
+                armHasBox = false; // we have placed the box
+                if (k % 2 == 0) {
+                    robot.move_straight(-150); // move to the next box
+                } else {
+                    robot.move_straight(-200); // move back to the previous box
+                }
+                robot.turn(LEFT);
+            }
+        }
+
+        // now we move to middle box (1,1) and check.
+        robot.move_till_junction(1000); // move to side of task 4 and align
+        robot.turn(ABOUTTURN);
+        robot.move_straight(300); // move to the next box (1,1)
+
+        
+        // if (box)
+        
+
+
+
+        
+        
+        // if all five are filled then 0,1 is empty for sure.
     }
-
-
     // if box is there take it and go to (0,1)
-
-
+    return endPos; // return the end position of the robot facing task 5
 }
 
 float Tasks::task4temp()
