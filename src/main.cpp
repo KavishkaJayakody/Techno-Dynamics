@@ -81,7 +81,7 @@ void loop() {
 
   // robot.move_straight(500, 200);
 
-  tasks.task1(); //  potato field pick
+  ////////////////////////////////////////////////////////////tasks.task1(); //  potato field pick
   // tasks.task2(); // muddy road with walls and ramp
   // tasks.task3(); // potato packing 
   // tasks.task4(); // potato box finding

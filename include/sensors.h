@@ -664,13 +664,13 @@ public:
     // Function to read Sharp IR sensors
     void readSharpIRSensors() {
         // Read raw analog values
-        sharp_ir_left = analogRead(SHARP_IR_LEFT);
-        sharp_ir_right = analogRead(SHARP_IR_RIGHT);
+        sharp_ir_left = 3.3*analogRead(SHARP_IR_LEFT)/4095.0;
+        sharp_ir_right = 3.3*analogRead(SHARP_IR_RIGHT)/4095.0;
 
         // Convert to distance (mm) - you'll need to calibrate these formulas
         // These are example formulas, you'll need to adjust based on your specific sensor model
-        sharp_ir_left_distance = 2076.0 / (sharp_ir_left - 11.0);  // Example formula for GP2Y0A21YK
-        sharp_ir_right_distance = 2076.0 / (sharp_ir_right - 11.0);
+        sharp_ir_left_distance = 53.92/ (sharp_ir_left + 0.1);  // Example formula for GP2Y0A21YK
+        sharp_ir_right_distance = 52.6 / (sharp_ir_right + 0.17);
 
         Serial.print("Left Distance: ");
         Serial.print(sharp_ir_left_distance);
