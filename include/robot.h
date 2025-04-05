@@ -160,9 +160,8 @@ public:
         return;
     }
 
-
     bool move_till_potato(float distance)
-    {  
+    { 
         bool junction_detected = false;
         sensors.set_steering_mode(STEERING_OFF);
         motion.reset_drive_system();
@@ -196,13 +195,13 @@ public:
                 motion.stop();
                 return true;
             }
-
+           
+        
             delayMicroseconds(2);
-            
-            }
-            
+
         }
-       
+        return false;
+    }
 
     void navigate_dashed_lines(){
         move(1000);
