@@ -211,6 +211,7 @@ public:
 
     void move_till_line(float distance)
     {   
+        // do not move back when stopped at the line. if needed, will be handeled by the higher level code.
         bool junction_detected = false;
         sensors.set_steering_mode(STEERING_OFF);
         motion.reset_drive_system();
@@ -264,11 +265,11 @@ public:
     }
 
     void move_till_wall(float distance) {
+        // this should stop at the wall and move back a bit to turn (most probably) and possibly align
+        return;
+    }
 
-    };
-
-    bool move_till_potato(float distance)
-    {   
+    bool move_till_potato(float distance) {   
         distance = distance;
         bool junction_detected = false;
         sensors.set_steering_mode(STEERING_OFF);
@@ -279,20 +280,37 @@ public:
             if (sensors.is_potato_present()){
                     motion.stop();
                     return true;
-                    // break;
+                    break;
             }
-
-
-
+            if (sensors.line_state == LINE){
+                sensors.g_steering_mode = STEER_NORMAL;
+            }
+            else {
+                sensors.g_steering_mode = STEERING_OFF;
+            }
+            
+            if (sensors.line_state ==LEFT_LINE or sensors.line_state ==RIGHT_LINE){  //detect if the expected junction is reached
+                junction_detected = true;
+                delay(61);
+                sensors.last_junction = sensors.line_state;
+            }
+            if (sensors.line_state == CROSS_OR_T){  //detect if the expected junction is reached
+                junction_detected = true;
+                sensors.last_junction = sensors.line_state;
+            }
+            if (junction_detected){//only allign to the junction if (expected junction distance reached and) junction passed.
+                align_to_juction();
+                break;
+            }
             delayMicroseconds(2);
+            // delayMicroseconds(2);
 
         }
+        return false;
     }
-
 
     void navigate_dashed_lines(){
         move(1000);
-        
     }
     void align_to_juction(){
         sensors.set_steering_mode(STEERING_OFF);

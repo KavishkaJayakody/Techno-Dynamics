@@ -1,3 +1,6 @@
+/*tasks.h = header file for all the tasks in SLRC 2025.
+last updated on 5/4/2025 (Nilakna)*/
+
 #ifndef TASKS_H
 #define TASKS_H
 
@@ -44,21 +47,19 @@ bool Tasks::task1()
     int potatoJuncs = 0;
     bool potatoFound = false;
 
-    // iterate through all 5 rows
+    robot.move_till_junction(1000); // Pass the first junction
+    robot.move_till_junction(1000); // Stop at second junction
+
+    // iterate through first 3 rows on right.
     for (int junc = 0; junc < 5; junc++) {
         // reset values
         potatoJuncs = 0;
         potatoFound = false;
 
-        // move to the next row
-        robot.move_till_junction(350); // Move until a junction is foun
-        robot.move_till_junction(350); // Move until a junction is found
-        robot.turn(RIGHT); // Turn 90 degrees clockwise
-        
         // move to the potato
         while(!potatoFound || (potatoJuncs < 3)) { // Continue moving until a potato is found or 2 junctions are crossed
             // move till potatoFound 
-            potatoFound = robot.move_till_potato(350); // Move until a potato is detected. false if junction.
+            potatoFound = robot.move_till_potato(1000); // Move until a potato is detected. false if junction.
             if (!potatoFound) {
                 potatoJuncs++; // Increment the junction count if a junction is found
             }
@@ -67,16 +68,35 @@ bool Tasks::task1()
         // take the potato
         raspi.takePotato(); // Ask the Raspberry Pi to take the potato
         
-        // go to the next junction and face
-        robot.turn(ABOUTTURN); // Turn 90 degrees anticlockwise
+        if (junc >= 3) {
+            // at the last junction we continue till the end of the field
+            for (int rest = 0; rest < 3 - potatoJuncs; rest++) {
+                robot.move_till_junction(1000); // Move until a junction is found
+            }
+            if (junc == 3) {
+                robot.turn(ABOUTTURN); // about turn to return
+            } else {
+                robot.turn(RIGHT); // turn right
+                break;
+            }
+            continue; // continue to the next row (return side)
+        }
+
+
+        // move back to the row start
+        robot.turn(ABOUTTURN); // about turn to return
         for (int i = 0; i < potatoJuncs+1; i++) {
-            robot.move_till_junction(350); // Move until a junction is found
+            robot.move_till_junction(350); // Move back the distance came in.
         }
         robot.turn(RIGHT); // Move straight for 150 mm
+
+        // move to the next row
+        robot.move_till_junction(1000); // Move to the next row junction
+        robot.turn(RIGHT); // Turn 90 degrees clockwise
     }
     
     // go to the start of task 2
-    robot.move_till_junction(350); // Move until a junction is found
+    robot.move_till_junction(1000); // Move until a junction is found
     return true; // Return true to indicate task 1 is done
 }
 
@@ -215,13 +235,16 @@ bool Tasks::task3()
 {   
     // READ APRILTAG
     // robot start facing the wall
+    // robot.move_straight(-150); // Move back to make space to turn if move till wall doesnt handle this.
     robot.turn(RIGHT);
     robot.move_till_wall(2000);
     robot.turn(RIGHT); // Turn 90 degrees clockwise
     robot.move_till_line(1500);
+    robot.move_straight(-50); // Move straight for 150 mm
     robot.turn(LEFT);
-    robot.move_till_junction(350); // align also
-    robot.move_straight(-150);
+    robot.move_till_potato(700); // align also // potato = sign board
+    // robot.move_straight(-150);
+    // robot.move_straight(0); // Move straight for 150 mm
     // robot.turn(RIGHT);
     goodRed = raspi.isRedGood(); // ask raspberry to find tag
 
@@ -235,7 +258,7 @@ bool Tasks::task3()
     // // robot.move_straight(300);
     // robot.move_straight(-150);
     // robot.turn(90); // turn towards the basket to read 
-    bool redBox = raspi.isBoxRed(); // ask raspberry to find tag
+    bool redBox = raspi.findBoxColour(); // ask raspberry to find box color. true if red, false if blue
 
     // turn rear to put the potatoes
     robot.turn(LEFT);
@@ -252,15 +275,13 @@ bool Tasks::task3()
     }
 
     // go to the next basket
-    // robot.move_straight(50);
-    // robot.turn(-90);
+    robot.move_straight(50);
+    robot.turn(RIGHT);
     // robot.move_till_line(1500); // and align
     // robot.move_straight(-150); // move towards the box
     // robot.turn(90); // turn rear towards the box
     // robot.move_straight(-50); // move a bit back to align with the box
-    robot.move_till_junction(350); // Move until a junction is found
-    robot.move_till_junction(350); // Move until a junction is found
-    robot.move_till_junction(350); // Move until a junction is found
+    robot.move_till_junction(1500); // Move to side line of task 4 and align.
     robot.move_straight(-150); // move towards the box
     robot.turn(LEFT); // turn rear towards the box
     robot.move_straight(-50); // move a bit back to align with the box
@@ -275,46 +296,47 @@ bool Tasks::task3()
     // go to the start of task4
     robot.move_straight(50);
     robot.turn(RIGHT);
-    robot.move_till_line(350); // and align
+    robot.move_till_line(350); // go to side line of task 4 and align.
 
     return true; // Return true to indicate task 3 is done
 }
 
 bool Tasks::task4()
 {
-    std::vector<std::vector<int>> boxColors = {{0,0,0}, {0,0,0}, {0,0,0}}; // Initialize the box array
-
+    std::vector<std::vector<int>> boxColors = {{-1,-1,-1}, {-1,-1,-1}, {-1,-1,-1}}; // Initialize the box array
+    bool tempColor = -1; // set all to white
+    float endPos = 0;
     // FIND BOXES AND BOX COLORS
-    
 
-    // // ALONG TASK 3 LINE
-    // // go infront of each column and find colours
-    // boxColors[1] = raspi.boxColumnColors(); // red 1, blue -1, empty(white)0
-    
-    // robot.turn(90);
-    // robot.move_till_junction(); // Move until a junction is found
-    // robot.move_straight(-150);
-    // robot.turn(-90); // Turn 90 degrees clockwise
-    // boxColors[0] = raspi.boxColumnColors(goodRed);  // if goodRed then red=2 blue = 1 white 0.
+    // we go to the middle and look around =)
 
-    // robot.turn(-90);
-    // robot.move_till_junction(); // Move until a junction is found
-    // robot.move_straight(150);
-    // robot.turn(90);
-    // boxColors[2] = raspi.boxColumnColors(goodRed); // if goodRed then red=2 blue = 1 white 0.
-
-    // ALONG TASK 4 LINE
+    // go to the start of task 4 (0,0)
     robot.turn(LEFT);
     robot.move_till_junction(800); // Move until a junction is found
     robot.turn(RIGHT); // Turn 90 degrees clockwise
-    // correct this to read from left camera
-    robot.move_straight(150);
-    boxColors[0][0],boxColors[0][1],boxColors[0][2] = raspi.rightBoxColumnColors(goodRed); // red 1, blue -1, empty(white)0
-    robot.move_straight(300);
-    boxColors[1][0],boxColors[1][1],boxColors[1][2] = raspi.rightBoxColumnColors(goodRed); // red 1, blue -1, empty(white)0
-    robot.move_straight(300);
-    boxColors[2][0],boxColors[2][1],boxColors[2][2] = raspi.rightBoxColumnColors(goodRed); // red 1, blue -1, empty(white)0
 
+    // find colors of edge boxes. (0,0) (1,0) (2,0)
+    for (int i = 0; i < 3; i++) {
+        robot.move_straight(150);
+        boxColors[0][i] = raspi.findBoxColour(); // ask raspberry to find box color. true (1) if red. false (0) if blue
+        
+        // bring the box if found
+        if (boxColors[0][i] == 1 && goodRed || boxColors[0][i] == 0 && !goodRed) {
+            raspi.takeBox(); // ask raspberry to take the box
+            robot.turn(LEFT); // turn to the left
+            robot.move_till_line(1000); // move forward untill the line
+            endPos = i;
+            return endPos; // we have found the good box
+        }
+        
+        // break if the last box.
+        if (i == 2) break; // break if last box
+        robot.move_straight(150); // otherwise move to the next box
+    }  
+
+    // go to the middle point and turn 45 degs to find colors.
+    
+    
     // FIND ThE BEST POSSIBLE PATH
 
     // GO TO THE GOOD BOX AND TAKE IT
