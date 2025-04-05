@@ -29,11 +29,11 @@ public:
     bool task2(); // IMPLEMENTED
     bool task3(); // IMPLEMENTED
     bool task4(); // returns end position of the robot facing task 5.
-    float task4temp(); // returns end position of the robot facing task 5.
     bool task5();
     bool task6(); // IMPLEMENTED
 
     bool task2nodist(); // just in case...
+    float task4temp(); // returns end position of the robot facing task 5.
 
 private:
     // task 2
@@ -193,7 +193,7 @@ bool Tasks::task2()
     } else {
         robot.turn(LEFT); // Turn 90 degrees clockwise if on right line
     }
-    // robot.move_till_line(); 
+    // robot.move_till_line();
     robot.move_till_wall(1500); // Move straight until wall is found
     task2_done = true; // Set task 2 done to true
 
@@ -255,7 +255,7 @@ bool Tasks::task3()
     // robot.move_straight(-150);
     // robot.move_straight(0); // Move straight for 150 mm
     // robot.turn(RIGHT);
-    goodRed = raspi.isRedGood(); // ask raspberry to find tag
+    goodRed = raspi.isRedGood(); // ask raspberry to find tag. true if red is good, false if blue is good
 
 
     // BASKETING POTATOES 
@@ -267,7 +267,7 @@ bool Tasks::task3()
     // // robot.move_straight(300);
     // robot.move_straight(-150);
     // robot.turn(90); // turn towards the basket to read 
-    bool redBox = raspi.findBoxColour(); // ask raspberry to find box color. true if red, false if blue
+    int redBox = raspi.findBoxColour(); // ask raspberry to find box color. true if red, false if blue
 
     // turn rear to put the potatoes
     robot.turn(LEFT);
