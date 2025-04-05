@@ -29,11 +29,11 @@ public:
     bool task2(); // IMPLEMENTED
     bool task3(); // IMPLEMENTED
     bool task4(); // returns end position of the robot facing task 5.
-    float task4temp(); // returns end position of the robot facing task 5.
     bool task5();
     bool task6(); // IMPLEMENTED
 
     bool task2nodist(); // just in case...
+    float task4temp(); // returns end position of the robot facing task 5.
 
 private:
     // task 2
@@ -193,7 +193,7 @@ bool Tasks::task2()
     } else {
         robot.turn(LEFT); // Turn 90 degrees clockwise if on right line
     }
-    // robot.move_till_line(); 
+    // robot.move_till_line();
     robot.move_till_wall(1500); // Move straight until wall is found
     task2_done = true; // Set task 2 done to true
 
@@ -255,7 +255,7 @@ bool Tasks::task3()
     // robot.move_straight(-150);
     // robot.move_straight(0); // Move straight for 150 mm
     // robot.turn(RIGHT);
-    goodRed = raspi.isRedGood(); // ask raspberry to find tag
+    goodRed = raspi.isRedGood(); // ask raspberry to find tag. true if red is good, false if blue is good
 
 
     // BASKETING POTATOES 
@@ -267,7 +267,7 @@ bool Tasks::task3()
     // // robot.move_straight(300);
     // robot.move_straight(-150);
     // robot.turn(90); // turn towards the basket to read 
-    bool redBox = raspi.findBoxColour(); // ask raspberry to find box color. true if red, false if blue
+    int redBox = raspi.findBoxColour(); // ask raspberry to find box color. true if red, false if blue
 
     // turn rear to put the potatoes
     robot.turn(LEFT);
@@ -351,7 +351,6 @@ bool Tasks::task4() {
         // we look around from the (0,1) position
         std::vector<int> u = {0,1,1,1,0};
         std::vector<int> v = {2,2,1,0,0};
-        // std::vector<int> emp = {};
         for (int k = 0; k < 5; k++) {
             boxColors[u[k]][v[k]] = raspi.findBoxColour(); // ask raspberry to find box color. true (1) if red. false (0) if blue
             
@@ -360,9 +359,6 @@ bool Tasks::task4() {
                 goodLocation = k; // save the location of the good box
             }
             
-            if (k<4) {
-                robot.turn(LEFTQTR);
-            }
 
             // if we find an empty box and if arm still has a box, place it there.
             if (armHasBox && boxColors[u[k]][v[k]] == -1){
@@ -387,6 +383,10 @@ bool Tasks::task4() {
                 }
                 robot.turn(LEFT);
             }
+
+            if (k<4) {
+                robot.turn(LEFTQTR);
+            }
         }
 
         // we have looked around and might have found a good box.
@@ -395,7 +395,7 @@ bool Tasks::task4() {
         robot.turn(ABOUTTURN);
         robot.move_straight(150); // move to the (0,1) position facing (1,1)
 
-        // if we have found a good box in last round, take it and go.
+        // if we have found a good box in last round, take it and go. arm is free.
         if (goodLocation != -1) {
             if (goodLocation == 0) {
                 robot.turn(RIGHT);
@@ -513,7 +513,8 @@ bool Tasks::task4() {
                 robot.move_straight(-200); // move back to the previous box (1,1)
                 robot.turn(RIGHT); // turn to the left
                 armHasBox = false; // we have placed the box
-            } else if (boxColors[0][2] == -1) {
+            } 
+            else if (boxColors[0][2] == -1) {
                 robot.turn(RIGHT3QTR); // turn to the right
                 robot.move_straight(200); // move to the next box (2,1)
                 raspi.placeFrontBox(); // place the box
@@ -528,10 +529,10 @@ bool Tasks::task4() {
         // now arm is free. take the good box.
         if (goodLocation != -1) {
             if (goodLocation == 2) {
+                robot.turn(LEFTQTR);
                 robot.move_straight(200); // move to the next box (2,0)
             } 
             else if (goodLocation == 1) {
-                robot.turn(RIGHTQTR);
                 robot.move_straight(150); // move to the next box (2,1)
             } 
             else if (goodLocation == 0) {
@@ -544,12 +545,12 @@ bool Tasks::task4() {
             armHasBox = true; // we have found the good box
 
             if (goodLocation == 2) {
-                robot.move_straight(-200); // move to the next box (2,0)
+                robot.move_straight(-200); // move back to (1,1)
                 robot.turn(RIGHTQTR);
             } else if (goodLocation == 1) {
-                robot.move_straight(-150); // move to the next box (2,1)
-            } else if (goodLocation == 2) {
-                robot.move_straight(-200); // move to the next box (2,2)
+                robot.move_straight(-150); // move back to (1,1)
+            } else if (goodLocation == 0) {
+                robot.move_straight(-200); // // move back to (1,1)
                 robot.turn(LEFTQTR);
             }
 
@@ -706,8 +707,9 @@ bool Tasks::task6()
     raspi.waterPot(); // ask raspberry to water the potato
 
     // now tasks are finished
-    raspi.ledOn(); 
+    sensors.led_indicator(true); // turn off the LED
     raspi.playStarman();
+    sensors.led_indicator(false); // turn off the LED
 
     // YAYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY!!!!!!!!!!!!!!!!!!!!
     return true; // Return true to indicate task 6 is done

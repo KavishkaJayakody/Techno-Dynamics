@@ -6,7 +6,7 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-#define LED_BUILTIN 2 // Define the built-in LED pin for ESP32 (GPIO 2)
+// #define LED_BUILTIN 2 // Define the built-in LED pin for ESP32 (GPIO 2)
 
 class Raspi;
 extern Raspi raspi; // Declare the raspi object
@@ -17,8 +17,8 @@ public:
     Raspi(); // Constructor
     void takeRightPotato(); // Ask Raspberry Pi to take the potato
     bool isRedGood(); // read the april tag and return true if red is good, return false is blue is good
-    bool findBoxColour(); // find the box colout=r. return true if red, false if blue
-    void openGate(float GOODORBAD); // Open the gate
+    int findBoxColour(); // find the box colout=r. return true if red, false if blue
+    void openGate(int GOODORBAD); // Open the gate
     
     bool detectDryPot(); // Detect dry potato. return true if dry, false if wet
     void takeWater(); // Ask Raspberry Pi to take water
@@ -28,15 +28,16 @@ public:
     void ledOn(); // Turn on the LED
     void ledOff(); // Turn off the LED
 
-    int boxColumnColors(bool goodRed); // Get the box colors of the column
-    int rightBoxColumnColors(bool goodRed); // turn camera to right and Get the box colors of the column
-    bool takeRightBox(); // Ask Raspberry Pi to take the box
+    // int boxColumnColors(bool goodRed); // Get the box colors of the column
+    // int rightBoxColumnColors(bool goodRed); // turn camera to right and Get the box colors of the column
+    void takeRightBox(); // Ask Raspberry Pi to take the box
     void takeFrontBox();
     void placeFrontBox(); // Ask Raspberry Pi to place the box
     void placeRightBox(); // Ask Raspberry Pi to place the box
 
     void waitForResponse(); // Wait for a response from the Raspberry Pi
     bool waitForBoolResponse(); // Wait for a boolean response from the Raspberry Pi
+    int waitForIntResponse(); // Wait for an integer response from the Raspberry Pi
 };
 
 // #endif // RASPI_H
@@ -60,15 +61,41 @@ Raspi::Raspi()
 
 void Raspi::takeRightPotato()
     {
+        // potato at 785 height
         Serial.println("TAKE_POTATO");
-        // waitForResponse();
+        waitForResponse();
     }
 
-bool Raspi::takeRightBox()
+void Raspi::takeRightBox()
     {
-        Serial.println("TAKE_POTATO");
-        // waitForResponse();
-        return waitForBoolResponse();
+        // box top at 500 height
+        Serial.println("TAKE_RIGHT_BOX");   
+        waitForResponse();
+        // return waitForBoolResponse();
+    }
+
+void Raspi::takeFrontBox()
+    {
+        // box top at 500 height
+        Serial.println("TAKE_FRONT_BOX");   
+        waitForResponse();
+        // return waitForBoolResponse();
+    }
+
+void Raspi::placeRightBox()
+    {
+        // box top at 500 height
+        Serial.println("PLACE_RIGHT_BOX");   
+        waitForResponse();
+        // return waitForBoolResponse();
+    }
+
+void Raspi::placeFrontBox()
+    {
+        // box top at 500 height
+        Serial.println("PLACE_FRONT_BOX");   
+        waitForResponse();
+        // return waitForBoolResponse();
     }
 
 bool Raspi::isRedGood()
@@ -77,16 +104,16 @@ bool Raspi::isRedGood()
         return waitForBoolResponse();
     }
 
-bool Raspi::findBoxColour()
+int Raspi::findBoxColour()
     {
         Serial.println("FIND_BOX_COLOR");
-        return waitForBoolResponse();
+        return waitForIntResponse();
     }
 
-void Raspi::openGate(float goodOrBad)
+void Raspi::openGate(int goodOrBad)
     {
-        Serial.print("OPEN_GATE:");
-        Serial.println(goodOrBad);
+        // GOOD = 1, BAD = 0
+        Serial.println("OPEN_GATE:" + String(goodOrBad));
         waitForResponse();
     }
 
@@ -165,6 +192,27 @@ bool Raspi::waitForBoolResponse()
         }
         Serial.println("ERROR: Timeout waiting for bool response");
         return false;
+    }
+
+
+int Raspi::waitForIntResponse()
+    {
+        unsigned long startTime = millis();
+        while (millis() - startTime < 10000)
+        { // 5 second timeout
+            if (Serial.available())
+            {
+                String response = Serial.readStringUntil('\n');
+                response.trim();
+                if (response.startsWith("RESULT:"))
+                {
+                    String result = response.substring(7);
+                    return result.toInt();
+                }
+            }
+        }
+        Serial.println("ERROR: Timeout waiting for int response");
+        return -1;
     }
 
 #endif // RASPI_H
