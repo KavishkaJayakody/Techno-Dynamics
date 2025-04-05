@@ -707,8 +707,9 @@ bool Tasks::task6()
     raspi.waterPot(); // ask raspberry to water the potato
 
     // now tasks are finished
-    raspi.ledOn(); 
+    sensors.led_indicator(true); // turn off the LED
     raspi.playStarman();
+    sensors.led_indicator(false); // turn off the LED
 
     // YAYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY!!!!!!!!!!!!!!!!!!!!
     return true; // Return true to indicate task 6 is done
