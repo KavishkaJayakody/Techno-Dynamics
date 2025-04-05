@@ -79,7 +79,9 @@ const float LEFT = 85.0;
 const float RIGHT = -85.0;
 const float ABOUTTURN = 180;
 const float LEFTQTR = 40.0;
-
+const float RIGHTQTR = -40.0;
+const float LEFT3QTR = 135.0;
+const float RIGHT3QTR = -135.0;
 
 
 //*****************************************Sensors************************** */
