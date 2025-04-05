@@ -451,7 +451,7 @@ bool Tasks::task4() {
         }
 
         // now we are at (1,1) facing (2,1)
-        // we look around from the (0,1) position
+        // we look around from the (1,1) position
         for (int k = 0; k < 3; k++) {
             robot.turn(LEFTQTR); // turn to the left
             boxColors[2][2-k] = raspi.findBoxColour(); // ask raspberry to find box color. true (1) if red. false (0) if blue
@@ -462,11 +462,15 @@ bool Tasks::task4() {
             }
         }
 
+        robot.turn(RIGHT3QTR); // return to the original direction.
+
         // if we find an empty box and if arm still has a box, place it there except on (0,1)
         if (armHasBox){
             if (boxColors[2][1] == -1) {
                 robot.move_straight(150); // move to the next box (2,1)
                 raspi.placeFrontBox(); // place the box
+                boxColors[2][1] = boxColors[1][1]; // set the box color to the one we have
+                boxColors[1][1] == -1; // set to empty
                 robot.move_straight(-150); // move back to the previous box (1,1)
                 armHasBox = false; // we have placed the box
             }
@@ -474,6 +478,8 @@ bool Tasks::task4() {
                 robot.turn(RIGHTQTR); // turn to the right
                 robot.move_straight(200); // move to the next box (2,1)
                 raspi.placeFrontBox(); // place the box
+                boxColors[2][2] = boxColors[1][1]; // set the box color to the one we have
+                boxColors[1][1] == -1; // set to empty
                 robot.move_straight(-200); // move back to the previous box (1,1)
                 robot.turn(LEFTQTR); // turn to the left
                 armHasBox = false; // we have placed the box
@@ -482,6 +488,8 @@ bool Tasks::task4() {
                 robot.turn(LEFTQTR); // turn to the right
                 robot.move_straight(200); // move to the next box (2,1)
                 raspi.placeFrontBox(); // place the box
+                boxColors[2][0] = boxColors[1][1]; // set the box color to the one we have
+                boxColors[1][1] == -1; // set to empty
                 robot.move_straight(-200); // move back to the previous box (1,1)
                 robot.turn(RIGHTQTR); // turn to the left
                 armHasBox = false; // we have placed the box
@@ -490,6 +498,8 @@ bool Tasks::task4() {
                 robot.turn(RIGHT); // turn to the right
                 robot.move_straight(200); // move to the next box (2,1)
                 raspi.placeFrontBox(); // place the box
+                boxColors[1][2] = boxColors[1][1]; // set the box color to the one we have
+                boxColors[1][1] == -1; // set to empty
                 robot.move_straight(-200); // move back to the previous box (1,1)
                 robot.turn(LEFT); // turn to the left
                 armHasBox = false; // we have placed the box
@@ -498,6 +508,8 @@ bool Tasks::task4() {
                 robot.turn(LEFT); // turn to the right
                 robot.move_straight(200); // move to the next box (2,1)
                 raspi.placeFrontBox(); // place the box
+                boxColors[1][0] = boxColors[1][1]; // set the box color to the one we have
+                boxColors[1][1] == -1; // set to empty
                 robot.move_straight(-200); // move back to the previous box (1,1)
                 robot.turn(RIGHT); // turn to the left
                 armHasBox = false; // we have placed the box
@@ -505,6 +517,8 @@ bool Tasks::task4() {
                 robot.turn(RIGHT3QTR); // turn to the right
                 robot.move_straight(200); // move to the next box (2,1)
                 raspi.placeFrontBox(); // place the box
+                boxColors[0][2] = boxColors[1][1]; // set the box color to the one we have
+                boxColors[1][1] == -1; // set to empty
                 robot.move_straight(-200); // move back to the previous box (1,1)
                 robot.turn(LEFT3QTR); // turn to the left
                 armHasBox = false; // we have placed the box
@@ -515,10 +529,12 @@ bool Tasks::task4() {
         if (goodLocation != -1) {
             if (goodLocation == 2) {
                 robot.move_straight(200); // move to the next box (2,0)
-            } else if (goodLocation == 1) {
+            } 
+            else if (goodLocation == 1) {
                 robot.turn(RIGHTQTR);
                 robot.move_straight(150); // move to the next box (2,1)
-            } else if (goodLocation == 2) {
+            } 
+            else if (goodLocation == 0) {
                 robot.turn(RIGHTQTR);
                 robot.move_straight(200); // move to the next box (2,2)
             }
@@ -540,11 +556,9 @@ bool Tasks::task4() {
             robot.turn(ABOUTTURN); // turn to the right
             robot.move_till_junction(1500); // move to side of task 4 and align
             robot.turn(RIGHT); // turn to the right
-
             break; // box found on (0,2), (1,2), (1,1), (1,0), (0,0)
         }
-
-        robot.move_straight(150); // move to the next box (1,2)
+        // robot.move_straight(150); // move to the next box (1,2)
         // if all five are filled then 0,1 is empty for sure.
     }
 
