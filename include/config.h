@@ -104,13 +104,14 @@ const int SHARP_IR_RIGHT = 34; // Analog pin for right Sharp IR sensor
 
 const int XSHUT_PIN = 25;
 const float OBJECT_DETECT_RANGE = 300;
-const float WALL_DETECTION_RANGE = 90.0;
+const float WALL_DETECTION_RANGE = 90.0; // max 200 mm
+const float WALL_STOP_DISTANCE = 60.0;
 
 //******************************************Arena Specs********************** */
 const float LINE_LENGTH = 300.0;
 const float LINE_WIDTH = 30.0;
 const float MAX_BARCODE_LENGTH = 870.0;
-const float TASK2_TOTAL_LENGTH = 1050.0;
+const float TASK2_TOTAL_LENGTH = 1200.0;
 //******************************************Mechanisms************************ */
 
 const int LIFTING_SERVO_PIN = 27;

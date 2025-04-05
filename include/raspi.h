@@ -6,7 +6,7 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-// #define LED_BUILTIN 2 // Define the built-in LED pin for ESP32 (GPIO 2)
+#define LED_BUILTIN 2 // Define the built-in LED pin for ESP32 (GPIO 2)
 
 class Raspi;
 extern Raspi raspi; // Declare the raspi object
@@ -62,6 +62,7 @@ Raspi::Raspi()
 void Raspi::takeRightPotato()
     {
         // potato at 785 height
+        Serial.flush();
         Serial.println("TAKE_POTATO");
         waitForResponse();
     }

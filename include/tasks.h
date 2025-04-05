@@ -80,23 +80,43 @@ bool Tasks::task1()
 
         // take the potato
         sensors.led_indicator(true); // Turn on the LED indicator
+        robot.move_straight(60); // align to the cam
         raspi.takeRightPotato(); // Ask the Raspberry Pi to take the potato
         sensors.led_indicator(false); // Turn off the LED indicator
         delay(1000); // Wait for 1 second to allow the Raspberry Pi to process the request
 
-        if (junc >= 3) {
-            // at the last junction we continue till the end of the field
+        if (junc == 3) {
+            // at the fourth junction we continue till the end of the field
+            for (int rest = 0; rest < 4 - potatoJuncs; rest++) {
+                robot.move_till_junction(1000); // Move until a junction is found
+            }
+            robot.turn(ABOUTTURN); // about turn to return
+            continue;
+        } 
+        else if (junc == 4) {
             for (int rest = 0; rest < 3 - potatoJuncs; rest++) {
                 robot.move_till_junction(1000); // Move until a junction is found
             }
-            if (junc == 3) {
-                robot.turn(ABOUTTURN); // about turn to return
-            } else {
-                robot.turn(RIGHT); // turn right
-                break;
-            }
-            continue; // continue to the next row (return side)
+            break;
         }
+        // if (junc >= 3) {
+        //     if (junc == 4) {
+        //         potatoJuncs++;
+        //         robot.turn(RIGHT); // turn right
+        //         break;
+        //     }
+        //     // at the last junction we continue till the end of the field
+        //     for (int rest = 0; rest < 4 - potatoJuncs; rest++) {
+        //         robot.move_till_junction(1000); // Move until a junction is found
+        //     }
+        //     if (junc == 3) {
+        //         robot.turn(ABOUTTURN); // about turn to return
+        //     } else {
+        //         robot.turn(RIGHT); // turn right
+        //         break;
+        //     }
+        //     continue; // continue to the next row (return side)
+        // }
 
 
         // move back to the row start
@@ -116,6 +136,9 @@ bool Tasks::task1()
         robot.turn(RIGHT); // Turn 90 degrees clockwise
     }
     
+    robot.move_straight(150); // Move straight for 100 mm to avoid the junction
+    robot.turn(RIGHT); // Turn 90 degrees clockwise
+
     // go to the start of task 2
     robot.move_till_junction(1000); // Move until a junction is found
     return true; // Return true to indicate task 1 is done
@@ -126,7 +149,6 @@ bool Tasks::task2()
     bool wallDone = false;
     float side = 1; // right line (should turn left)
     
-    float startDist = encoders.robotDistance(); // Get the initial distance from the encodersoders
     float turnDist = 0; // Initialize the end distance
     float tempDist; // Initialize the temporary distance
     float task2Dist = 0; // Initialize the task 2 distance
@@ -134,32 +156,36 @@ bool Tasks::task2()
     robot.move_straight(150); // Move straight for 150 mm
     robot.turn(RIGHT); // Turn 90 degrees clockwise
 
+    float startDist = encoders.robotDistance(); // Get the initial distance from the encodersoders
+
     // WITH DISTANCE MEASUREMENT BUT CANNOT CHECK TASK 2 END =(. NOW CAN. YAY.
     while (!wallDone) {
         
         // MOVE TILL THE RIGHT WALL
         task2Dist = encoders.robotDistance() - startDist - turnDist; // Calculate the distance travelled
-
+        Serial.println("task2 dist: "+String(task2Dist));
         wallDone = robot.move_till_wall_task2(task2Dist); // Move straight until wall or line is found
         if (wallDone) {
             break;
         }
         
-
-
         // CHANGE TO LEFT SIDE
 
         // if (foundWall) {
         // turn left
-        robot.turn(90); // Turn 90 degrees anticlockwise 
+        robot.turn(LEFT); // Turn 90 degrees anticlockwise 
         
         //  move forward
         tempDist = encoders.robotDistance();
         robot.move_straight(300); // Move straight for 150 mm
         turnDist = turnDist + (encoders.robotDistance() - tempDist);
-        
+
         //turn right to original direction
         robot.turn(RIGHT); // Turn 90 degrees clockwise
+        if (sensors.is_wall_present()){
+            side = 0; // left wall facing
+            break;
+        }
         
 
         
@@ -186,6 +212,11 @@ bool Tasks::task2()
         
         // turn left to original direction
         robot.turn(LEFT); // Turn 90 degrees clockwise
+
+        if (sensors.is_wall_present()){
+            side = 1; // facing right of wall(ramp)
+            break;
+        }
         // }
     }
 
@@ -206,7 +237,10 @@ bool Tasks::task2()
         robot.turn(LEFT); // Turn 90 degrees clockwise if on right line
     }
     // robot.move_till_line();
-    robot.move_till_wall(1500); // Move straight until wall is found
+    // robot.move_till_wall(1500); // Move straight until wall is found
+
+    robot.move_straight(900, 200);
+    robot.move_till_junction(500);
     task2_done = true; // Set task 2 done to true
 
     return task2_done; // Return the task 2 status
@@ -380,7 +414,7 @@ bool Tasks::task4() {
                 if (k % 2 == 0) {
                     robot.move_straight(150); // move to the next box
                 } else {
-                    robot.move_straight(200); // move back to the previous box
+                    robot.move_straight(250); // move back to the previous box
                 }
                 // place the box
                 raspi.placeFrontBox();
@@ -391,7 +425,7 @@ bool Tasks::task4() {
                 if (k % 2 == 0) {
                     robot.move_straight(-150); // move to the next box
                 } else {
-                    robot.move_straight(-200); // move back to the previous box
+                    robot.move_straight(-250); // move back to the previous box
                 }
                 robot.turn(LEFT);
             }
@@ -414,10 +448,10 @@ bool Tasks::task4() {
                 robot.move_straight(150);
             } else if (goodLocation == 1) {
                 robot.turn(RIGHTQTR);
-                robot.move_straight(200);
+                robot.move_straight(250);
             } else if (goodLocation == 3) {
                 robot.turn(LEFTQTR);
-                robot.move_straight(200);
+                robot.move_straight(250);
             } else if (goodLocation == 4) {
                 robot.turn(LEFT);
                 robot.move_straight(150);
@@ -431,10 +465,10 @@ bool Tasks::task4() {
                 robot.move_straight(-150);
                 robot.turn(LEFT);
             } else if (goodLocation == 1) {
-                robot.move_straight(-200);
+                robot.move_straight(-250);
                 robot.turn(LEFTQTR);
             } else if (goodLocation == 3) {
-                robot.move_straight(-200);
+                robot.move_straight(-250);
                 robot.turn(RIGHTQTR);
             } else if (goodLocation == 4) {
                 robot.move_straight(-150);
@@ -488,51 +522,51 @@ bool Tasks::task4() {
             }
             else if (boxColors[2][2] == -1) {
                 robot.turn(RIGHTQTR); // turn to the right
-                robot.move_straight(200); // move to the next box (2,1)
+                robot.move_straight(250); // move to the next box (2,1)
                 raspi.placeFrontBox(); // place the box
                 boxColors[2][2] = boxColors[1][1]; // set the box color to the one we have
                 boxColors[1][1] == -1; // set to empty
-                robot.move_straight(-200); // move back to the previous box (1,1)
+                robot.move_straight(-250); // move back to the previous box (1,1)
                 robot.turn(LEFTQTR); // turn to the left
                 armHasBox = false; // we have placed the box
             } 
             else if (boxColors[2][0] == -1) {
                 robot.turn(LEFTQTR); // turn to the right
-                robot.move_straight(200); // move to the next box (2,1)
+                robot.move_straight(250); // move to the next box (2,1)
                 raspi.placeFrontBox(); // place the box
                 boxColors[2][0] = boxColors[1][1]; // set the box color to the one we have
                 boxColors[1][1] == -1; // set to empty
-                robot.move_straight(-200); // move back to the previous box (1,1)
+                robot.move_straight(-250); // move back to the previous box (1,1)
                 robot.turn(RIGHTQTR); // turn to the left
                 armHasBox = false; // we have placed the box
             }
             else if (boxColors[1][2] == -1) {
                 robot.turn(RIGHT); // turn to the right
-                robot.move_straight(200); // move to the next box (2,1)
+                robot.move_straight(250); // move to the next box (2,1)
                 raspi.placeFrontBox(); // place the box
                 boxColors[1][2] = boxColors[1][1]; // set the box color to the one we have
                 boxColors[1][1] == -1; // set to empty
-                robot.move_straight(-200); // move back to the previous box (1,1)
+                robot.move_straight(-250); // move back to the previous box (1,1)
                 robot.turn(LEFT); // turn to the left
                 armHasBox = false; // we have placed the box
             } 
             else if (boxColors[1][0] == -1) {
                 robot.turn(LEFT); // turn to the right
-                robot.move_straight(200); // move to the next box (2,1)
+                robot.move_straight(250); // move to the next box (2,1)
                 raspi.placeFrontBox(); // place the box
                 boxColors[1][0] = boxColors[1][1]; // set the box color to the one we have
                 boxColors[1][1] == -1; // set to empty
-                robot.move_straight(-200); // move back to the previous box (1,1)
+                robot.move_straight(-250); // move back to the previous box (1,1)
                 robot.turn(RIGHT); // turn to the left
                 armHasBox = false; // we have placed the box
             } 
             else if (boxColors[0][2] == -1) {
                 robot.turn(RIGHT3QTR); // turn to the right
-                robot.move_straight(200); // move to the next box (2,1)
+                robot.move_straight(250); // move to the next box (2,1)
                 raspi.placeFrontBox(); // place the box
                 boxColors[0][2] = boxColors[1][1]; // set the box color to the one we have
                 boxColors[1][1] == -1; // set to empty
-                robot.move_straight(-200); // move back to the previous box (1,1)
+                robot.move_straight(-250); // move back to the previous box (1,1)
                 robot.turn(LEFT3QTR); // turn to the left
                 armHasBox = false; // we have placed the box
             }
@@ -542,14 +576,14 @@ bool Tasks::task4() {
         if (goodLocation != -1) {
             if (goodLocation == 2) {
                 robot.turn(LEFTQTR);
-                robot.move_straight(200); // move to the next box (2,0)
+                robot.move_straight(250); // move to the next box (2,0)
             } 
             else if (goodLocation == 1) {
                 robot.move_straight(150); // move to the next box (2,1)
             } 
             else if (goodLocation == 0) {
                 robot.turn(RIGHTQTR);
-                robot.move_straight(200); // move to the next box (2,2)
+                robot.move_straight(250); // move to the next box (2,2)
             }
             
             raspi.takeFrontBox(); // ask raspberry to take the box
@@ -557,12 +591,12 @@ bool Tasks::task4() {
             armHasBox = true; // we have found the good box
 
             if (goodLocation == 2) {
-                robot.move_straight(-200); // move back to (1,1)
+                robot.move_straight(-250); // move back to (1,1)
                 robot.turn(RIGHTQTR);
             } else if (goodLocation == 1) {
                 robot.move_straight(-150); // move back to (1,1)
             } else if (goodLocation == 0) {
-                robot.move_straight(-200); // // move back to (1,1)
+                robot.move_straight(-250); // // move back to (1,1)
                 robot.turn(LEFTQTR);
             }
 

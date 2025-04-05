@@ -137,21 +137,26 @@ public:
 
     bool move_till_wall_task2(float distance)//input the distance travelled in the task2 so far
     {   
+        sensors.set_follow_mode(FOLLOW_WALL);
         distance = TASK2_TOTAL_LENGTH - distance;
         bool junction_detected = false;
-        sensors.set_steering_mode(STEERING_OFF);
+        sensors.set_steering_mode(STEER_NORMAL);
         motion.reset_drive_system();
         motion.start_move( distance , MOVE_SPEED, 0, MOVE_ACC);
         while (!motion.move_finished())
         {   
            if (sensors.is_wall_present()){
-            	motion.stop();
+            	//align_to_wall();
+                motion.reset_drive_system();
+                motion.stop();
+                sensors.set_follow_mode(FOLLOW_LINE);
                 return false;
            }
 
             delayMicroseconds(2);
 
         }
+
         return true;
     }
 
@@ -191,6 +196,7 @@ public:
             }
             if (sensors.is_potato_present()){
                 Serial.println("POTATO DETECTED");
+                motion.reset_drive_system();
                 motion.stop();
                 Serial.println("motion stopped");
                 return true;
@@ -216,6 +222,17 @@ public:
             else {
                 sensors.g_steering_mode = STEERING_OFF;
             }
+            delay(2);
+          }
+
+    }
+
+    void align_to_wall(){
+        //sensors.set_follow_mode(FOLLOW_WALL);
+        sensors.set_steering_mode(STEERING_OFF);
+        //motion.reset_drive_system();
+        motion.start_move( WALL_DETECTION_RANGE-WALL_STOP_DISTANCE , encoders.robot_speed(), 0, 10*MOVE_ACC);
+        while (!motion.move_finished()){ 
             delay(2);
           }
 

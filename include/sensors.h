@@ -48,7 +48,7 @@ enum {
     CM15,
     INVALID,
 };
-enum{
+enum mode {
     FOLLOW_LINE,
     FOLLOW_WALL,
     FOLLOW_WALL_AND_LINE,
@@ -95,7 +95,7 @@ public:
     volatile float sharp_ir_right_distance = 0; // Distance in mm for right sensor
     volatile float sharp_ir_error = 0;        // Error between left and right Sharp IR readings
     volatile float sharp_ir_steering = 0;     // Steering adjustment based on Sharp IR readings
-    const float SHARP_IR_KP = 0.5;            // Proportional gain for Sharp IR steering
+    const float SHARP_IR_KP = 0.008;            // Proportional gain for Sharp IR steering
     const float SHARP_IR_KD = 0.1;            // Derivative gain for Sharp IR steering
     volatile float last_sharp_ir_error = 0;   // Previous error for derivative calculation
 
@@ -132,6 +132,18 @@ public:
         }
     };
 
+    void set_follow_mode(mode mode) {
+        if (mode == FOLLOW_LINE) {
+            follow_mode = FOLLOW_LINE;
+        } else if (mode == FOLLOW_WALL) {
+            follow_mode = FOLLOW_WALL;
+        } else if (mode == FOLLOW_WALL_AND_LINE) {
+            follow_mode = FOLLOW_WALL_AND_LINE;
+        } else {
+            follow_mode = FOLLOW_LINE; // Default to FOLLOW_LINE if an invalid mode is provided
+        }
+    };
+
     float get_cross_track_error()
     {
         return m_cross_track_error;
@@ -164,6 +176,14 @@ public:
         m_cross_track_error = error;
         calculate_steering_adjustment();
         //Serial.println(adcValues[0]);
+
+        // Serial.print(get_steering_feedback());
+        // Serial.print("  ");
+        // Serial.print(follow_mode);
+        // Serial.print("  ");
+        // Serial.print(sharp_ir_left_distance);
+        // Serial.print("  ");
+        // Serial.println(sharp_ir_right_distance);
     }
     
 
@@ -687,8 +707,8 @@ public:
 
         // Convert to distance (mm) - you'll need to calibrate these formulas
         // These are example formulas, you'll need to adjust based on your specific sensor model
-        sharp_ir_left_distance = 53.92/ (sharp_ir_left + 0.1);  // Example formula for GP2Y0A21YK
-        sharp_ir_right_distance = 52.6 / (sharp_ir_right + 0.17);
+        sharp_ir_left_distance = constrain(53.92/ (sharp_ir_left + 0.1), 0, 200);  // Example formula for GP2Y0A21YK
+        sharp_ir_right_distance = constrain(52.6 / (sharp_ir_right + 0.17),0,200); // Example formula for GP2Y0A21YK;
 
         //Serial.print("Left Distance: ");
         //Serial.print(sharp_ir_left_distance);
@@ -701,10 +721,6 @@ public:
         else {
             front_wall_present = false;
         }
-
-        // Limit the distance readings to reasonable values
-        sharp_ir_left_distance = constrain(sharp_ir_left_distance, 0, 800);
-        sharp_ir_right_distance = constrain(sharp_ir_right_distance, 0, 800);
     }
 
     // Calculate error and steering adjustment based on Sharp IR readings
@@ -712,7 +728,7 @@ public:
         // Calculate error as difference between left and right distances
         // Positive error means robot is too far to the right
         // Negative error means robot is too far to the left
-        sharp_ir_error = sharp_ir_right_distance - sharp_ir_left_distance;
+        sharp_ir_error = - sharp_ir_right_distance + sharp_ir_left_distance;
 
         // Calculate steering adjustment using PD control
         float p_term = SHARP_IR_KP * sharp_ir_error;
