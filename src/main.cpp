@@ -80,6 +80,7 @@ void loop() {
   delay(1000);
 
   // robot.move_straight(500, 200);
+  tasks.task1(); // potato field pick
 
   ////////////////////////////////////////////////////////////tasks.task1(); //  potato field pick
   // tasks.task2(); // muddy road with walls and ramp

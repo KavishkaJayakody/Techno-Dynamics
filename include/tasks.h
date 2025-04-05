@@ -75,8 +75,11 @@ bool Tasks::task1()
         } 
 
         // take the potato
-        // raspi.takeRightPotato(); // Ask the Raspberry Pi to take the potato
-        
+        sensors.led_indicator(true); // Turn on the LED indicator
+        raspi.takeRightPotato(); // Ask the Raspberry Pi to take the potato
+        sensors.led_indicator(false); // Turn off the LED indicator
+        delay(1000); // Wait for 1 second to allow the Raspberry Pi to process the request
+
         if (junc >= 3) {
             // at the last junction we continue till the end of the field
             for (int rest = 0; rest < 3 - potatoJuncs; rest++) {
