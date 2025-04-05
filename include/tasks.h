@@ -9,6 +9,7 @@ last updated on 5/4/2025 (Nilakna)*/
 #include "encoders.h"
 #include "raspi.h"
 #include <vector>
+#include "sensors.h"
 
 # define GOOD 1
 # define BAD 0
@@ -27,7 +28,8 @@ public:
     bool task1(); // IMPLEMENTED
     bool task2(); // IMPLEMENTED
     bool task3(); // IMPLEMENTED
-    bool task4();
+    float task4(); // returns end position of the robot facing task 5.
+    float task4temp(); // returns end position of the robot facing task 5.
     bool task5();
     bool task6(); // IMPLEMENTED
 
@@ -49,24 +51,31 @@ bool Tasks::task1()
 
     robot.move_till_junction(1000); // Pass the first junction
     robot.move_till_junction(1000); // Stop at second junction
+    robot.turn(RIGHT);
 
     // iterate through first 3 rows on right.
     for (int junc = 0; junc < 5; junc++) {
         // reset values
         potatoJuncs = 0;
         potatoFound = false;
-
+        // Serial.println("Junction= " + String(junc)); // Debugging line
+        
         // move to the potato
-        while(!potatoFound || (potatoJuncs < 3)) { // Continue moving until a potato is found or 2 junctions are crossed
+        while(!potatoFound && (potatoJuncs < 3)) { // Continue moving until a potato is found or 2 junctions are crossed
             // move till potatoFound 
+            // Serial.println("PotatoFound= " + String(potatoFound) + " PotatoJunctions= " + String(potatoJuncs)); // Debugging line
+            sensors.led_indicator(true);
             potatoFound = robot.move_till_potato(1000); // Move until a potato is detected. false if junction.
+            sensors.led_indicator(false);
             if (!potatoFound) {
                 potatoJuncs++; // Increment the junction count if a junction is found
+            } else {
+                break;
             }
         } 
 
         // take the potato
-        raspi.takePotato(); // Ask the Raspberry Pi to take the potato
+        // raspi.takeRightPotato(); // Ask the Raspberry Pi to take the potato
         
         if (junc >= 3) {
             // at the last junction we continue till the end of the field
@@ -85,10 +94,10 @@ bool Tasks::task1()
 
         // move back to the row start
         robot.turn(ABOUTTURN); // about turn to return
-        for (int i = 0; i < potatoJuncs+1; i++) {
+        for (int i = 0; i < potatoJuncs; i++) {
             robot.move_till_junction(350); // Move back the distance came in.
         }
-        robot.turn(RIGHT); // Move straight for 150 mm
+        robot.turn(RIGHT);
 
         // move to the next row
         robot.move_till_junction(1000); // Move to the next row junction
@@ -301,8 +310,54 @@ bool Tasks::task3()
     return true; // Return true to indicate task 3 is done
 }
 
-bool Tasks::task4()
+float Tasks::task4() {
+    // this is like a sliding block puzzle. we need to find the best path to the good box.
+    std::vector<std::vector<int>> boxColors = {{-1,-1,-1}, {-1,-1,-1}, {-1,-1,-1}}; // Initialize the box array
+    bool tempColor = -1; // set all to white
+    float endPos = 0;
+    bool tookGood = false;
+    float i,j;
+    // FIND BOXES AND BOX COLORS
+
+    // we go to the middle and look around =)
+
+    while(!tookGood) {
+        // check the nearest box (0,1)
+        robot.turn(LEFT);
+        boxColors[0][1] = raspi.findBoxColour();
+        if (boxColors[0][1] == 1 && goodRed || boxColors[0][1] == 0 && !goodRed) {
+            raspi.takeRightBox(); // ask raspberry to take the box
+            i = 0; j = 1; tookGood = true; // we have found the good box
+            break;
+        }
+        if (boxColors[0][1] != -1) {
+            raspi.takeRightBox(); // take the bad box
+            robot.turn(RIGHT);
+            robot.move_straight(150); // move back a bit
+            // now we talking
+            boxColors[0][2] = raspi.findBoxColour(); // ask raspberry to find box color. true (1) if red. false (0) if blue
+            robot.turn(LEFTQTR);
+            boxColors[1][2] = raspi.findBoxColour(); // ask raspberry to find box color. true (1) if red. false (0) if blue
+            robot.turn(LEFTQTR) ;
+            boxColors[1][1] = raspi.findBoxColour(); // ask raspberry to find box color. true (1) if red. false (0) if blue
+            robot.turn(LEFTQTR);
+            boxColors[1][0] = raspi.findBoxColour(); // ask raspberry to find box color. true (1) if red. false (0) if blue
+            robot.turn(LEFTQTR);
+            boxColors[0][0] = raspi.findBoxColour(); // ask raspberry to find box color. true (1) if red. false (0) if blue
+
+            // if all five are filled then 0,1 is empty for sure.
+        }
+    }
+
+
+    // if box is there take it and go to (0,1)
+
+
+}
+
+float Tasks::task4temp()
 {
+    // this is like a sliding block puzzle. we need to find the best path to the good box.
     std::vector<std::vector<int>> boxColors = {{-1,-1,-1}, {-1,-1,-1}, {-1,-1,-1}}; // Initialize the box array
     bool tempColor = -1; // set all to white
     float endPos = 0;
@@ -310,19 +365,34 @@ bool Tasks::task4()
 
     // we go to the middle and look around =)
 
-    // go to the start of task 4 (0,0)
+    // check the nearest box (0,1)
     robot.turn(LEFT);
+    boxColors[0][1] = raspi.findBoxColour();
+
+    // take the box if found
+    if (boxColors[0][1] == 1 && goodRed || boxColors[0][1] == 0 && !goodRed) {
+        raspi.takeRightBox(); // ask raspberry to take the box
+        robot.move_till_line(1000); // move forward untill the line
+        robot.turn(RIGHT);
+        robot.move_straight(150); // move back a bit
+        robot.turn(LEFT); // turn to the left
+        robot.move_till_line(1000); // move forward untill the line
+        endPos = 0;
+        return endPos; // we have found the good box
+    }
+
+    // go to the start of task 4 (0,0)
     robot.move_till_junction(800); // Move until a junction is found
     robot.turn(RIGHT); // Turn 90 degrees clockwise
 
     // find colors of edge boxes. (0,0) (1,0) (2,0)
     for (int i = 0; i < 3; i++) {
         robot.move_straight(150);
-        boxColors[0][i] = raspi.findBoxColour(); // ask raspberry to find box color. true (1) if red. false (0) if blue
+        boxColors[i][0] = raspi.findBoxColour(); // ask raspberry to find box color. true (1) if red. false (0) if blue
         
         // bring the box if found
-        if (boxColors[0][i] == 1 && goodRed || boxColors[0][i] == 0 && !goodRed) {
-            raspi.takeBox(); // ask raspberry to take the box
+        if (boxColors[i][0] == 1 && goodRed || boxColors[i][0] == 0 && !goodRed) {
+            raspi.takeRightBox(); // ask raspberry to take the box
             robot.turn(LEFT); // turn to the left
             robot.move_till_line(1000); // move forward untill the line
             endPos = i;
@@ -334,13 +404,23 @@ bool Tasks::task4()
         robot.move_straight(150); // otherwise move to the next box
     }  
 
-    // go to the middle point and turn 45 degs to find colors.
-    
-    
+    // go to (2,0) and check (1,1) and (2,1)
+    // if (2,0) is empty, just go. if not, take box and go.
+    if (boxColors[2][0] != -1) {
+        // if not empty, take the box and go to (2,1)
+        raspi.takeRightBox(); // ask raspberry to take the box
+    }
+    robot.turn(RIGHT); // turn to the right
+    robot.move_straight(150); // move to the next box (2,1)
+    robot.turn(LEFTQTR);
+    boxColors[1][1] = raspi.findBoxColour(); // ask raspberry to find box color. true (1) if red. false (0) if blue
+    robot.turn(LEFTQTR); // turn back to the right
+    boxColors[2][1] = raspi.findBoxColour(); // ask raspberry to find box color. true (1) if red. false (0) if blue
+
     // FIND ThE BEST POSSIBLE PATH
 
     // GO TO THE GOOD BOX AND TAKE IT
-    raspi.takeBox();
+    raspi.takeRightBox();
     return true; // Return true to indicate task 4 is done
 }
 

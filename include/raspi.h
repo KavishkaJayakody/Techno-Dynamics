@@ -15,7 +15,7 @@ class Raspi
 {
 public:
     Raspi(); // Constructor
-    void takePotato(); // Ask Raspberry Pi to take the potato
+    void takeRightPotato(); // Ask Raspberry Pi to take the potato
     bool isRedGood(); // read the april tag and return true if red is good, return false is blue is good
     bool findBoxColour(); // find the box colout=r. return true if red, false if blue
     void openGate(float GOODORBAD); // Open the gate
@@ -30,7 +30,7 @@ public:
 
     int boxColumnColors(bool goodRed); // Get the box colors of the column
     int rightBoxColumnColors(bool goodRed); // turn camera to right and Get the box colors of the column
-    bool takeBox(); // Ask Raspberry Pi to take the box
+    bool takeRightBox(); // Ask Raspberry Pi to take the box
 
     void waitForResponse(); // Wait for a response from the Raspberry Pi
     bool waitForBoolResponse(); // Wait for a boolean response from the Raspberry Pi
@@ -55,13 +55,13 @@ Raspi::Raspi()
         digitalWrite(LED_BUILTIN, LOW);
     }
 
-void Raspi::takePotato()
+void Raspi::takeRightPotato()
     {
         Serial.println("TAKE_POTATO");
-        waitForResponse();
+        // waitForResponse();
     }
 
-bool Raspi::takeBox()
+bool Raspi::takeRightBox()
     {
         Serial.println("TAKE_POTATO");
         waitForResponse();

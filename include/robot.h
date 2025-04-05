@@ -152,11 +152,11 @@ public:
     }
 
 
-    void move_straight(float distance)
+    void move_straight(float distance, float speed = MOVE_SPEED)
     {
         sensors.set_steering_mode(STEERING_OFF);
         motion.reset_drive_system();
-        motion.start_move( distance, MOVE_SPEED, 0, MOVE_ACC);
+        motion.start_move( distance, speed, 0, MOVE_ACC);
         while (!motion.move_finished())
         {   
             // if (sensors.line_state == LINE){
@@ -270,18 +270,12 @@ public:
     }
 
     bool move_till_potato(float distance) {   
-        distance = distance;
         bool junction_detected = false;
         sensors.set_steering_mode(STEERING_OFF);
         motion.reset_drive_system();
         motion.start_move( distance , MOVE_SPEED, 0, MOVE_ACC);
         while (!motion.move_finished())
         {   
-            if (sensors.is_potato_present()){
-                    motion.stop();
-                    return true;
-                    break;
-            }
             if (sensors.line_state == LINE){
                 sensors.g_steering_mode = STEER_NORMAL;
             }
@@ -302,8 +296,13 @@ public:
                 align_to_juction();
                 break;
             }
+            if (sensors.is_potato_present()){
+                Serial.println("POTATO DETECTED");
+                motion.stop();
+                return true;
+                break;
+            }
             delayMicroseconds(2);
-            // delayMicroseconds(2);
 
         }
         return false;

@@ -93,7 +93,7 @@ public:
         pinMode(LED_PIN, OUTPUT);
         pinMode(LEFT_LINE_PIN, INPUT);
         pinMode(RIGHT_LINE_PIN, INPUT);
-        pinMode(POTATO_IR_PIN,INPUT);
+        pinMode(POTATO_IR_PIN,INPUT_PULLDOWN);
     }
 
         float get_steering_feedback()
@@ -231,8 +231,14 @@ public:
     }
 
     bool is_potato_present(){
-        digitalRead(POTATO_IR_PIN);
-        return true;
+        if (digitalRead(POTATO_IR_PIN))
+        {
+            return false; // Potato not detected
+        }
+        else
+        {
+            return true; // Potato detected
+        }
     }
 
     float calculate_steering_adjustment()
