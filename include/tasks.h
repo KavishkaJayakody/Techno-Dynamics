@@ -298,7 +298,7 @@ bool Tasks::task3()
     // put the other set of potatoes
     if (openGood) {
         raspi.openGate(BAD);
-    } else {
+    } else { 
         raspi.openGate(GOOD);
     }
 
@@ -322,6 +322,7 @@ bool Tasks::task4() {
     // we go to the middle and look around =)
 
     while(!tookGood) {
+        /////////////////////////////   STEP 0  //////////////////////
         // check the nearest box (0,1)
         robot.turn(LEFT);
         boxColors[0][1] = raspi.findBoxColour();
@@ -334,6 +335,8 @@ bool Tasks::task4() {
             break; // box found on (1,1) position
         }
 
+
+        /////////////////////////////   STEP 1  //////////////////////
         // if good box is not found and bad box is found, take it and move to that location.
         if (boxColors[0][1] != -1) {
             raspi.takeRightBox(); // take the bad box
@@ -390,9 +393,9 @@ bool Tasks::task4() {
         // now we align again.
         robot.move_till_junction(1000); // move to side of task 4 and align
         robot.turn(ABOUTTURN);
-        robot.move_straight(300); // move to the next box (1,1)
+        robot.move_straight(150); // move to the (0,1) position facing (1,1)
 
-        // if we have found a good box, take it and go.
+        // if we have found a good box in last round, take it and go.
         if (goodLocation != -1) {
             if (goodLocation == 0) {
                 robot.turn(RIGHT);
@@ -433,27 +436,115 @@ bool Tasks::task4() {
             break; // box found on (0,2), (1,2), (1,1), (1,0), (0,0)
         }
 
-        // now (0,1) is empty and only row 2 can have the good box.
-        
-        
-        // if (1,1) is red get it and go. 
-        if (boxColors[1][1] == 1 && goodRed || boxColors[1][1] == 0 && !goodRed) {
-            raspi.takeFrontBox(); // ask raspberry to take the box
-            // i = 1; j = 1; 
-            tookGood = true; // we have found the good box
-            armHasBox = true; // we have found the good box
-            break;
-        } else if (boxColors[1][1] != -1) {
+        /////////////////////////////   STEP 2  //////////////////////
+
+        // we didnt find a good box in the last round. we are at (0,1) now.
+        // so move to the next box(1,1) which we already checked.  
+        // if (1,1) has a box, take it and go to (1,2)
+        if (boxColors[1][1] != -1) {
+            robot.move_straight(150); // move to the next box (1,1)
             raspi.takeFrontBox(); // take the bad box
             armHasBox = true; // bad box in the arm
+            robot.move_straight(150);
+        } else {
+            robot.move_straight(300);
         }
 
-        
+        // now we are at (1,1) facing (2,1)
+        // we look around from the (0,1) position
+        for (int k = 0; k < 3; k++) {
+            robot.turn(LEFTQTR); // turn to the left
+            boxColors[2][2-k] = raspi.findBoxColour(); // ask raspberry to find box color. true (1) if red. false (0) if blue
+            
+            // save the good box location. cannot take because arm might have a box.
+            if (boxColors[2][2-k] == 1 && goodRed || boxColors[2][2-k] == 0 && !goodRed) {
+                goodLocation = k; // save the location of the good box
+            }
+        }
 
+        // if we find an empty box and if arm still has a box, place it there except on (0,1)
+        if (armHasBox){
+            if (boxColors[2][1] == -1) {
+                robot.move_straight(150); // move to the next box (2,1)
+                raspi.placeFrontBox(); // place the box
+                robot.move_straight(-150); // move back to the previous box (1,1)
+                armHasBox = false; // we have placed the box
+            }
+            else if (boxColors[2][2] == -1) {
+                robot.turn(RIGHTQTR); // turn to the right
+                robot.move_straight(200); // move to the next box (2,1)
+                raspi.placeFrontBox(); // place the box
+                robot.move_straight(-200); // move back to the previous box (1,1)
+                robot.turn(LEFTQTR); // turn to the left
+                armHasBox = false; // we have placed the box
+            } 
+            else if (boxColors[2][0] == -1) {
+                robot.turn(LEFTQTR); // turn to the right
+                robot.move_straight(200); // move to the next box (2,1)
+                raspi.placeFrontBox(); // place the box
+                robot.move_straight(-200); // move back to the previous box (1,1)
+                robot.turn(RIGHTQTR); // turn to the left
+                armHasBox = false; // we have placed the box
+            }
+            else if (boxColors[1][2] == -1) {
+                robot.turn(RIGHT); // turn to the right
+                robot.move_straight(200); // move to the next box (2,1)
+                raspi.placeFrontBox(); // place the box
+                robot.move_straight(-200); // move back to the previous box (1,1)
+                robot.turn(LEFT); // turn to the left
+                armHasBox = false; // we have placed the box
+            } 
+            else if (boxColors[1][0] == -1) {
+                robot.turn(LEFT); // turn to the right
+                robot.move_straight(200); // move to the next box (2,1)
+                raspi.placeFrontBox(); // place the box
+                robot.move_straight(-200); // move back to the previous box (1,1)
+                robot.turn(RIGHT); // turn to the left
+                armHasBox = false; // we have placed the box
+            } else if (boxColors[0][2] == -1) {
+                robot.turn(RIGHT3QTR); // turn to the right
+                robot.move_straight(200); // move to the next box (2,1)
+                raspi.placeFrontBox(); // place the box
+                robot.move_straight(-200); // move back to the previous box (1,1)
+                robot.turn(LEFT3QTR); // turn to the left
+                armHasBox = false; // we have placed the box
+            }
+        }
 
+        // now arm is free. take the good box.
+        if (goodLocation != -1) {
+            if (goodLocation == 2) {
+                robot.move_straight(200); // move to the next box (2,0)
+            } else if (goodLocation == 1) {
+                robot.turn(RIGHTQTR);
+                robot.move_straight(150); // move to the next box (2,1)
+            } else if (goodLocation == 2) {
+                robot.turn(RIGHTQTR);
+                robot.move_straight(200); // move to the next box (2,2)
+            }
+            
+            raspi.takeFrontBox(); // ask raspberry to take the box
+            tookGood = true; // we have found the good box
+            armHasBox = true; // we have found the good box
 
-        
-        
+            if (goodLocation == 2) {
+                robot.move_straight(-200); // move to the next box (2,0)
+                robot.turn(RIGHTQTR);
+            } else if (goodLocation == 1) {
+                robot.move_straight(-150); // move to the next box (2,1)
+            } else if (goodLocation == 2) {
+                robot.move_straight(-200); // move to the next box (2,2)
+                robot.turn(LEFTQTR);
+            }
+
+            robot.turn(ABOUTTURN); // turn to the right
+            robot.move_till_junction(1500); // move to side of task 4 and align
+            robot.turn(RIGHT); // turn to the right
+
+            break; // box found on (0,2), (1,2), (1,1), (1,0), (0,0)
+        }
+
+        robot.move_straight(150); // move to the next box (1,2)
         // if all five are filled then 0,1 is empty for sure.
     }
 
