@@ -61,10 +61,10 @@ bool Tasks::task1()
         // reset values
         potatoJuncs = 0;
         potatoFound = false;
-        Serial.println("Junction= " + String(junc)); // Debugging line
+        Serial.println("Row Junction= " + String(junc)); // Debugging line
         
         // move to the potato
-        while(!potatoFound && (potatoJuncs < 3)) { // Continue moving until a potato is found or 2 junctions are crossed
+        while(!potatoFound && (potatoJuncs < 4)) { // Continue moving until a potato is found or 2 junctions are crossed
             // move till potatoFound 
             Serial.println("PotatoFound= " + String(potatoFound) + " PotatoJunctions= " + String(potatoJuncs)); // Debugging line
             sensors.led_indicator(true);
@@ -73,6 +73,7 @@ bool Tasks::task1()
             if (!potatoFound) {
                 potatoJuncs++; // Increment the junction count if a junction is found
             } else {
+                potatoJuncs++; // sad but ok
                 break;
             }
         } 
@@ -100,14 +101,18 @@ bool Tasks::task1()
 
         // move back to the row start
         robot.turn(ABOUTTURN); // about turn to return
-        for (int i = 0; i < potatoJuncs; i++) {
+        for (int i = 0; i < potatoJuncs-1; i++) {
             robot.move_till_junction(350); // Move back the distance came in.
+            // Serial.println()
         }
-        robot.turn(RIGHT);
+        // robot.turn(RIGHT);
 
         // move to the next row
         // robot.move_till_junction(1000); // Move to the next row junction
         robot.move_straight(150); // Move straight for 100 mm to avoid the junction
+        robot.turn(RIGHT); // Turn 90 degrees clockwise
+
+        robot.move_till_junction(1000); // Move to the next row junction
         robot.turn(RIGHT); // Turn 90 degrees clockwise
     }
     

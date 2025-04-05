@@ -55,7 +55,7 @@ const float PULSES_PER_ROTATION = 1320.0;
 const float ROBOT_RADIUS = 89;  //there is some error in this. Although it says radius put Wheel to wheel diameter
 const float DEG_PER_MM_DIFFERENCE = 180.0/(2*ROBOT_RADIUS*PI);
 
-const float ARRAY_TO_WHEEL_DISTANCE = 70;//65; //change this accordingly
+const float ARRAY_TO_WHEEL_DISTANCE = 75.0;//65; //change this accordingly
 
 const float RADIANS_PER_DEGREE = 0.0175;
 
@@ -104,7 +104,7 @@ const int SHARP_IR_RIGHT = 34; // Analog pin for right Sharp IR sensor
 
 const int XSHUT_PIN = 25;
 const float OBJECT_DETECT_RANGE = 300;
-const float WALL_DETECTION_RANGE = 150.0;
+const float WALL_DETECTION_RANGE = 90.0;
 
 //******************************************Arena Specs********************** */
 const float LINE_LENGTH = 300.0;

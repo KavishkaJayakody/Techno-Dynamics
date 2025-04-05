@@ -338,11 +338,11 @@ public:
             //Serial.print(sensor_on_line[i]);
         }
         //Serial.print("     ");
-        for (int i = 0; i < NUM_SENSORS; i++)
-        {
-            Serial.print(adcValues[i]);
-            Serial.print(",");
-        }
+        // for (int i = 0; i < NUM_SENSORS; i++)
+        // {
+        //     Serial.print(adcValues[i]);
+        //     Serial.print(",");
+        // }
         //Serial.println();
        //Serial.print(right_pin_state);
 
@@ -381,25 +381,25 @@ public:
 
         if (no_line == true){
             line_state = NO_LINE;
-            Serial.println("NO_LINE");
+            // Serial.println("NO_LINE");
         }
         else if (left_state == true and right_state==true and on_line_count >= NUM_SENSORS/2 and left_pin_state==true and right_pin_state == true){
             line_state = CROSS_OR_T;
             //led_indicator(true);
-            Serial.println("CROSS_OR_T");
+            // Serial.println("CROSS_OR_T");
         }
         else if (left_state == true and on_line_count>=((NUM_SENSORS/2)) and left_pin_state==true){
             line_state = LEFT_LINE;
-            Serial.println("LEFT_LINE");
+            // Serial.println("LEFT_LINE");
         }
         else if (right_state == true and on_line_count>=((NUM_SENSORS/2)) and right_pin_state == true){
             line_state = RIGHT_LINE;
-            Serial.println("RIGHT_LINE");
+            // Serial.println("RIGHT_LINE");
         }
         else //if (left_state == false and right_state==false)
         {
            line_state = LINE;
-           Serial.println("LINE");
+        //    Serial.println("LINE");
         }
 
         
@@ -732,7 +732,7 @@ public:
             return true;
         }
         else {
-        return false;
+            return false;
         }
 
     }

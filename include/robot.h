@@ -172,8 +172,8 @@ public:
                 sensors.g_steering_mode = STEER_NORMAL;
             }
             else {
-                // sensors.g_steering_mode = STEERING_OFF;
-                sensors.g_steering_mode = STEER_NORMAL;
+                sensors.g_steering_mode = STEERING_OFF;
+                // sensors.g_steering_mode = STEER_NORMAL;
             }
             
             if (sensors.line_state ==LEFT_LINE or sensors.line_state ==RIGHT_LINE){  //detect if the expected junction is reached
@@ -192,6 +192,7 @@ public:
             if (sensors.is_potato_present()){
                 Serial.println("POTATO DETECTED");
                 motion.stop();
+                Serial.println("motion stopped");
                 return true;
             }
            

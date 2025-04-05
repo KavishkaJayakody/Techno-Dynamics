@@ -42,7 +42,7 @@ void setup() {
   controlTicker.attach(0.005,[](){
       encoders.update();
       motion.update();
-      motors.update(motion.velocity(), motion.omega(), sensors.get_steering_feedback());
+      // motors.update(motion.velocity(), motion.omega(), sensors.get_steering_feedback());
 
   });
 
@@ -80,8 +80,10 @@ void loop() {
   robot.move_straight(0.1);
   delay(1000);
 
-  // robot.move_straight(500, 200);
-  tasks.task1(); // potato field pick
+  bool wall = sensors.is_wall_present();
+  Serial.println("Wall: " + String(wall));
+  // robot.move_straight(500, 200);s
+  // tasks.task1(); // potato field pick
 
   ////////////////////////////////////////////////////////////tasks.task1(); //  potato field pick
   // tasks.task2(); // muddy road with walls and ramp
