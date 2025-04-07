@@ -80,13 +80,14 @@ bool Tasks::task1()
 
         // take the potato
         sensors.led_indicator(true); // Turn on the LED indicator
-        robot.move_straight(60); // align to the cam
+        robot.move_straight(75); // align to the cam
         raspi.takeRightPotato(); // Ask the Raspberry Pi to take the potato
         sensors.led_indicator(false); // Turn off the LED indicator
+        robot.move_till_junction(300);
         delay(1000); // Wait for 1 second to allow the Raspberry Pi to process the request
 
         if (junc == 3) {
-            // at the fourth junction we continue till the end of the field
+            // at the fourth junction we continue till t he end of the field
             for (int rest = 0; rest < 4 - potatoJuncs; rest++) {
                 robot.move_till_junction(1000); // Move until a junction is found
             }
@@ -147,7 +148,8 @@ bool Tasks::task1()
 bool Tasks::task2()
 {
     bool wallDone = false;
-    float side = 1; // right line (should turn left)
+    int side = 1; // right line (should turn left)
+    int walls = 0;
     
     float turnDist = 0; // Initialize the end distance
     float tempDist; // Initialize the temporary distance
@@ -163,11 +165,14 @@ bool Tasks::task2()
         
         // MOVE TILL THE RIGHT WALL
         task2Dist = encoders.robotDistance() - startDist - turnDist; // Calculate the distance travelled
-        Serial.println("task2 dist: "+String(task2Dist));
+        // Serial.println("task2 dist: "+String(task2Dist));
         wallDone = robot.move_till_wall_task2(task2Dist); // Move straight until wall or line is found
+        side = 1;
+        walls++;
         if (wallDone) {
             break;
         }
+       
         
         // CHANGE TO LEFT SIDE
 
@@ -184,6 +189,9 @@ bool Tasks::task2()
         robot.turn(RIGHT); // Turn 90 degrees clockwise
         if (sensors.is_wall_present()){
             side = 0; // left wall facing
+            sensors.led_indicator(true); // Turn on the LED indicator
+            delay(1000); // Wait for 1 second to allow the LED to be visible
+            sensors.led_indicator(false); // Turn off the LED indicator
             break;
         }
         
@@ -194,11 +202,12 @@ bool Tasks::task2()
         task2Dist = encoders.robotDistance() - startDist - turnDist; // Calculate the distance travelled
 
         wallDone = robot.move_till_wall_task2(task2Dist); // Move straight until wall or line is found
+        side = 0;
+        walls++;
         if (wallDone) {
-            side = -1; // Set wall to true
             break; // Exit the loop if task 2 is done
-        }
-
+        } 
+        
 
 
         // CHANGE TO RIGHT SIDE
@@ -215,13 +224,18 @@ bool Tasks::task2()
 
         if (sensors.is_wall_present()){
             side = 1; // facing right of wall(ramp)
+            sensors.led_indicator(true); // Turn on the LED indicator
+            delay(1000); // Wait for 1 second to allow the LED to be visible
+            sensors.led_indicator(false); // Turn off the LED indicator
             break;
         }
         // }
+
+        robot.move_till_junction(1000); // Move until a junction is found
     }
 
     // LETS GO RAMP!!!!
-
+    robot.move_straight(-150); // Move straight for 150 mm
     // turn right if on left line.
     // robot.turn((float)90*side); // Turn 90 degrees clockwise if on left line
     if (side==1){
@@ -239,8 +253,15 @@ bool Tasks::task2()
     // robot.move_till_line();
     // robot.move_till_wall(1500); // Move straight until wall is found
 
-    robot.move_straight(900, 200);
-    robot.move_till_junction(500);
+
+    // forward to the ramp
+    robot.move_straight(600, 400, 500);
+
+    // reverse to the ramp
+    // robot.turn(ABOUTTURN); // Turn 180 degrees clockwise
+    // robot.move_straight(-900,500); // Move straight for 150 mm
+
+    robot.move_till_wall(1200);
     task2_done = true; // Set task 2 done to true
 
     return task2_done; // Return the task 2 status
@@ -290,7 +311,7 @@ bool Tasks::task3()
 {   
     // READ APRILTAG
     // robot start facing the wall
-    // robot.move_straight(-150); // Move back to make space to turn if move till wall doesnt handle this.
+    robot.move_straight(-150); // Move back to make space to turn if move till wall doesnt handle this.
     robot.turn(RIGHT);
     robot.move_till_wall(2000);
     robot.turn(RIGHT); // Turn 90 degrees clockwise
@@ -609,6 +630,12 @@ bool Tasks::task4() {
         // if all five are filled then 0,1 is empty for sure.
     }
 
+    if (goodLocation==-1) {
+        robot.turn(ABOUTTURN); // turn to the right
+        robot.move_till_junction(1500); // move to side of task 4 and align
+        robot.turn(RIGHT); // turn to the right
+    }
+
     // if box is there take it and go to (0,1)
     if (tookGood){
         return true;
@@ -688,6 +715,44 @@ float Tasks::task4temp()
 bool Tasks::task5()
 {
     // Task 5 implementation
+    robot.move_till_junction(1000);
+    robot.turn(RIGHT);
+    robot.move_straight(450); // robot facing the entrance
+    robot.turn(LEFT);
+    if (goodRed) {
+        robot.move_till_wall(1500);
+        robot.turn(LEFT);
+        robot.move_till_junction(300);
+        robot.move_straight(150);
+        robot.turn(RIGHT);
+        robot.move_straight(300);
+        robot.turn(RIGHT);
+        robot.move_till_junction(350);
+        robot.move_till_junction(350);
+        robot.turn(LEFT);
+        raspi.placeRightBox();
+        robot.turn(LEFT);
+        robot.move_till_junction(350);
+        robot.move_straight(150);
+        robot.turn(LEFT);
+        robot.move_till_junction(350);
+        robot.move_straight(150);
+        robot.turn(LEFT);
+        robot.move_till_junction(350);
+    }
+    else {
+        robot.move_straight(500);
+        robot.turn(RIGHT);
+        robot.move_till_junction(300);
+        robot.turn(LEFT);
+        raspi.takeRightBox();
+        robot.turn(LEFT);
+        robot.move_straight(150);
+        robot.turn(RIGHT);
+        robot.move_till_wall(1000);
+        robot.turn(LEFT);
+        robot.move_till_junction(1000);
+    }
     return true; // Return true to indicate task 5 is done
 }
 

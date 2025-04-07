@@ -43,7 +43,7 @@ public:
   
 
 
-    void move_straight(float distance, float speed = MOVE_SPEED)
+    void move_straight(float distance, float speed = MOVE_SPEED, float acc = MOVE_ACC)
     {
         sensors.set_steering_mode(STEERING_OFF);
         motion.reset_drive_system();
@@ -162,13 +162,29 @@ public:
 
     void move_till_wall(float distance) {
         // this should stop at the wall and move back a bit to turn (most probably) and possibly align
+        sensors.set_follow_mode(FOLLOW_WALL);
+        bool junction_detected = false;
+        sensors.set_steering_mode(STEER_NORMAL);
+        motion.reset_drive_system();
+        motion.start_move( distance , MOVE_SPEED, 0, MOVE_ACC);
+        while (!motion.move_finished())
+        {   
+           if (sensors.is_wall_present()){
+            	//align_to_wall();
+                motion.reset_drive_system();
+                motion.stop();
+                sensors.set_follow_mode(FOLLOW_LINE);
+           }
+
+            delayMicroseconds(2);
+        }
         return;
     }
 
     bool move_till_potato(float distance)
     { 
         bool junction_detected = false;
-        sensors.set_steering_mode(STEER_NORMAL);
+        sensors.set_steering_mode(STEERING_OFF);
         motion.reset_drive_system();
         motion.start_move( distance , MOVE_SPEED, 0, MOVE_ACC);
         while (!motion.move_finished())
@@ -191,7 +207,9 @@ public:
                 sensors.last_junction = sensors.line_state;
             }
             if (junction_detected){//only allign to the junction if (expected junction distance reached and) junction passed.
+                Serial.println("JUNCTION DETECTED");
                 align_to_juction();
+                Serial.println("Aligned to junction");
                 break;
             }
             if (sensors.is_potato_present()){
@@ -216,12 +234,12 @@ public:
         //motion.reset_drive_system();
         motion.start_move( ARRAY_TO_WHEEL_DISTANCE , encoders.robot_speed(), 0, 10*MOVE_ACC);
         while (!motion.move_finished()){ 
-            if (sensors.line_state == LINE){
-                sensors.g_steering_mode = STEER_NORMAL;
-            }
-            else {
-                sensors.g_steering_mode = STEERING_OFF;
-            }
+            // if (sensors.line_state == LINE){
+            //     sensors.g_steering_mode = STEER_NORMAL;
+            // }
+            // else {
+            //     sensors.g_steering_mode = STEERING_OFF;
+            // }
             delay(2);
           }
 

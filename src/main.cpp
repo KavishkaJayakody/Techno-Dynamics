@@ -35,8 +35,7 @@ void setup() {
   Wire.begin();
   sensors.begin();
   communications.begin();
-  mechanisms.begin();
-
+  // mechanisms.begin();
   sensors.calibrate();
 
   controlTicker.attach(0.005,[](){
@@ -80,35 +79,10 @@ void loop() {
   robot.move_straight(0.1);
   delay(1000);
 
-  // bool wall = sensors.is_wall_present();
-  // Serial.println("Wall: " + String(wall));
-  // robot.move_till_wall_task2(50);
-  // while (1) {
-    
-  //   delay(1000);
-  // }
-
-  // robot.move_straight(500, 200);s
   tasks.task1(); // potato field pick
   tasks.task2(); // muddy road with walls and ramp
-  // tasks.task3(); // potato packing 
-  // tasks.task4(); // potato box finding
-  // // tasks.task5(); 
-  // tasks.task6(); // water dry potatoes
-
-  // int potatoJuncs = 0;
-  // bool potatoFound = false;
-
-  // robot.move_till_junction(1000); // Pass the first junction
-  // robot.move_till_junction(1000); // Stop at second junction
-  // robot.turn(RIGHT);
-
-  // for (int i = 0; i < 3; i++) {
-  //   robot.move_till_junction(1000); // Move until a junction is found
-  // }
-  // robot.turn(ABOUTTURN);
-  // for (int i = 0; i < 3; i++) {
-  //   robot.move_till_junction(1000); // Move until a junction is found
-  // }
-  // robot.turn(LEFT); // Turn 90 degrees clockwise
+  tasks.task3(); // potato packing 
+  tasks.task4(); // potato box finding
+  tasks.task5(); // potato box placing
+  tasks.task6(); // water dry potatoes
 }

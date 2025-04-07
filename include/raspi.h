@@ -62,7 +62,14 @@ Raspi::Raspi()
 void Raspi::takeRightPotato()
     {
         // potato at 785 height
-        Serial.flush();
+        // Serial.flush();
+        digitalWrite(LIFTING_SERVO_PIN,  HIGH);
+        digitalWrite(GRABBING_SERVO_PIN, HIGH);
+        delay(1000);
+        digitalWrite(LIFTING_SERVO_PIN,  LOW);
+        digitalWrite(GRABBING_SERVO_PIN, LOW);
+        delay(20000);
+
         Serial.println("TAKE_POTATO");
         waitForResponse();
     }
@@ -70,9 +77,14 @@ void Raspi::takeRightPotato()
 void Raspi::takeRightBox()
     {
         // box top at 500 height
+        digitalWrite(LIFTING_SERVO_PIN,  HIGH);
+        digitalWrite(GRABBING_SERVO_PIN, HIGH);
+        delay(3000);
+        digitalWrite(LIFTING_SERVO_PIN,  LOW);
+        digitalWrite(GRABBING_SERVO_PIN, LOW);
+        delay(20000);
         Serial.println("TAKE_RIGHT_BOX");   
         waitForResponse();
-        // return waitForBoolResponse();
     }
 
 void Raspi::takeFrontBox()
@@ -85,6 +97,12 @@ void Raspi::takeFrontBox()
 
 void Raspi::placeRightBox()
     {
+        digitalWrite(LIFTING_SERVO_PIN,  HIGH);
+        digitalWrite(GRABBING_SERVO_PIN, HIGH);
+        delay(2000);
+        digitalWrite(LIFTING_SERVO_PIN,  LOW);
+        digitalWrite(GRABBING_SERVO_PIN, LOW);
+        delay(20000);
         // box top at 500 height
         Serial.println("PLACE_RIGHT_BOX");   
         waitForResponse();

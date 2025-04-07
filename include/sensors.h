@@ -114,6 +114,8 @@ public:
         pinMode(POTATO_IR_PIN,INPUT_PULLUP);
         pinMode(SHARP_IR_LEFT, INPUT);
         pinMode(SHARP_IR_RIGHT, INPUT);
+        pinMode(LIFTING_SERVO_PIN, OUTPUT);
+        pinMode(GRABBING_SERVO_PIN, OUTPUT);
     }
 
     float get_steering_feedback()
