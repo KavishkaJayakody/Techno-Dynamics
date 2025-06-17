@@ -1,3 +1,46 @@
-This project was done for the semester robotics project (EN2533 UoM). The Tasks were mainly based on line following, box manipulation, barcode reading, maze solving ect. The code follows a modular architecture.
-Although our robot failed to complete the tasks(lack of cooperation by the team members) my code had all the functionalities needed to complete the task with a reasonably good accuracy.
-The robot class includs the basic functionality of the robot while all the other classes includes the supporting functions running in the background and the foreground to give the intended outputs.
+# EN2533 Robotics Project – Line Following & Maze Solving Robot
+
+This repository contains the code developed for the **EN2533: Robotics Project** at the **University of Moratuwa**. The robot was designed to perform a variety of autonomous tasks, including:
+
+- Line following  
+- Box manipulation  
+- Barcode reading  
+- Maze solving  
+
+Microcontroller - ESP32 Devkit V1
+Motors used - JGB 37-520
+Sensor array - Reykha module
+
+---
+
+## Project Highlights
+
+- ✅ Modular object-oriented approach
+- ✅ Abstracted `Robot` class to handle core motion and sensor control  
+- ✅ Dedicated classes for high-level tasks (e.g., barcode processing, path planning)  
+- ✅ Background and foreground task separation for concurrent task execution 
+
+---
+
+
+---
+
+##  Features Implemented
+
+- PID-based line following with calibration
+- Grid and node-based maze traversal with direction memory
+- Barcode detection and parsing using onboard sensors
+- Basic box pickup and drop-off logic
+- Modular task switching and state handling system
+
+---
+
+## Comments
+The control profilling was implemented with close relation with ukmars/maze-runner-core 
+
+
+
+
+
+
+
