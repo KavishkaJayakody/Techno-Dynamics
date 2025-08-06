@@ -1,14 +1,21 @@
-# EN2533 Robotics Project – Line Following & Maze Solving Robot
+# Autonomous Robot for the completion of the tasks for SLRC 2025
 
-This repository contains the code developed for the **EN2533: Robotics Project** at the **University of Moratuwa**. The robot was designed to perform a variety of autonomous tasks, including:
+This repository contains the code developed for the robot **Hope** developed for **SLRC 2025** organized by the **University of Moratuwa**. The robot was designed to perform a variety of autonomous tasks, including:
 
 - Line following  
 - Box manipulation  
 - Barcode reading  
-- Maze solving  
+- Maze solving
+- ball collection
+- color detection
+
+The robot was made in 2 versions. 
+ -4 wheel omni directional robot
+ -2 wheeled robot
 
 Microcontroller - ESP32 Devkit V1
-Motors used - JGB 37-520
+Computer - Raspberry Pi 4
+Motors used - JGB 37-520 /N20
 Sensor array - Reykha module
 
 ---
@@ -17,7 +24,7 @@ Sensor array - Reykha module
 
 - ✅ Modular object-oriented approach
 - ✅ Abstracted `Robot` class to handle core motion and sensor control  
-- ✅ Dedicated classes for high-level tasks (e.g., barcode processing, path planning)  
+- ✅ Dedicated classes for high-level tasks (e.g., object manipulation, Path navigation)  
 - ✅ Background and foreground task separation for concurrent task execution 
 
 ---
@@ -29,7 +36,7 @@ Sensor array - Reykha module
 
 - PID-based line following with calibration
 - Grid and node-based maze traversal with direction memory
-- Barcode detection and parsing using onboard sensors
+- Ball detection and color identification
 - Basic box pickup and drop-off logic
 - Modular task switching and state handling system
 
