@@ -48,6 +48,11 @@ enum {
     CM15,
     INVALID,
 };
+enum mode {
+    FOLLOW_LINE,
+    FOLLOW_WALL,
+    FOLLOW_WALL_AND_LINE,
+};
 
 class Sensors
 {
@@ -69,6 +74,7 @@ public:
     bool left_pin_state;
     bool right_pin_state;
     int box_height;
+    bool front_wall_present = false;
     uint8_t g_steering_mode = STEER_NORMAL;
     volatile float steeringKp = STR_KP;
     volatile float steeringKd = STR_KD;
@@ -78,8 +84,20 @@ public:
     volatile bool object_infront_top_ToF = false;
     volatile bool object_infront_bottom_ToF = false;
 
+    int follow_mode = FOLLOW_LINE;
+
 
     float all_IR_readings[10] = {0,0,0,0,0,0,0,0,0,0}; //values from left sensors to right sensors
+
+    volatile float sharp_ir_left = 0;    // Raw reading from left Sharp IR
+    volatile float sharp_ir_right = 0;   // Raw reading from right Sharp IR
+    volatile float sharp_ir_left_distance = 0;  // Distance in mm for left sensor
+    volatile float sharp_ir_right_distance = 0; // Distance in mm for right sensor
+    volatile float sharp_ir_error = 0;        // Error between left and right Sharp IR readings
+    volatile float sharp_ir_steering = 0;     // Steering adjustment based on Sharp IR readings
+    const float SHARP_IR_KP = 0.008;            // Proportional gain for Sharp IR steering
+    const float SHARP_IR_KD = 0.1;            // Derivative gain for Sharp IR steering
+    volatile float last_sharp_ir_error = 0;   // Previous error for derivative calculation
 
     void begin()
     {   
@@ -93,12 +111,39 @@ public:
         pinMode(LED_PIN, OUTPUT);
         pinMode(LEFT_LINE_PIN, INPUT);
         pinMode(RIGHT_LINE_PIN, INPUT);
-        pinMode(POTATO_IR_PIN,INPUT);
+        pinMode(POTATO_IR_PIN,INPUT_PULLUP);
+        pinMode(SHARP_IR_LEFT, INPUT);
+        pinMode(SHARP_IR_RIGHT, INPUT);
+        pinMode(LIFTING_SERVO_PIN, OUTPUT);
+        pinMode(GRABBING_SERVO_PIN, OUTPUT);
     }
 
-        float get_steering_feedback()
-    {
-        return m_steering_adjustment;
+    float get_steering_feedback()
+    {   
+        if (follow_mode == FOLLOW_LINE){
+            return m_steering_adjustment;
+        }
+        else if (follow_mode == FOLLOW_WALL){
+            return sharp_ir_steering;
+        }
+        else if (follow_mode == FOLLOW_WALL_AND_LINE){
+            return constrain(m_steering_adjustment+sharp_ir_steering, -STEERING_ADJUST_LIMIT, STEERING_ADJUST_LIMIT);
+        }
+        else {
+            return m_steering_adjustment;
+        }
+    };
+
+    void set_follow_mode(mode mode) {
+        if (mode == FOLLOW_LINE) {
+            follow_mode = FOLLOW_LINE;
+        } else if (mode == FOLLOW_WALL) {
+            follow_mode = FOLLOW_WALL;
+        } else if (mode == FOLLOW_WALL_AND_LINE) {
+            follow_mode = FOLLOW_WALL_AND_LINE;
+        } else {
+            follow_mode = FOLLOW_LINE; // Default to FOLLOW_LINE if an invalid mode is provided
+        }
     };
 
     float get_cross_track_error()
@@ -113,6 +158,8 @@ public:
         if(calibrated){
             map_sensors();
         }
+        readSharpIRSensors();  // Read Sharp IR sensors
+        calculateSharpIRError();  // Calculate error and steering adjustment
 
         left_pin_state = !digitalRead(LEFT_LINE_PIN);
         right_pin_state = !digitalRead(RIGHT_LINE_PIN);
@@ -131,7 +178,16 @@ public:
         m_cross_track_error = error;
         calculate_steering_adjustment();
         //Serial.println(adcValues[0]);
+
+        // Serial.print(get_steering_feedback());
+        // Serial.print("  ");
+        // Serial.print(follow_mode);
+        // Serial.print("  ");
+        // Serial.print(sharp_ir_left_distance);
+        // Serial.print("  ");
+        // Serial.println(sharp_ir_right_distance);
     }
+    
 
 
     // Initialize the ADS1115 sensors
@@ -225,14 +281,17 @@ public:
 
     }
 
-    bool is_wall_present(){
-        return true;
 
-    }
 
     bool is_potato_present(){
-        digitalRead(POTATO_IR_PIN);
-        return true;
+        if (digitalRead(POTATO_IR_PIN))
+        {
+            return false; // Potato not detected
+        }
+        else
+        {
+            return true; // Potato detected
+        }
     }
 
     float calculate_steering_adjustment()
@@ -256,6 +315,7 @@ public:
         m_steering_adjustment = 0;
         g_steering_mode = mode;
     }
+    
 
     void map_sensors(){
 
@@ -300,11 +360,12 @@ public:
             //Serial.print(sensor_on_line[i]);
         }
         //Serial.print("     ");
-        for (int i = 0; i < NUM_SENSORS; i++)
-        {
-            //Serial.print(adcValues[i]);
-            //Serial.print(",");
-        }
+        // for (int i = 0; i < NUM_SENSORS; i++)
+        // {
+        //     Serial.print(adcValues[i]);
+        //     Serial.print(",");
+        // }
+        //Serial.println();
        //Serial.print(right_pin_state);
 
         //line state detection
@@ -342,25 +403,25 @@ public:
 
         if (no_line == true){
             line_state = NO_LINE;
-            //Serial.println("NO_LINE");
+            // Serial.println("NO_LINE");
         }
         else if (left_state == true and right_state==true and on_line_count >= NUM_SENSORS/2 and left_pin_state==true and right_pin_state == true){
             line_state = CROSS_OR_T;
             //led_indicator(true);
-            //Serial.println("CROSS_OR_T");
+            // Serial.println("CROSS_OR_T");
         }
         else if (left_state == true and on_line_count>=((NUM_SENSORS/2)) and left_pin_state==true){
             line_state = LEFT_LINE;
-            //Serial.println("LEFT_LINE");
+            // Serial.println("LEFT_LINE");
         }
         else if (right_state == true and on_line_count>=((NUM_SENSORS/2)) and right_pin_state == true){
             line_state = RIGHT_LINE;
-            //Serial.println("RIGHT_LINE");
+            // Serial.println("RIGHT_LINE");
         }
         else //if (left_state == false and right_state==false)
         {
            line_state = LINE;
-           //Serial.println("LINE");
+        //    Serial.println("LINE");
         }
 
         
@@ -639,6 +700,69 @@ public:
         }
 
 }
+
+    // Function to read Sharp IR sensors
+    void readSharpIRSensors() {
+        // Read raw analog values
+        sharp_ir_left = 3.3*analogRead(SHARP_IR_LEFT)/4095.0;
+        sharp_ir_right = 3.3*analogRead(SHARP_IR_RIGHT)/4095.0;
+
+        // Convert to distance (mm) - you'll need to calibrate these formulas
+        // These are example formulas, you'll need to adjust based on your specific sensor model
+        sharp_ir_left_distance = constrain(53.92/ (sharp_ir_left + 0.1), 0, 200);  // Example formula for GP2Y0A21YK
+        sharp_ir_right_distance = constrain(52.6 / (sharp_ir_right + 0.17),0,200); // Example formula for GP2Y0A21YK;
+
+        //Serial.print("Left Distance: ");
+        //Serial.print(sharp_ir_left_distance);
+        //Serial.print(" mm, Right Distance: ");
+        //Serial.println(sharp_ir_right_distance);
+
+        if (sharp_ir_left_distance < WALL_DETECTION_RANGE || sharp_ir_right_distance < WALL_DETECTION_RANGE){
+            front_wall_present = true;
+        }
+        else {
+            front_wall_present = false;
+        }
+    }
+
+    // Calculate error and steering adjustment based on Sharp IR readings
+    void calculateSharpIRError() {
+        // Calculate error as difference between left and right distances
+        // Positive error means robot is too far to the right
+        // Negative error means robot is too far to the left
+        sharp_ir_error = - sharp_ir_right_distance + sharp_ir_left_distance;
+
+        // Calculate steering adjustment using PD control
+        float p_term = SHARP_IR_KP * sharp_ir_error;
+        float d_term = SHARP_IR_KD * (sharp_ir_error - last_sharp_ir_error);
+        
+        sharp_ir_steering = p_term + d_term;
+        
+        // Constrain the steering adjustment
+        sharp_ir_steering = constrain(sharp_ir_steering, -STEERING_ADJUST_LIMIT, STEERING_ADJUST_LIMIT);
+        
+        // Store current error for next derivative calculation
+        last_sharp_ir_error = sharp_ir_error;
+    }
+
+    bool is_wall_present(){
+        if(front_wall_present){
+            return true;
+        }
+        else {
+            return false;
+        }
+
+    }
+
+    // Getter functions for Sharp IR readings and error
+    float getSharpIRLeftDistance() { return sharp_ir_left_distance; }
+    float getSharpIRRightDistance() { return sharp_ir_right_distance; }
+    float getSharpIRLeftRaw() { return sharp_ir_left; }
+    float getSharpIRRightRaw() { return sharp_ir_right; }
+    float getSharpIRError() { return sharp_ir_error; }
+    float getSharpIRSteering() { return sharp_ir_steering; }
+
 private:
     // variables for steering
     float last_steering_error = 0;

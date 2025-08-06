@@ -52,12 +52,10 @@ const int maxMotorPercentage = 100;
 //******************************robot dimensions*****************************/
 const float MM_PER_ROTATION = 201.0;//tyre
 const float PULSES_PER_ROTATION = 1320.0;
-const float ROBOT_RADIUS = 92.5;  //there is some error in this. Although it says radius put Wheel to wheel diameter
+const float ROBOT_RADIUS = 89;  //there is some error in this. Although it says radius put Wheel to wheel diameter
 const float DEG_PER_MM_DIFFERENCE = 180.0/(2*ROBOT_RADIUS*PI);
 
-const float ARRAY_TO_WHEEL_DISTANCE = 60;//65; //change this accordingly
-
-
+const float ARRAY_TO_WHEEL_DISTANCE = 75.0;//65; //change this accordingly
 
 const float RADIANS_PER_DEGREE = 0.0175;
 
@@ -67,8 +65,8 @@ const float ROT_KI = 0;
 const float FWD_KP = 1.2;//2.5;//6.0;//7.0//1.0
 const float FWD_KD = 0.5;//10;
 const float FWD_KI = 0;
-const float STR_KP = 2.5;//100;
-const float STR_KD = 0;
+const float STR_KP = 2.5;//2.5, 100;
+const float STR_KD = 0.1;
 
 //****************************************Robot*****************************************//
 const float MOVE_SPEED = 100;//100//60.0;
@@ -80,7 +78,10 @@ const float ALPHA_TURN = 90;//5.0;//1500
 const float LEFT = 85.0;
 const float RIGHT = -85.0;
 const float ABOUTTURN = 180;
-
+const float LEFTQTR = 35.0;
+const float RIGHTQTR = -35.0;
+const float LEFT3QTR = 130.0;
+const float RIGHT3QTR = -130.0;
 
 
 //*****************************************Sensors************************** */
@@ -98,14 +99,19 @@ const int LEFT_LINE_PIN = 36;
 const int RIGHT_LINE_PIN = 39;
 const int POTATO_IR_PIN = 25;
 
+const int SHARP_IR_LEFT = 32;  // Analog pin for left Sharp IR sensor
+const int SHARP_IR_RIGHT = 34; // Analog pin for right Sharp IR sensor
+
 const int XSHUT_PIN = 25;
 const float OBJECT_DETECT_RANGE = 300;
+const float WALL_DETECTION_RANGE = 90.0; // max 200 mm
+const float WALL_STOP_DISTANCE = 60.0;
 
 //******************************************Arena Specs********************** */
 const float LINE_LENGTH = 300.0;
 const float LINE_WIDTH = 30.0;
 const float MAX_BARCODE_LENGTH = 870.0;
-const float TASK2_TOTAL_LENGTH = 1050.0;
+const float TASK2_TOTAL_LENGTH = 1200.0;
 //******************************************Mechanisms************************ */
 
 const int LIFTING_SERVO_PIN = 27;
